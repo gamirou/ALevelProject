@@ -1,0 +1,37 @@
+[
+    {
+        "headers": ["How to use", "Neural Networks"],
+        "text": [
+            "In order to use the application blah",
+            "So this is the right side woohoo"
+        ]
+    },
+    {
+        "headers": ["Convolutional layers", "Fully-connected layers"],
+        "text": [
+            "In order to use the application blah",
+            "So this is the right side woohoo"
+        ]
+    },
+    {
+        "headers": ["Variables", "Training data"],
+        "text": [
+            "In order to use the application blah",
+            "So this is the right side woohoo"
+        ]
+    },
+    {
+        "headers": ["How to run the network", "Test the network"],
+        "text": [
+            "In order to use the application blah",
+            "So this is the right side woohoo"
+        ]
+    },
+    {
+        "headers": ["Last page", "Yo create your network"],
+        "text": [
+            "In order to use the blah",
+            "So this is the right side woohoo"
+        ]
+    }
+]
