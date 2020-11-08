@@ -1,2 +1,0 @@
-name,description,date
-John,Example,2020-10-01

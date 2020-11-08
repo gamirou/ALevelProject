@@ -84,8 +84,8 @@ class Network:
         # Fully connected
         self.layers["fully-connected"].append(Dense(500, activation='relu'))
 
-        # Dropout again
-        self.layers["dropout"].append(Dropout(0.5))
+        # # Dropout again
+        # self.layers["dropout"].append(Dropout(0.5))
 
         # Last 2 layers of fully connected
         self.layers["fully-connected"].append(Dense(250, activation='relu'))

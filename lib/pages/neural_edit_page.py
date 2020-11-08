@@ -164,6 +164,7 @@ class NeuralEditPage(Page):
             layers = (dense, dropout)
 
         window = LayerWindow(self.parent.parent, layer_type, layers)
+        window.title("Edit Layer")
 
     def configure_buttons(self):
         # Make buttons visible based on the number of layers

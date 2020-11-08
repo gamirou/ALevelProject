@@ -1,2 +1,0 @@
-name,description,date
-Callum,He is the smartest person,2020-10-08
