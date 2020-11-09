@@ -1,2 +1,0 @@
-name,description,date
-A,A,2020-11-08

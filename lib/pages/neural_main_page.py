@@ -164,6 +164,7 @@ class NeuralMainPage(Page):
     def save_network(self):
         # TODO: Save it
         # code to save it
+        # buggy - adds convolutional layers for some reason
         if len(self.current_network.model.layers) == 0:
             self.current_network.add_layers_to_model()
         self.file_storage.save_network(self.current_network)

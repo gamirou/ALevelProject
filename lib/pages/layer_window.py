@@ -100,13 +100,47 @@ class LayerWindow(tk.Toplevel):
             }
         }
 
+        # Variables
+        self.variables = {
+            # Convolutional
+            "stride_x": tk.StringVar(),
+            "stride_y": tk.StringVar(),
+            "padding": tk.StringVar(),
+            "pool_x": tk.StringVar(),
+            "pool_y": tk.StringVar(),
+
+            # Fully-connected
+            "neurons": tk.StringVar(),
+            "dropout": tk.StringVar()
+        }
+
         self.layer_type = layer_type
         self.layers = layers
         self.render_widgets()
 
-    def save_layer(self):
-        print("Layer saved")
-        # check for errors
+    def save_layer(self):    
+        values = {key: self.variables[key].get() for key in self.variables}
+        if self.validate_values(values):
+            if self.layer_type == CONVOLUTIONAL:
+                conv = self.layers[0]
+                maxpooling = self.layers[1]
+
+                stride = (int(values["stride_x"], 10), int(values["stride_y"], 10))
+                pooling = (int(values["pool_x"], 10), int(values["pool_y"], 10))
+                conv.strides = stride
+                conv.padding = values["padding"]
+                maxpooling.pool_size = pooling
+            else:
+                pass
+        else:
+            Log.e(self.TAG, "Convolutional layer cannot be saved", "Invalid input")
+            return
+        
+        Log.i(self.TAG, self.layer_type + " layer saved!")
+        self.destroy()
+
+    def validate_values(self, values):
+        return True
 
     def open_dropout(self):
         var = self.fully_connected_widgets["checkbutton_dropout"]["variable"]
@@ -130,9 +164,9 @@ class LayerWindow(tk.Toplevel):
                 if "command" in widgets[widget_key].keys() and isinstance(widgets[widget_key]["command"], str):
                     widgets[widget_key]["command"] = getattr(self, widgets[widget_key]["command"])
 
-                self.dropout_var = widgets[widget_key]["variable"]
+                self.is_dropout = widgets[widget_key]["variable"]
                 if self.layers[1] != None:
-                    self.dropout_var.set(1)
+                    self.is_dropout.set(1)
                     widgets["entry_dropout"]["text"] = "self.layers[1].rate"
                 
                 widgets[widget_key]["widget"] = tk.Checkbutton(self, cnf=widgets[widget_key])
@@ -143,17 +177,20 @@ class LayerWindow(tk.Toplevel):
                 widgets[widget_key]["widget"] = tk.Button(self, cnf=widgets[widget_key])
                 
             elif "entry" in widget_key:
-                widgets[widget_key]["widget"] = tk.Entry(self, cnf=widgets[widget_key])
+                widget_name = widget_key.replace("entry_", "")
                 try:
                     default_value = eval(widgets[widget_key]["text"])
+                    self.variables[widget_name].set(default_value)
                 except:
                     default_value = ""
                 
-                widgets[widget_key]["widget"].delete(0, tk.END)
-                widgets[widget_key]["widget"].insert(0, default_value)
+                widgets[widget_key]["textvariable"] = self.variables[widget_name]
+                widgets[widget_key]["widget"] = tk.Entry(self, cnf=widgets[widget_key])
+                # widgets[widget_key]["widget"].delete(0, tk.END)
+                # widgets[widget_key]["widget"].insert(0, default_value)
 
                 if widget_key == "entry_dropout":
-                    if not self.dropout_var.get():
+                    if not self.is_dropout.get():
                         widgets[widget_key]["widget"].config(state='disabled')
 
             widgets[widget_key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
