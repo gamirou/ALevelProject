@@ -150,7 +150,7 @@ class NeuralEditPage(Page):
         # get the layers
         all_layers = self.current_network.layers[layer_type]
         if layer_type == CONVOLUTIONAL:
-            index = key // 2
+            index = key * 2
             convolutional = all_layers[index]
             pooling = all_layers[index + 1]
             layers = (convolutional, pooling)
@@ -163,11 +163,24 @@ class NeuralEditPage(Page):
                 dropout = dropout_layers[index]
             layers = (dense, dropout)
 
-        window = LayerWindow(self.parent.parent, layer_type, layers)
+        Log.w(self.TAG, "ALL LAYERS")
+        print(self.current_network.layers)
+        Log.w(self.TAG, "LAYERS SENT TO LAYER WINDOW")
+        print(layers)
+        window = LayerWindow(self, layer_type, layers)
         window.title("Edit Layer")
+
+    def add_dropout(self, fully_layer, layer):
+        index = self.current_network.layers['fully-connected'].index(fully_layer)
+        self.current_network.layers['dropout'][index] = layer
+
+    def delete_dropout(self, layer):
+        index = self.current_network.layers['dropout'].index(layer)
+        self.current_network.layers['dropout'][index] = None
 
     def configure_buttons(self):
         # Make buttons visible based on the number of layers
+        # Bug here as well
         for layer_type, layers in self.current_network.layers.items():
             index = 0
             for layer in layers:

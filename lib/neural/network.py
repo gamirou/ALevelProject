@@ -80,6 +80,8 @@ class Network:
 
         # Add dropout in order to prevent overfitting
         self.layers["dropout"].append(Dropout(0.5))
+        for i in range(3):
+            self.layers["dropout"].append(None)
 
         # Fully connected
         self.layers["fully-connected"].append(Dense(500, activation='relu'))
@@ -98,20 +100,32 @@ class Network:
         for layer in self.layers["convolutional"]:
             self.model.add(layer)
             
-        for layer in self.layers["fully-connected"]:
-            self.model.add(layer)
+        # for layer in self.layers["fully-connected"]:
+        #     self.model.add(layer)
 
-        for layer in self.layers["dropout"]:
-            self.model.add(layer)    
+        # for layer in self.layers["dropout"]:
+        #     self.model.add(layer)    
+
+        dense_index = 0
+        for i in range(len(self.layers['dropout'])):
+            if self.layers['dropout'][i] != None:
+                self.model.add(self.layers['dropout'][i])
+            
+            if i < len(self.layers['fully-connected']):
+                self.model.add(self.layers['fully-connected'][i])
 
     def get_layers_from_model(self):
+        dense_index = 0
+        self.layers["dropout"] = [None, None, None, None]
         for layer in self.model.layers:
+            Log.w(self.TAG, layer)
             if isinstance(layer, (Conv2D, MaxPooling2D, Flatten)):
                 self.layers["convolutional"].append(layer)
             elif isinstance(layer, Dropout):
-                self.layers["dropout"].append(layer)
+                self.layers["dropout"][dense_index] = layer
             else:
                 self.layers["fully-connected"].append(layer)
+                dense_index += 1
 
     def compile_model(self):
         # Compile the model

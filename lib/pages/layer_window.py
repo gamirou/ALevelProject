@@ -2,6 +2,10 @@ import tkinter as tk
 from ..utils.log import Log
 from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED
 
+import warnings
+warnings.filterwarnings("ignore")
+from keras.layers import Dropout
+
 class LayerWindow(tk.Toplevel):
 
     TAG = "LayerWindow"
@@ -131,7 +135,20 @@ class LayerWindow(tk.Toplevel):
                 conv.padding = values["padding"]
                 maxpooling.pool_size = pooling
             else:
-                pass
+                dense = self.layers[0]
+                dropout = self.layers[1]
+
+                dense.units = int(values['neurons'])
+                new_dropout = Dropout(float(values['dropout']))
+
+                if self.is_dropout.get():
+                    if dropout == None:
+                        self.parent.add_dropout(dense, new_dropout)
+                    else:
+                        dropout.rate = float(values['dropout'])
+                else:
+                    if dropout != None:
+                        self.parent.delete_dropout(dropout)
         else:
             Log.e(self.TAG, "Convolutional layer cannot be saved", "Invalid input")
             return
