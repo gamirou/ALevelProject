@@ -18,3 +18,22 @@ class VisibilityButtons:
         else:
             pos = self.positions[index]
             button["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
+
+    def show_next(self):
+        for i in range(len(self.values)):
+            if i == 0:
+                continue
+
+            if not self.values[i]:
+                self.__setitem__(i, True)
+                return i
+                break
+
+    def hide_last_visible(self):
+        for i in range(len(self.values)):
+            if i == 0:
+                continue
+
+            if not self.values[i]:
+                self.__setitem__(i-1, False)
+                break

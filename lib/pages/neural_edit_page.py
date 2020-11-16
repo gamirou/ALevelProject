@@ -45,6 +45,11 @@ class NeuralEditPage(Page):
             "label_hidden": {
                 "text": "Hidden layers: 1-4",
                 "pos": [2, 0, 1, 2]
+            },
+            "button_add": {
+                "text": "Add hidden layer",
+                "pos": [10, 0, 1, 2],
+                "command": "add_conv_layer"
             }
         },
         "frame_fully": {
@@ -59,6 +64,11 @@ class NeuralEditPage(Page):
             "label_hidden": {
                 "text": "Hidden layers: 1-4",
                 "pos": [2, 0, 1, 1]
+            },
+            "button_add": {
+                "text": "Add hidden layer",
+                "pos": [10, 0, 1, 2],
+                "command": "add_fully_layer"
             }
         },
         "frame_output": {}
@@ -92,9 +102,29 @@ class NeuralEditPage(Page):
         self.current_network = network
         self.configure_buttons()
     
+    def add_conv_layer(self):
+        if len(self.current_network.layers["convolutional"]) < (self.MAX_LAYERS * 2):
+            conv = Conv2D(32, (5,5), activation='relu')
+            maxpool = MaxPooling2D(pool_size=(2,2))
+            self.visibility["frame_conv"].show_next()
+            self.current_network.layers["convolutional"].append(conv)
+            self.current_network.layers["convolutional"].append(maxpool)
+        else:
+            Log.w(self.TAG, "Limit of convolutional layers reached")
+
+    def add_fully_layer(self):
+        if len(self.current_network.layers["fully-connected"]) < self.MAX_LAYERS:
+            dense = Dense(200, activation='relu')
+            dropout = Dropout(0.5)
+            index = self.visibility["frame_fully"].show_next()
+            self.current_network.layers["fully-connected"].append(dense)
+            self.current_network.layers["dropout"][index] = dropout
+        else:
+            Log.w(self.TAG, "Limit of fully connected layers reached")
+
     def add_hidden_buttons(self):
-        self.visibility["frame_conv"] = VisibilityButtons([True, True, True, True])
-        self.visibility["frame_fully"] = VisibilityButtons([True, True, True, True])
+        self.visibility["frame_conv"] = VisibilityButtons([False, False, False, False])
+        self.visibility["frame_fully"] = VisibilityButtons([False, False, False, False])
 
         # Add the hidden buttons
         for i in range(1, self.MAX_LAYERS+1):
@@ -163,11 +193,12 @@ class NeuralEditPage(Page):
                 dropout = dropout_layers[index]
             layers = (dense, dropout)
 
+        print(key)
         Log.w(self.TAG, "ALL LAYERS")
         print(self.current_network.layers)
         Log.w(self.TAG, "LAYERS SENT TO LAYER WINDOW")
         print(layers)
-        window = LayerWindow(self, layer_type, layers)
+        window = LayerWindow(self, layer_type, layers, key > 1)
         window.title("Edit Layer")
 
     def add_dropout(self, fully_layer, layer):
@@ -177,6 +208,20 @@ class NeuralEditPage(Page):
     def delete_dropout(self, layer):
         index = self.current_network.layers['dropout'].index(layer)
         self.current_network.layers['dropout'][index] = None
+
+    def delete_layer(self, layer_type, layers):
+        if layer_type == CONVOLUTIONAL:
+            for layer in layers:
+                self.current_network.layers['convolutional'].remove(layer)
+            
+            self.visibility['frame_conv'].hide_last_visible()
+            # self.visibility["frame_conv"][-1] = False
+        else:
+            self.current_network.layers["fully-connected"].remove(layers[0])
+            if layers[1] != None:
+                self.delete_dropout(layers[1])
+
+            self.visibility['frame_fully'].hide_last_visible()
 
     def configure_buttons(self):
         # Make buttons visible based on the number of layers

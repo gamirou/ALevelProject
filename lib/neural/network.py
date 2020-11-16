@@ -74,7 +74,7 @@ class Network:
 
         # Max pooling
         self.layers["convolutional"].append(MaxPooling2D(pool_size=(2,2)))
-
+        
         # Flatten
         self.layers["convolutional"].append(Flatten())
 

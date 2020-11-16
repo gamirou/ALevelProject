@@ -10,9 +10,16 @@ class LayerWindow(tk.Toplevel):
 
     TAG = "LayerWindow"
 
-    def __init__(self, master=None, layer_type=None, layers=(), cnf={}, **kw):
+    def __init__(self, master=None, layer_type=None, layers=(), can_be_deleted=True, cnf={}, **kw):
         super().__init__(master=master, cnf={}, **kw)
         self.parent = master
+        self.can_be_deleted = can_be_deleted
+
+        self.save_button = {
+            "text": "Save",
+            "command": "save_layer",
+            "pos": [4, 1, 1, 1]
+        }
 
         self.conv_widgets = {
             "label_title_1": {
@@ -65,11 +72,12 @@ class LayerWindow(tk.Toplevel):
                 "text": "self.layers[1].pool_size[1]",
                 "pos": [6, 1, 1, 1]
             },
-            "save_button": {
-                "text": "Save",
-                "command": "save_layer",
-                "pos": [8, 0, 1, 2]
-            }
+            "delete_button": {
+                "text": "Delete",
+                "command": "delete_layer",
+                "pos": [7, 0, 1, 1]
+            },
+            "save_button": self.save_button
         }
         self.fully_connected_widgets = {
             "label_title_1": {
@@ -97,11 +105,12 @@ class LayerWindow(tk.Toplevel):
             "entry_dropout": {
                 "pos": [3, 1, 1, 1]
             },
-            "save_button": {
-                "text": "Save",
-                "command": "save_layer",
-                "pos": [4, 0, 1, 2]
-            }
+            "delete_button": {
+                "text": "Delete",
+                "command": "delete_layer",
+                "pos": [4, 0, 1, 1]
+            },
+            "save_button": self.save_button
         }
 
         # Variables
@@ -156,6 +165,11 @@ class LayerWindow(tk.Toplevel):
         Log.i(self.TAG, self.layer_type + " layer saved!")
         self.destroy()
 
+    def delete_layer(self):
+        self.destroy()
+        self.parent.delete_layer(self.layer_type, self.layers)
+
+    # TODO: Validate
     def validate_values(self, values):
         return True
 
@@ -169,8 +183,13 @@ class LayerWindow(tk.Toplevel):
             entry.config(state='disabled')
 
     def render_widgets(self):
-        widgets = self.conv_widgets if self.layer_type == CONVOLUTIONAL else self.fully_connected_widgets        
-
+        if self.layer_type == CONVOLUTIONAL:
+            widgets = self.conv_widgets
+            self.save_button["pos"][0] = 7
+        else:
+            widgets = self.fully_connected_widgets
+            self.save_button["pos"][0] = 4
+        
         # Render - document
         for widget_key, value in widgets.items():
             pos = value.pop("pos", None)
@@ -189,6 +208,11 @@ class LayerWindow(tk.Toplevel):
                 widgets[widget_key]["widget"] = tk.Checkbutton(self, cnf=widgets[widget_key])
 
             elif "button" in widget_key:
+                if "delete" in widget_key and not self.can_be_deleted:
+                    row_number = pos[0]
+                    self.save_button["pos"] = [self.save_button["pos"][0], 0, 1, 2]
+                    continue
+
                 if "command" in widgets[widget_key].keys() and isinstance(widgets[widget_key]["command"], str):
                     widgets[widget_key]["command"] = getattr(self, widgets[widget_key]["command"])
                 widgets[widget_key]["widget"] = tk.Button(self, cnf=widgets[widget_key])
