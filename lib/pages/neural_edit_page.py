@@ -198,8 +198,9 @@ class NeuralEditPage(Page):
         print(self.current_network.layers)
         Log.w(self.TAG, "LAYERS SENT TO LAYER WINDOW")
         print(layers)
-        window = LayerWindow(self, layer_type, layers, key > 1)
-        window.title("Edit Layer")
+        self.layer_window = LayerWindow(self, layer_type, layers, key > 1)
+        self.layer_window.title("Edit Layer")
+        self.layer_window.grab_set()
 
     def add_dropout(self, fully_layer, layer):
         index = self.current_network.layers['fully-connected'].index(fully_layer)

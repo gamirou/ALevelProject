@@ -166,6 +166,7 @@ class LayerWindow(tk.Toplevel):
         self.destroy()
 
     def delete_layer(self):
+        self.grab_release()
         self.destroy()
         self.parent.delete_layer(self.layer_type, self.layers)
 
