@@ -71,6 +71,7 @@ class NeuralEditPage(Page):
                 "command": "add_fully_layer"
             }
         },
+        # TODO: Do optimiser, and other functions later
         "frame_output": {}
     }
     visibility_buttons = {}
@@ -96,6 +97,7 @@ class NeuralEditPage(Page):
             self.render_inner(key, lst)
 
     def go_back(self):
+        # Compile the model
         self.parent.back_page()
 
     def fetch_network(self, network):

@@ -1,5 +1,6 @@
 from PIL import Image, ImageTk
 from datetime import date
+import numpy as np
 import tkinter as tk
 import os
 
@@ -12,12 +13,29 @@ CONVOLUTIONAL = "convolutional"
 FULLY_CONNECTED = "fully-connected"
 DROPOUT = "dropout"
 
+RESET = "RESET LAYERS"
+TRAIN = "TRAIN"
+PAUSE = "PAUSE"
+
+IMAGE_WIDTH = 32
+IMAGE_HEIGHT = 32
+IMAGE_SIZE = (IMAGE_WIDTH, IMAGE_HEIGHT)
+IMAGE_CHANNELS = 3
+
 def resize_image(image, size):
     img = image.resize(size, Image.ANTIALIAS)
     return ImageTk.PhotoImage(img)
 
 def today():
     return str(date.today())
+
+# def mergeListsAlternatively(dict):
+#     lst1 = dict["dogs"]
+#     lst2 = dict["cats"] 
+#     return [sub[item] for item in range(len(lst2)) for sub in [lst1, lst2]] 
+
+def concatenate_dataset(dict):
+    return np.concatenate(dict["dogs"], dict["cats"])
 
 def create_file(folder, file_name, file_content):
     file_path = get_main_path(folder, file_name)

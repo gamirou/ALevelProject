@@ -1,6 +1,7 @@
 import os
 import json
 from ..utils.log import Log
+from ..utils.utils import *
 
 # neural stuff
 # Warnings ignore for numpy future warning (possibly tensorflow uses a different version of numpy)
@@ -63,14 +64,14 @@ class Network:
         # Add first convolutional layer
         # if default
         # First convolutional
-        self.layers["convolutional"].append(Conv2D(32, (5,5), activation='relu', input_shape=(28, 28, 1)))
+        self.layers["convolutional"].append(Conv2D(IMAGE_WIDTH, (5,5), activation='relu', input_shape=(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS)))
         
         # TODO: Change MaxPooling2D to tf.nn.max_pool2d
         # Max pooling
         self.layers["convolutional"].append(MaxPooling2D(pool_size=(2,2)))
 
         # Second layer
-        self.layers["convolutional"].append(Conv2D(32, (5,5), activation='relu'))
+        self.layers["convolutional"].append(Conv2D(int(IMAGE_WIDTH/2), (5,5), activation='relu'))
 
         # Max pooling
         self.layers["convolutional"].append(MaxPooling2D(pool_size=(2,2)))
@@ -93,7 +94,7 @@ class Network:
         self.layers["fully-connected"].append(Dense(250, activation='relu'))
 
         # Output layer
-        self.layers["fully-connected"].append(Dense(10, activation='relu'))
+        self.layers["fully-connected"].append(Dense(2, activation='relu'))
 
     def build_model(self):
         self.new_layers()
@@ -134,39 +135,6 @@ class Network:
             optimizer='adam',
             metrics=['accuracy']
         )
-
-    def load_data(self):
-        (x_train, y_train), (x_test, y_test) = mnist.load_data();
-
-        # Let's look at the shapes of the data
-        print("x_train shape: ", x_train.shape)
-        print("y_train shape: ", y_train.shape)
-        print("x_test shape: ", x_test.shape)
-        print("y_test shape: ", y_test.shape)
-
-        # So, they are 28x28 images
-        # Let's have a look at the first image
-        index = random.randint(0, 1000)
-        image = x_train[index]
-
-        print("The digit is: ", y_train[index])
-
-        plot_image = plt.imshow(image)
-        plt.show()
-
-        # print(image)
-
-        # Normalize the data
-        x_train = x_train / 255
-        x_test = x_test / 255
-
-        x_train = x_train.reshape(x_train.shape[0], 28, 28, 1)
-        x_test = x_test.reshape(x_test.shape[0], 28, 28, 1)
-
-        # Categories stored in list
-        y_train_one_hot = to_categorical(y_train)
-        y_test_one_hot = to_categorical(y_test)
-
 
     def load_files(self):
         file_names = os.listdir(self.directory_path)

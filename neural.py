@@ -49,104 +49,107 @@ x_test = x_test.reshape(x_test.shape[0], 28, 28, 1)
 y_train_one_hot = to_categorical(y_train)
 y_test_one_hot = to_categorical(y_test)
 
-# Building the model
-model = Sequential()
+print(y_train)
+print(y_train_one_hot)
 
-# Add first convolutional layer
-model.add(Conv2D(32, (5,5), activation='relu', input_shape=(28, 28, 1)))
+# # Building the model
+# model = Sequential()
 
-# TODO: Change MaxPooling2D to tf.nn.max_pool2d
-# Max pooling
-model.add(MaxPooling2D(pool_size=(2,2)))
+# # Add first convolutional layer
+# model.add(Conv2D(32, (5,5), activation='relu', input_shape=(28, 28, 1)))
 
-# Second layer
-model.add(Conv2D(32, (5,5), activation='relu'))
+# # TODO: Change MaxPooling2D to tf.nn.max_pool2d
+# # Max pooling
+# model.add(MaxPooling2D(pool_size=(2,2)))
 
-# Max pooling
-model.add(MaxPooling2D(pool_size=(2,2)))
+# # Second layer
+# model.add(Conv2D(32, (5,5), activation='relu'))
 
-# Flatten
-model.add(Flatten())
+# # Max pooling
+# model.add(MaxPooling2D(pool_size=(2,2)))
 
-# Add dropout in order to prevent overfitting
-model.add(Dropout(0.5))
+# # Flatten
+# model.add(Flatten())
 
-# Fully connected
-model.add(Dense(500, activation='relu'))
+# # Add dropout in order to prevent overfitting
+# model.add(Dropout(0.5))
 
-# Dropout again
-model.add(Dropout(0.5))
+# # Fully connected
+# model.add(Dense(500, activation='relu'))
 
-# Last 2 layers of fully connected
-model.add(Dense(250, activation='relu'))
+# # Dropout again
+# model.add(Dropout(0.5))
 
-# Output layer
-model.add(Dense(10, activation='relu'))
+# # Last 2 layers of fully connected
+# model.add(Dense(250, activation='relu'))
 
-# Compile the model
-model.compile(
-    loss='categorical_crossentropy',
-    optimizer='adam',
-    metrics=['accuracy']
-)
+# # Output layer
+# model.add(Dense(10, activation='relu'))
 
-# Our brain is ready to be trained
-hist = model.fit(
-    x_train, y_train_one_hot,
-    batch_size=256,
-    epochs=10,
-    validation_split=0.2
-)
+# # Compile the model
+# model.compile(
+#     loss='categorical_crossentropy',
+#     optimizer='adam',
+#     metrics=['accuracy']
+# )
 
-# Evaluate the model
-model.evaluate(
-    x_test, y_test_one_hot
-)
+# # Our brain is ready to be trained
+# hist = model.fit(
+#     x_train, y_train_one_hot,
+#     batch_size=256,
+#     epochs=10,
+#     validation_split=0.2
+# )
 
-# Visualize model accuracy
-plt.plot(hist.history['accuracy'])
-plt.plot(hist.history['val_accuracy'])
-plt.title('Model accuracy')
-plt.xlabel('Epoch')
-plt.ylabel('Accuracy')
-plt.legend(['Training', 'Val'], loc='upper left')
-plt.show()
+# # Evaluate the model
+# model.evaluate(
+#     x_test, y_test_one_hot
+# )
 
-# Visualize model loss
-plt.plot(hist.history['loss'])
-plt.plot(hist.history['val_loss'])
-plt.title('Model loss')
-plt.xlabel('Epoch')
-plt.ylabel('Loss')
-plt.legend(['Training', 'Val'], loc='upper right')
-plt.show()
+# # Visualize model accuracy
+# plt.plot(hist.history['accuracy'])
+# plt.plot(hist.history['val_accuracy'])
+# plt.title('Model accuracy')
+# plt.xlabel('Epoch')
+# plt.ylabel('Accuracy')
+# plt.legend(['Training', 'Val'], loc='upper left')
+# plt.show()
 
-# Test with an example
-image_test = x_test[random.randint(1000, 2002)]
-img = plt.imshow(image_test)
-plt.title('Test image')
-plt.show()
+# # Visualize model loss
+# plt.plot(hist.history['loss'])
+# plt.plot(hist.history['val_loss'])
+# plt.title('Model loss')
+# plt.xlabel('Epoch')
+# plt.ylabel('Loss')
+# plt.legend(['Training', 'Val'], loc='upper right')
+# plt.show()
 
-predictions = model.predict(np.array([ image_test ]))
-list_index = [i for i in range(0, 10)]
-x = predictions
+# # Test with an example
+# image_test = x_test[random.randint(1000, 2002)]
+# img = plt.imshow(image_test)
+# plt.title('Test image')
+# plt.show()
 
-for i in range(10):
-    for j in range(10):
-        if x[0][list_index[i]] > x[0][list_index[j]]:
-            temp = list_index[i]
-            list_index[i] = list_index[j]
-            list_index[j] = temp
+# predictions = model.predict(np.array([ image_test ]))
+# list_index = [i for i in range(0, 10)]
+# x = predictions
+
+# for i in range(10):
+#     for j in range(10):
+#         if x[0][list_index[i]] > x[0][list_index[j]]:
+#             temp = list_index[i]
+#             list_index[i] = list_index[j]
+#             list_index[j] = temp
 
 
-for i in range(10):
-    print("{}. Digit {}".format(i+1, list_index[i]))
+# for i in range(10):
+#     print("{}. Digit {}".format(i+1, list_index[i]))
 
 
-model_json = model.to_json()
-with open("neural/model.json", "w") as json_file:
-    json_file.write(model_json)
-# serialize weights to HDF5
-model.save_weights("neural/model.h5")
-model.save("neural/model_easy.h5")
-print("Saved model to disk")
+# model_json = model.to_json()
+# with open("neural/model.json", "w") as json_file:
+#     json_file.write(model_json)
+# # serialize weights to HDF5
+# model.save_weights("neural/model.h5")
+# model.save("neural/model_easy.h5")
+# print("Saved model to disk")

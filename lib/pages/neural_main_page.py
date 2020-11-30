@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from ..page import Page
 from ..utils.log import Log
+from ..utils.utils import *
 
 class NeuralMainPage(Page):
 
@@ -91,7 +92,7 @@ class NeuralMainPage(Page):
         self.widgets["frame_output"] = [ttk.Frame(self, width=100, height=200, style="BW.TLabel"), 1, 4, 1, 2]
 
         self.widgets["button_add_data"] = [ttk.Button(self, text="ADD TEST DATA", command=self.add_data), 2, 0, 1, 1]
-        self.widgets["button_pause_train"] = [ttk.Button(self, text="TRAIN", command=self.pause_train), 2, 3, 1, 1]
+        self.widgets["button_pause_train"] = [ttk.Button(self, text=TRAIN, command=self.pause_train), 2, 3, 1, 1]
         self.widgets["button_save"] = [ttk.Button(self, text="SAVE", command=self.save_network), 2, 4, 1, 1]
 
         for key, lst in self.widgets.items():
@@ -112,9 +113,10 @@ class NeuralMainPage(Page):
             inner_dict[key]["widget"].pack()
 
     def fetch_network(self, network):
-        # this bit will happen when page is opened
+        # This function will run when the page is opened
         self.current_network = network
-        # show the rest of the bits
+        
+        # Show text and description at the top
         text = self.WELCOME_TEXT.replace("0", network.name)
         text = text.replace("1", network.description)
         self.widgets["label_name"][0]["text"] = text
@@ -124,8 +126,6 @@ class NeuralMainPage(Page):
             Log.i(self.TAG, "Click the button to edit your network")
         else:
             self.current_network.get_layers_from_model()
-        
-        # check if compiled
 
     def init_inner(self):
         for frame_value in self.inner_widgets.values():
@@ -154,12 +154,24 @@ class NeuralMainPage(Page):
         pass
 
     def pause_train(self):
+        dataset = self.file_storage.dataset
         if self.isTraining:
             # Pause
             pass
         else:
             # Train the model
-            pass
+            self.current_network.compile_model()
+            x_train = dataset.data["training"]["dogs"] # concatenate_dataset(dataset.data["training"])
+            y_train_one_hot = dataset.categories["training"]["dogs"] #concatenate_dataset(dataset.categories["training"])
+            # print(x_train)
+            # print(y_train_one_hot)
+            self.hist = self.current_network.model.fit(
+                x_train, y_train_one_hot,
+                batch_size=256,
+                epochs=10,
+                validation_split=0.2
+            )
+
 
     def save_network(self):
         # code to save it

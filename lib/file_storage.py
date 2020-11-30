@@ -1,6 +1,7 @@
 from .utils.utils import *
 from .utils.log import Log
 from .neural.network import Network
+from .dataset import Dataset
 import os
 
 from keras.models import model_from_json
@@ -11,11 +12,23 @@ class FileStorage:
     cache = {}
     saved_networks = {}
 
-    def __init__(self):
+    def __init__(self, app):
+        self.app = app
+
         self.path = os.path.dirname(os.path.dirname(__file__))
+        self.dataset = Dataset(self, os.path.join(self.path, "dataset"))
 
         self.load_all_images()
         self.load_all_networks()
+
+    def start_progress(self):
+        self.app.progress.start()
+
+    def stop_progress(self):
+        self.app.progress.stop()
+        print("stop progress")
+        self.app.progress.pack_forget()
+        self.app.init_main_view()
 
     def load_all_networks(self):
         # r=root, d=directories, f = files
