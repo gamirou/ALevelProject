@@ -1,3 +1,4 @@
 # ignore dataset because there are 218 MB of data
 .vscode
 dataset
+old_dataset

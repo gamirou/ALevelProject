@@ -14,21 +14,13 @@ class FileStorage:
 
     def __init__(self, app):
         self.app = app
+        self.is_loading = True
 
         self.path = os.path.dirname(os.path.dirname(__file__))
         self.dataset = Dataset(self, os.path.join(self.path, "dataset"))
-
+        
         self.load_all_images()
         self.load_all_networks()
-
-    def start_progress(self):
-        self.app.progress.start()
-
-    def stop_progress(self):
-        self.app.progress.stop()
-        print("stop progress")
-        self.app.progress.pack_forget()
-        self.app.init_main_view()
 
     def load_all_networks(self):
         # r=root, d=directories, f = files
@@ -49,6 +41,17 @@ class FileStorage:
         model_json = network.model.to_json()
         with open(os.path.join(neural_id_path, "model_json"), "w") as json_file:
             json_file.write(model_json)
+
+        txt = ""
+        with open(os.path.join(neural_id_path, "model_info.txt"), "r") as txt_file:
+            txt = txt_file.readlines()
+        
+        # TODO: Fix this
+        index_false = txt[1].index("False")
+        substring = "False" if index_false != -1 else "True"       
+        txt[1].replace(substring, str(network.is_trained))
+        with open(os.path.join(neural_id_path, "model_info.txt"), "w") as txt_file:
+            txt_file.writelines(txt)
 
         # serialize weights to HDF5
         network.model.save(os.path.join(neural_id_path, "model.h5"))

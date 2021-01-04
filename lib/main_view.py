@@ -14,10 +14,11 @@ class MainView(tk.Frame):
     page_stack = []
     pages = {}
 
-    def __init__(self, master, file_storage, *args, **kwargs):
+    def __init__(self, master, app, file_storage, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
         # Fill in the stack
+        self.app = app
         self.parent = master
         self.file_storage = file_storage
         self.load_pages()

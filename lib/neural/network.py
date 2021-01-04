@@ -15,6 +15,7 @@ from tensorflow import keras
 from keras.models import Sequential
 from keras.models import model_from_json, load_model
 from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout
+from keras.optimizers import SGD, Adam, RMSprop
 from tensorflow.keras import layers
 from keras.utils import to_categorical
 import numpy as np
@@ -42,6 +43,7 @@ class Network:
         self.network_id = network_id
         self.directory_path = directory_path
         self.model = None
+        self.is_trained = False
         self.layers = {
             "convolutional": [],
             "fully-connected": [],
@@ -49,63 +51,50 @@ class Network:
         }
         self.load_files()
 
-    # Stolen from Tensorflow docs
-    # def pause_model(self):
-    #     opt = tf.keras.optimizers.Adam(0.1)
-    #     dataset = toy_dataset()
-    #     iterator = iter(dataset)
-    #     ckpt = tf.train.Checkpoint(step=tf.Variable(1), optimizer=opt, net=net, iterator=iterator)
-    #     manager = tf.train.CheckpointManager(ckpt, './tf_ckpts', max_to_keep=3)
-
     def new_layers(self):
         # Building the model
         self.model = Sequential()
-
+    
         # Add first convolutional layer
         # if default
         # First convolutional
-        self.layers["convolutional"].append(Conv2D(IMAGE_WIDTH, (5,5), activation='relu', input_shape=(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS)))
+        self.layers["convolutional"].append(Conv2D(32, (3,3), activation='relu', input_shape=(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS)))
         
         # TODO: Change MaxPooling2D to tf.nn.max_pool2d
         # Max pooling
         self.layers["convolutional"].append(MaxPooling2D(pool_size=(2,2)))
 
         # Second layer
-        self.layers["convolutional"].append(Conv2D(int(IMAGE_WIDTH/2), (5,5), activation='relu'))
+        self.layers["convolutional"].append(Conv2D(64, (3,3), activation='relu'))
 
         # Max pooling
         self.layers["convolutional"].append(MaxPooling2D(pool_size=(2,2)))
         
+        # Second layer
+        self.layers["convolutional"].append(Conv2D(128, (3,3), activation='relu'))
+
+        # Max pooling
+        self.layers["convolutional"].append(MaxPooling2D(pool_size=(2,2)))
+
         # Flatten
         self.layers["convolutional"].append(Flatten())
 
         # Add dropout in order to prevent overfitting
-        self.layers["dropout"].append(Dropout(0.5))
-        for i in range(3):
+        for i in range(4):
             self.layers["dropout"].append(None)
 
+        self.layers["dropout"][1] = Dropout(0.5)
+
         # Fully connected
-        self.layers["fully-connected"].append(Dense(500, activation='relu'))
-
-        # # Dropout again
-        # self.layers["dropout"].append(Dropout(0.5))
-
-        # Last 2 layers of fully connected
-        self.layers["fully-connected"].append(Dense(250, activation='relu'))
-
+        self.layers["fully-connected"].append(Dense(256, activation='relu'))
+        
         # Output layer
-        self.layers["fully-connected"].append(Dense(2, activation='relu'))
+        self.layers["fully-connected"].append(Dense(1, activation='sigmoid'))
 
     def build_model(self):
         self.new_layers()
         for layer in self.layers["convolutional"]:
-            self.model.add(layer)
-            
-        # for layer in self.layers["fully-connected"]:
-        #     self.model.add(layer)
-
-        # for layer in self.layers["dropout"]:
-        #     self.model.add(layer)    
+            self.model.add(layer)  
 
         dense_index = 0
         for i in range(len(self.layers['dropout'])):
@@ -130,10 +119,12 @@ class Network:
 
     def compile_model(self):
         # Compile the model
+        # 0.2 is kinda good
+        # optimiser = RMSprop(learning_rate=0.15)
         self.model.compile(
-            loss='categorical_crossentropy',
-            optimizer='adam',
-            metrics=['accuracy']
+            loss='binary_crossentropy',
+            optimizer='rmsprop',
+            metrics=['accuracy'],
         )
 
     def load_files(self):

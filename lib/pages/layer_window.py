@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 from ..utils.log import Log
 from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED
 
@@ -48,7 +49,8 @@ class LayerWindow(tk.Toplevel):
                 "text": "Padding",
                 "pos": [3, 0, 1, 1]
             },
-            "entry_padding": {
+            "combo_padding": {
+                "options": ["valid", "same"],
                 "text": "self.layers[0].padding",
                 "pos": [3, 1, 1, 1]
             },
@@ -141,7 +143,8 @@ class LayerWindow(tk.Toplevel):
                 stride = (int(values["stride_x"], 10), int(values["stride_y"], 10))
                 pooling = (int(values["pool_x"], 10), int(values["pool_y"], 10))
                 conv.strides = stride
-                conv.padding = values["padding"]
+                conv.padding = self.conv_widgets["combo_padding"]["widget"].get()
+                # conv.padding = values["padding"]
                 maxpooling.pool_size = pooling
             else:
                 dense = self.layers[0]
@@ -234,5 +237,18 @@ class LayerWindow(tk.Toplevel):
                 if widget_key == "entry_dropout":
                     if not self.is_dropout.get():
                         widgets[widget_key]["widget"].config(state='disabled')
+
+            elif "combo" in widget_key:
+                options = widgets[widget_key]["options"]
+                widget = ttk.Combobox(self, state='readonly', value=options)
+
+                try:
+                    default_value = eval(widgets[widget_key]["text"])
+                    index = options.index(default_value)
+                except:
+                    index = 0
+                
+                widget.current(index)
+                widgets[widget_key]["widget"] = widget
 
             widgets[widget_key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])

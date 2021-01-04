@@ -57,11 +57,11 @@ class NewNeuralPage(Page):
         #       - model.json (nice details in JSON format)
         desc = self.variables["description"].get()
         desc = desc.replace("\n", " ")
-        values = "{},{}".format(
+        values = "{},{},{}".format(
             self.variables["name"].get(),
-            desc
+            desc, False
         )
-        text = "name,description,date\n" + values + "," + today()
+        text = "name,description,is_trained,date\n" + values + "," + today()
         neural_id = str(uuid.uuid4())
 
         # Create the directory and file
