@@ -17,7 +17,6 @@ class MainView(tk.Frame):
     def __init__(self, master, app, file_storage, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         
-        # Fill in the stack
         self.app = app
         self.parent = master
         self.file_storage = file_storage
@@ -25,12 +24,12 @@ class MainView(tk.Frame):
         self.update_page(self.current_id)
 
     def load_pages(self):
-        self.add_page(MainMenu(self))
-        self.add_page(TutorialPage(self))
-        self.add_page(NewNeuralPage(self))
-        self.add_page(NeuralMainPage(self))
-        self.add_page(LoadingPage(self))
-        self.add_page(NeuralEditPage(self))
+        self.add_page(MainMenu(self, bg="#fff"))
+        self.add_page(TutorialPage(self, bg="#fff"))
+        self.add_page(NewNeuralPage(self, bg="#fff"))
+        self.add_page(NeuralMainPage(self, bg="#fff"))
+        self.add_page(LoadingPage(self, bg="#fff"))
+        self.add_page(NeuralEditPage(self, bg="#fff"))
 
     def add_page(self, instance):
         self.pages[instance.__class__.__name__] = instance
@@ -52,6 +51,7 @@ class MainView(tk.Frame):
     def back_page(self):
         self.page_stack.pop()
         if len(self.page_stack) == 0:
+            self.app.is_running = False
             self.parent.destroy()
             return
 
@@ -63,6 +63,7 @@ class MainView(tk.Frame):
         self.update_page()
 
         network = self.file_storage.get_network(neural_id)
+        Log.e(self.TAG + "/go_to_neural_page", network.layers)
         self.pages[self.current_id].fetch_network(network)
 
     def add_network(self, neural_id):

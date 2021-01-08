@@ -13,9 +13,17 @@ CONVOLUTIONAL = "convolutional"
 FULLY_CONNECTED = "fully-connected"
 DROPOUT = "dropout"
 
+# States of pop up boxes
 RESET = "RESET LAYERS"
 TRAIN = "TRAIN"
 PAUSE = "PAUSE"
+SAVE = "SAVE"
+
+# Messages
+POPUP_MESSAGES = {
+    SAVE: "Are you sure you want to save the network?",
+    TRAIN: "Are you sure you want to train the network?"
+}
 
 IMAGE_WIDTH = 52
 IMAGE_HEIGHT = 52

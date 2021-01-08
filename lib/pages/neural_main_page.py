@@ -1,9 +1,15 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image
+from .graph_window import GraphWindow
 from ..page import Page
+from ..neural.network import Network
+from ..frames.pop_up_confirm import PopUpConfirm
 from ..utils.log import Log
+from ..neural.weights_callback import WeightsCallback
 from ..utils.utils import *
+
+import threading
 import random
 import matplotlib
 import matplotlib.pyplot as plt
@@ -19,7 +25,7 @@ class NeuralMainPage(Page):
     RESULT_TEXT = "Result: "
     ACCURACY_TEXT = "Accuracy: "
 
-    isTraining = False
+    is_training = False
     axes = {}
     widgets = {
         # will use grid system
@@ -39,7 +45,9 @@ class NeuralMainPage(Page):
             },
             "label_example_image": {
                 "text": "Sample image",
-                "image": "image_placeholder.png", # change it self.storage['file_name']
+                "image": "example_cat.jpg",
+                "width": 128,
+                "height": 128,
                 "pos": [2, 0, 1, 1]
             }
         },
@@ -55,12 +63,15 @@ class NeuralMainPage(Page):
                 "pos": [1, 0, 1, 1]
             },
             "label_details": {
-                "text": "Details",
+                "text": "Model accuracy",
                 "pos": [2, 0, 1, 1]
             },
-            # "figure_model_accuracy": {
-            #     "pos": [3, 0, 1, 1]
-            # }
+            "button_details": {
+                "text": "Click here to see how the accuracy changes over time",
+                "command": "open_graph_page",
+                "wraplength": 100,
+                "pos": [3, 0, 1, 1]
+            }
         },
         "frame_output": {
             "label_output": {
@@ -112,8 +123,8 @@ class NeuralMainPage(Page):
         self.widgets["frame_output"] = [ttk.Frame(self, width=100, height=200, style="BW.TLabel"), 1, 4, 1, 2]
 
         self.widgets["button_add_data"] = [ttk.Button(self, text="ADD TEST DATA", command=self.add_data), 2, 0, 1, 2]
-        self.widgets["button_pause_train"] = [ttk.Button(self, text=TRAIN, command=self.pause_train), 2, 2, 1, 2]
-        self.widgets["button_save"] = [ttk.Button(self, text="SAVE", command=self.save_network), 2, 4, 1, 2]
+        self.widgets["button_train"] = [ttk.Button(self, text=TRAIN, command=self.click_train_button), 2, 2, 1, 2]
+        self.widgets["button_save"] = [ttk.Button(self, text=SAVE, command=self.click_save_button), 2, 4, 1, 2]
 
         for key, lst in self.widgets.items():
             lst[0].grid(row=lst[1], column=lst[2], rowspan=lst[3], columnspan=lst[4])
@@ -131,11 +142,15 @@ class NeuralMainPage(Page):
             elif "button" in key:
                 inner_dict[key]["widget"] = tk.Button(frame, cnf=inner_dict[key])
             elif "figure" in key:
-                figure = plt.Figure(figsize=(6,5), dpi=100)
                 new_key = key.replace("figure_", "")
-                self.axes[new_key] = figure.add_subplot(111)
-                chart_type = FigureCanvasTkAgg(figure, self)
-                inner_dict[key]["widget"] = chart_type.get_tk_widget()
+                graph_dict = {}                
+                graph_dict["figure"] = plt.Figure(figsize=(6,5), dpi=100)
+                graph_dict["axis"] = graph_dict["figure"].add_subplot(111)
+                canvas = FigureCanvasTkAgg(graph_dict["figure"], self)
+                self.parent.graphs[new_key] = graph_dict
+                
+                canvas.get_tk_widget().configure(cnf=inner_dict[key])
+                inner_dict[key]["widget"] = canvas.get_tk_widget()
 
             inner_dict[key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
 
@@ -165,10 +180,10 @@ class NeuralMainPage(Page):
                         widget["command"] = getattr(self, widget["command"])
                 elif "label" in widget_key:
                     if "image" in widget.keys():
-                        widget["image"] = self.file_storage[widget["image"]]
+                        widget["image"] = self.file_storage[widget["image"]] 
 
     def go_to_edit(self):
-        if self.isTraining:
+        if self.is_training:
             Log.i(self.TAG, "You cannot enter the page when training data")
             return
 
@@ -197,79 +212,96 @@ class NeuralMainPage(Page):
             else:
                 Log.e(self.TAG, "It's a dog")
 
-    def pause_train(self):
+    def click_train_button(self):
         if not self.parent.app.is_loaded:
             Log.w(self.TAG, "Loading not finished")
             return
 
+        if self.is_training:
+            Log.w(self.TAG, "Network training in process")
+            return
+        
+        self.current_network.compile_model()
+        message_box = PopUpConfirm(self, TRAIN, self.start_training_thread)
+
+    def open_graph_page(self):
+        self.graph_window = GraphWindow(self, self.current_network.callback)
+        self.graph_window.title("Model metrics")
+        self.graph_window.grab_set()
+
+    def start_training_thread(self, epochs=None):
+        self.current_network.compile_model()
+        self.training_thread = threading.Thread(target=self.train_network, args=[epochs])
+        self.training_thread.start()
+
+    def train_network(self, epochs=None):
         dataset = self.file_storage.dataset
-        if self.isTraining:
-            # Pause
-            pass
-        else:
-            # Train the model
-            self.current_network.compile_model()
-            # x_train = dataset.data["training"] # concatenate_dataset(dataset.data["training"])
-            # y_train_one_hot = dataset.categories["training"] #concatenate_dataset(dataset.categories["training"])
-            
-            # hist = self.current_network.model.fit(
-            #     x_train, y_train_one_hot,
-            #     batch_size=32,
-            #     epochs=10,
-            #     shuffle=True,
-            #     validation_split=0.1
-            # )
+        
+        # 0 to 0.5 is a cat, 0.5 to 1 is a dog
+        fit_result = self.current_network.train(dataset, epochs)
 
-            fit_result = self.current_network.model.fit_generator(
-                dataset.train_image_generator,
-                steps_per_epoch=int(np.ceil(dataset.train_total / float(dataset.batch_size))),
-                epochs=10, 
-                validation_data=dataset.validate_image_generator,
-                validation_steps=int(np.ceil(dataset.validate_total / float(dataset.batch_size)))
-            )
+        self.current_network.is_trained = True
+        self.is_training = False
 
-            self.current_network.is_trained = True
+        # Train the model
+        # x_train = dataset.data["training"] # concatenate_dataset(dataset.data["training"])
+        # y_train_one_hot = dataset.categories["training"] # concatenate_dataset(dataset.categories["training"])
+        
+        # hist = self.current_network.model.fit(
+        #     x_train, y_train_one_hot,
+        #     batch_size=32,
+        #     epochs=10,
+        #     shuffle=True,
+        #     validation_split=0.1
+        # )
 
-            # self.axes["model_accuracy"].plot(hist.history['accuracy'])
-            # self.axes["model_accuracy"].plot(hist.history['val_accuracy'])
-            # self.axes["model_accuracy"][0].scatter(x,y, marker="o", color="r", label="Admitted")
-            # self.axes["model_accuracy"][1].scatter(x,y, marker="x", color="k", label="Not-Admitted")
-            # self.axes["model_accuracy"][0].set(xlabel="Exam score-1", ylabel="Exam score-2")
-            # self.axes["model_accuracy"][1].set(xlabel="Exam score-1", ylabel="Exam score-2")
-            # df2.plot(kind='line', legend=True, ax=self.axes["model_accuracy"], color='r',marker='o', fontsize=10)
-            # self.axes["model_accuracy"].set_title('Model accuracy')
+        # self.axes["model_accuracy"].plot(hist.history['accuracy'])
+        # self.axes["model_accuracy"].plot(hist.history['val_accuracy'])
+        # self.axes["model_accuracy"][0].scatter(x,y, marker="o", color="r", label="Admitted")
+        # self.axes["model_accuracy"][1].scatter(x,y, marker="x", color="k", label="Not-Admitted")
+        # self.axes["model_accuracy"][0].set(xlabel="Exam score-1", ylabel="Exam score-2")
+        # self.axes["model_accuracy"][1].set(xlabel="Exam score-1", ylabel="Exam score-2")
+        # df2.plot(kind='line', legend=True, ax=self.axes["model_accuracy"], color='r',marker='o', fontsize=10)
+        # self.axes["model_accuracy"].set_title('Model accuracy')
 
-            # # Visualize model accuracy
-            # plt.plot(hist.history['accuracy'])
-            # plt.plot(hist.history['val_accuracy'])
-            # plt.title('Model accuracy')
-            # plt.xlabel('Epoch')
-            # plt.ylabel('Accuracy')
-            # plt.legend(['Training', 'Val'], loc='upper left')
-            # plt.show()
+        # # Visualize model accuracy
+        # plt.plot(hist.history['accuracy'])
+        # plt.plot(hist.history['val_accuracy'])
+        # plt.title('Model accuracy')
+        # plt.xlabel('Epoch')
+        # plt.ylabel('Accuracy')
+        # plt.legend(['Training', 'Val'], loc='upper left')
+        # plt.show()
 
-            # # Visualize model loss
-            # plt.plot(hist.history['loss'])
-            # plt.plot(hist.history['val_loss'])
-            # plt.title('Model loss')
-            # plt.xlabel('Epoch')
-            # plt.ylabel('Loss')
-            # plt.legend(['Training', 'Val'], loc='upper right')
-            # plt.show()
+        # # Visualize model loss
+        # plt.plot(hist.history['loss'])
+        # plt.plot(hist.history['val_loss'])
+        # plt.title('Model loss')
+        # plt.xlabel('Epoch')
+        # plt.ylabel('Loss')
+        # plt.legend(['Training', 'Val'], loc='upper right')
+        # plt.show()
 
-            # Test with an example
-            # image_test = dataset.data["test"][random.randint(0, len(dataset["test"]))]
-            # img = plt.imshow(image_test)
-            # plt.title('Test image')
-            # plt.show()
+        # Test with an example
+        # image_test = dataset.data["test"][random.randint(0, len(dataset["test"]))]
+        # img = plt.imshow(image_test)
+        # plt.title('Test image')
+        # plt.show()
 
-            # predictions = self.current_network.model.predict(np.array([ image_test ]))
-            # print(predictions)
+        # predictions = self.current_network.model.predict(np.array([ image_test ]))
+        # print(predictions)
+
+    def click_save_button(self):
+        message_box = PopUpConfirm(self, SAVE, self.save_network)
 
     def save_network(self):
         # code to save it
         if len(self.current_network.model.layers) == 0:
             self.current_network.add_layers_to_model()
         self.file_storage.save_network(self.current_network)
-        self.current_network.layers = []
+        self.current_network.layers = {
+            "convolutional": [],
+            "fully-connected": [],
+            "dropout": []
+        }
         self.parent.back_page()

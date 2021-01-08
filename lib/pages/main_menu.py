@@ -20,18 +20,20 @@ class MainMenu(Page):
         
         app_title = "Image Recognition for all"
         label = tk.Label(self, text=app_title, bg="#ff0000")
-        label.grid(row=0, column=0)
+        label.pack(expand=True)
+        #label.grid(row=0, column=0)
 
         # Buttons
         # buttons[0] = tk.Button(self, text="How to Use")
         index = 1
         for key in self.buttons:
             # Add buttons to dictionary
-            self.buttons[key][0] = tk.Button(self, text=key)
+            self.buttons[key][0] = tk.Button(self, text=key, bg='#fff', fg='#5e0800', relief='flat')
             self.buttons[key][0].configure(
                 command=lambda page_name=self.buttons[key][1]: self.on_click(page_name, self.open_page)
             )
-            self.buttons[key][0].grid(row=index, column=0)
+            self.buttons[key][0].pack(expand=True)
+            #self.buttons[key][0].grid(row=index, column=0)
             index += 1
 
     def on_click(self, page_name, function):

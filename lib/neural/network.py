@@ -1,12 +1,8 @@
 import os
 import json
 from ..utils.log import Log
+from ..neural.weights_callback import WeightsCallback
 from ..utils.utils import *
-
-# neural stuff
-# Warnings ignore for numpy future warning (possibly tensorflow uses a different version of numpy)
-import warnings
-warnings.filterwarnings("ignore")
 
 # Load all libraries
 import random
@@ -16,14 +12,18 @@ from keras.models import Sequential
 from keras.models import model_from_json, load_model
 from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout
 from keras.optimizers import SGD, Adam, RMSprop
+from keras import backend as K
 from tensorflow.keras import layers
 from keras.utils import to_categorical
 import numpy as np
 import matplotlib.pyplot as plt
 plt.style.use('fivethirtyeight')
 
-# Try to do digits first
-from keras.datasets import mnist
+# neural stuff
+# Warnings ignore for numpy future warning (possibly tensorflow uses a different version of numpy)
+import warnings
+warnings.filterwarnings("ignore")
+
 
 # convolutional
 # conv2d + maxpool2d
@@ -39,27 +39,43 @@ class Network:
     description = ""
     date = ""
 
-    def __init__(self, network_id, directory_path):
+    def __init__(self, network_id, directory_path, graph, session):
+        # Reset graph
+        # self.reset_graph()
+        self.graph = graph
+        self.session = session
+
+        # Variables
         self.network_id = network_id
         self.directory_path = directory_path
         self.model = None
+        self.learning_rate = 0.01
+        self.optimizer = "rmsprop"
         self.is_trained = False
         self.layers = {
             "convolutional": [],
             "fully-connected": [],
             "dropout": []
         }
+        self.callback = WeightsCallback()
         self.load_files()
+
+    def reset_graph(self):
+        tf.compat.v1.disable_eager_execution()
+    #     tf.reset_default_graph()
+    #     tf.keras.backend.clear_session()
 
     def new_layers(self):
         # Building the model
         self.model = Sequential()
-    
+
         # Add first convolutional layer
         # if default
         # First convolutional
         self.layers["convolutional"].append(Conv2D(32, (3,3), activation='relu', input_shape=(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS)))
         
+        Log.e("Conv 2d attributes", dir(self.layers["convolutional"][0]))
+
         # TODO: Change MaxPooling2D to tf.nn.max_pool2d
         # Max pooling
         self.layers["convolutional"].append(MaxPooling2D(pool_size=(2,2)))
@@ -104,11 +120,23 @@ class Network:
             if i < len(self.layers['fully-connected']):
                 self.model.add(self.layers['fully-connected'][i])
 
+    def train(self, dataset, epochs=None):
+        with self.graph.as_default():
+            K.set_session(self.session)
+            fit_result = self.model.fit(
+                dataset.train_image_generator,
+                steps_per_epoch=int(np.ceil(dataset.train_total / float(dataset.batch_size))),
+                epochs=epochs, 
+                validation_data=dataset.validate_image_generator,
+                validation_steps=int(np.ceil(dataset.validate_total / float(dataset.batch_size))),
+                callbacks=[self.callback]
+            )
+            return fit_result
+
     def get_layers_from_model(self):
         dense_index = 0
         self.layers["dropout"] = [None, None, None, None]
         for layer in self.model.layers:
-            Log.w(self.TAG, layer)
             if isinstance(layer, (Conv2D, MaxPooling2D, Flatten)):
                 self.layers["convolutional"].append(layer)
             elif isinstance(layer, Dropout):
@@ -121,6 +149,13 @@ class Network:
         # Compile the model
         # 0.2 is kinda good
         # optimiser = RMSprop(learning_rate=0.15)
+        if self.optimizer == "rmsprop":
+            optimizer = RMSprop(learning_rate=self.learning_rate)
+        elif self.optimizer == "adam":
+            optimizer = Adam(learning_rate=self.learning_rate)
+        else:
+            optimizer = SGD(learning_rate=self.learning_rate)
+
         self.model.compile(
             loss='binary_crossentropy',
             optimizer='rmsprop',

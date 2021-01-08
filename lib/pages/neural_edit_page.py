@@ -71,25 +71,52 @@ class NeuralEditPage(Page):
                 "command": "add_fully_layer"
             }
         },
-        # TODO: Do optimiser, and other functions later
-        "frame_output": {}
+        "frame_output": {
+            "label_title": {
+                "text": "Optimiser and finishing touches",
+                "pos": [0, 0, 1, 2]
+            },
+            "label_optimizer": {
+                "text": "Optimiser",
+                "pos": [1, 0, 1, 1]
+            },
+            "combo_optimizer": {
+                "options": ["rmsprop", "adam", "sgd"],
+                "text": "rmsprop",
+                "pos": [1, 1, 1, 1]
+            },
+            "label_learning_rate": {
+                "text": "Learning rate",
+                "pos": [2, 0, 1, 1]
+            },
+            "entry_learning_rate": {
+                "text": "0.01",
+                "pos": [2, 1, 1, 1],
+                "validate": "callback_entry_numbers"
+            }
+        }
     }
     visibility_buttons = {}
 
     def __init__(self, parent=None, *args, **kwargs):
         super().__init__(parent=parent, *args, **kwargs)
 
+        self.variables = {
+            "learning_rate": tk.StringVar(),
+            "optimizer": tk.StringVar() 
+        }
+
         # Edit layers
         # padding and stride and all that shize
         self.widgets["frame_conv"] = [ttk.Frame(self, width=100, height=200), 0, 0, 2, 2]
         self.widgets["frame_fully"] = [ttk.Frame(self, width=100, height=200), 0, 2, 2, 2]
-        self.widgets["frame_output"] = [ttk.Frame(self, width=100, height=200), 2, 0, 3, 2]
+        self.widgets["frame_output"] = [ttk.Frame(self, width=100, height=200), 4, 0, 2, 4]
 
         arrow_left = tk.Button(
             self, text="Back", image=self.parent.file_storage["arrow_left.png"], 
-            width=100, height=60, command=self.parent.back_page
+            width=100, height=60, command=self.go_back
         )
-        arrow_left.grid(row=5, column=0)
+        arrow_left.grid(row=10, column=0)
 
         self.add_hidden_buttons()
         for key, lst in self.widgets.items():
@@ -98,6 +125,8 @@ class NeuralEditPage(Page):
 
     def go_back(self):
         # Compile the model
+        self.current_network.learning_rate = float(self.variables["learning_rate"].get())
+        self.current_network.optimizer = self.variables["optimizer"].get()
         self.parent.back_page()
 
     def fetch_network(self, network):
@@ -168,8 +197,39 @@ class NeuralEditPage(Page):
                     is_hidden = True
 
             elif "entry" in inner_key:
-                inner_dict[inner_key]["widget"] = tk.Entry(frame, cnf=inner_dict[inner_key])
+                widget_name = inner_key.replace("entry_", "")
+                print(eval(value["text"]))
+                try:
+                    default_value = eval(value["text"])
+                except:
+                    default_value = value["text"]
                 
+                self.variables[widget_name].set(default_value)
+                inner_dict[inner_key]["textvariable"] = self.variables[widget_name]
+
+                if "validate" in inner_dict[inner_key].keys():
+                    validate = value.pop("validate", None)
+                    vcmd = (frame.register(getattr(self, validate)))
+                    widget = tk.Entry(frame, validate='key', validatecommand=(vcmd, '%d', '%P', '%S'), cnf=value)
+                    inner_dict[inner_key]["widget"] = widget
+                else:
+                    inner_dict[inner_key]["widget"] = tk.Entry(frame, cnf=inner_dict[inner_key])
+            
+            elif "combo" in inner_key:
+                options = inner_dict[inner_key]["options"]
+                widget = ttk.Combobox(frame, state='readonly', value=options)
+
+                try:
+                    default_value = eval(inner_dict[inner_key]["text"])
+                    index = options.index(default_value)
+                except:
+                    index = 0
+                
+                self.variables[inner_key.replace("combo_", "")].set(value["text"])
+
+                widget.current(index)
+                inner_dict[inner_key]["widget"] = widget
+
             # Only show if it is a layer
             if not is_hidden:
                 inner_dict[inner_key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
@@ -180,6 +240,7 @@ class NeuralEditPage(Page):
         Log.i(self.TAG + "/open_hidden_layer", f"Key: {key} = Value: {layer_type}")
 
         # get the layers
+        Log.w("ABC",self.current_network.layers)
         all_layers = self.current_network.layers[layer_type]
         if layer_type == CONVOLUTIONAL:
             index = key * 2
@@ -195,11 +256,6 @@ class NeuralEditPage(Page):
                 dropout = dropout_layers[index]
             layers = (dense, dropout)
 
-        print(key)
-        Log.w(self.TAG, "ALL LAYERS")
-        print(self.current_network.layers)
-        Log.w(self.TAG, "LAYERS SENT TO LAYER WINDOW")
-        print(layers)
         self.layer_window = LayerWindow(self, layer_type, layers, key > 1)
         self.layer_window.title("Edit Layer")
         self.layer_window.grab_set()
@@ -225,6 +281,17 @@ class NeuralEditPage(Page):
                 self.delete_dropout(layers[1])
 
             self.visibility['frame_fully'].hide_last_visible()
+
+    def callback_entry_numbers(self, action, value_if_allowed, text):
+        if action=='1' :
+            if text in '0123456789.':
+                try:
+                    float(value_if_allowed)
+                    return True
+                except ValueError:
+                    return False
+            return False
+        return True
 
     def configure_buttons(self):
         # Make buttons visible based on the number of layers

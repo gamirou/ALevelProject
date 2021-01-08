@@ -27,57 +27,71 @@ class LayerWindow(tk.Toplevel):
                 "text": "Convolutional Layer",
                 "pos": [0, 0, 1, 2]
             },
+            "label_filters": {
+                "text": "Number of filters",
+                "pos": [1, 0, 1, 1]
+            },
+            "entry_filters": {
+                "text": "self.layers[0].filters",
+                "pos": [1, 1, 1, 1]
+            },
+            "label_kernel_size": {
+                "text": "Kernel size",
+                "pos": [2, 0, 1, 1]
+            },
+            "entry_kernel_size": {
+                "text": "self.layers[0].kernel_size",
+                "pos": [2, 1, 1, 1]
+            },
             "label_stride_x": {
                 "text": "Stride in the x-axis",
-                "pos": [1, 0, 1, 1]
+                "pos": [3, 0, 1, 1]
             },
             "entry_stride_x": {
                 "text": "self.layers[0].strides[0]",
-                "pos": [1, 1, 1, 1]
+                "pos": [3, 1, 1, 1]
             },
-            # {<keras.layers.convolutional.Conv2D object at 0x000002C41EC35E48>} 
-            # {<keras.layers.pooling.MaxPooling2D object at 0x000002C41EE84240>}
             "label_stride_y": {
                 "text": "Stride in the y-axis",
-                "pos": [2, 0, 1, 1]
+                "pos": [4, 0, 1, 1]
             },
             "entry_stride_y": {
                 "text": "self.layers[0].strides[1]",
-                "pos": [2, 1, 1, 1]
+                "pos": [4, 1, 1, 1]
             },
             "label_padding": {
                 "text": "Padding",
-                "pos": [3, 0, 1, 1]
+                "pos": [5, 0, 1, 1]
             },
             "combo_padding": {
                 "options": ["valid", "same"],
                 "text": "self.layers[0].padding",
-                "pos": [3, 1, 1, 1]
+                "pos": [5, 1, 1, 1]
             },
             "label_title_2": {
                 "text": "Max Pooling",
-                "pos": [4, 0, 1, 2]
+                "pos": [6, 0, 1, 2]
             },
             "label_pool_x": {
                 "text": "Pool size x-axis",
-                "pos": [5, 0, 1, 1]
+                "pos": [7, 0, 1, 1]
             },
             "entry_pool_x": {
                 "text": "self.layers[1].pool_size[0]",
-                "pos": [5, 1, 1, 1]
+                "pos": [7, 1, 1, 1]
             },
             "label_pool_y": {
                 "text": "Pool size y-axis",
-                "pos": [6, 0, 1, 1]
+                "pos": [8, 0, 1, 1]
             },
             "entry_pool_y": {
                 "text": "self.layers[1].pool_size[1]",
-                "pos": [6, 1, 1, 1]
+                "pos": [8, 1, 1, 1]
             },
             "delete_button": {
                 "text": "Delete",
                 "command": "delete_layer",
-                "pos": [7, 0, 1, 1]
+                "pos": [9, 0, 1, 1]
             },
             "save_button": self.save_button
         }
@@ -118,6 +132,8 @@ class LayerWindow(tk.Toplevel):
         # Variables
         self.variables = {
             # Convolutional
+            "filters": tk.StringVar(),
+            "kernel_size": tk.StringVar(),
             "stride_x": tk.StringVar(),
             "stride_y": tk.StringVar(),
             "padding": tk.StringVar(),
@@ -187,9 +203,10 @@ class LayerWindow(tk.Toplevel):
             entry.config(state='disabled')
 
     def render_widgets(self):
+        print(self.layers)
         if self.layer_type == CONVOLUTIONAL:
             widgets = self.conv_widgets
-            self.save_button["pos"][0] = 7
+            self.save_button["pos"][0] = 1111
         else:
             widgets = self.fully_connected_widgets
             self.save_button["pos"][0] = 4

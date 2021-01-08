@@ -1,10 +1,14 @@
 from .utils.utils import *
 from .utils.log import Log
 from .neural.network import Network
-from .dataset import Dataset
+from .neural.dataset import Dataset
 import os
 
+from tensorflow import get_default_graph, Session
 from keras.models import model_from_json
+from keras import backend as K
+import warnings
+warnings.filterwarnings("ignore")
 
 class FileStorage:
 
@@ -19,6 +23,10 @@ class FileStorage:
         self.path = os.path.dirname(os.path.dirname(__file__))
         self.dataset = Dataset(self, os.path.join(self.path, "dataset"))
         
+        self.graph = get_default_graph()
+        self.session = Session()
+        K.set_session(self.session)
+
         self.load_all_images()
         self.load_all_networks()
 
@@ -27,10 +35,10 @@ class FileStorage:
         for root, directory, files in os.walk(self.path + "\\saved"):
             if len(directory) != 0:
                 for uuid in directory:
-                    self.saved_networks[uuid] = Network(uuid, os.path.join(root, uuid))
+                    self.saved_networks[uuid] = Network(uuid, os.path.join(root, uuid), self.graph, self.session)
         
     def add_network(self, neural_id):
-        self.saved_networks[neural_id] = Network(neural_id, os.path.join(self.path + "\\saved", neural_id))
+        self.saved_networks[neural_id] = Network(neural_id, os.path.join(self.path + "\\saved", neural_id), self.graph, self.session)
 
     def get_network(self, neural_id):
         return self.saved_networks[neural_id]
