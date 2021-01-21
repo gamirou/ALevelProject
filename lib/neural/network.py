@@ -40,14 +40,15 @@ class Network:
     date = ""
 
     def __init__(self, network_id, directory_path, graph, session):
-        # Reset graph
-        # self.reset_graph()
+        # Tensorflow specific variables
         self.graph = graph
         self.session = session
 
-        # Variables
+        # Files
         self.network_id = network_id
         self.directory_path = directory_path
+
+        # Model specific
         self.model = None
         self.learning_rate = 0.01
         self.optimizer = "rmsprop"
@@ -60,24 +61,14 @@ class Network:
         self.callback = WeightsCallback()
         self.load_files()
 
-    def reset_graph(self):
-        tf.compat.v1.disable_eager_execution()
-    #     tf.reset_default_graph()
-    #     tf.keras.backend.clear_session()
-
     def new_layers(self):
         # Building the model
         self.model = Sequential()
 
         # Add first convolutional layer
-        # if default
-        # First convolutional
         self.layers["convolutional"].append(Conv2D(32, (3,3), activation='relu', input_shape=(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS)))
         
-        Log.e("Conv 2d attributes", dir(self.layers["convolutional"][0]))
-
         # TODO: Change MaxPooling2D to tf.nn.max_pool2d
-        # Max pooling
         self.layers["convolutional"].append(MaxPooling2D(pool_size=(2,2)))
 
         # Second layer
@@ -123,6 +114,7 @@ class Network:
     def train(self, dataset, epochs=None):
         with self.graph.as_default():
             K.set_session(self.session)
+            self.callback.total_epochs = epochs
             fit_result = self.model.fit(
                 dataset.train_image_generator,
                 steps_per_epoch=int(np.ceil(dataset.train_total / float(dataset.batch_size))),
@@ -188,7 +180,10 @@ class Network:
                 self.save_path("json", file)
 
                 with open(self.PATHS["json"]) as json_file:
-                    self.json_data = json.load(json_file)
+                    json_data = json.load(json_file)
+                    metrics = turn_dict_values_to_float(json_data["metrics"])
+                    epochs = [int(x) for x in json_data["epochs"]]
+                    self.callback.set_metrics(metrics, epochs)
 
             elif file.endswith("h5"):
                 # Actual model with weights and everything

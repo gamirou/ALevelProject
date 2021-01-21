@@ -32,83 +32,95 @@ class NeuralMainPage(Page):
         # "key": [label, x, y, rowspan, colspan]
     }
 
-    inner_widgets = {
-        "frame_input": {
-            "label_data": {
-                "text": "Data",
-                "pos": [0, 0, 1, 1]
-            },
-            "label_description": {
-                "text": "The training data needs to be 36x36 pixels",
-                "wraplength": 100,
-                "pos": [1, 0, 1, 1]
-            },
-            "label_example_image": {
-                "text": "Sample image",
-                "image": "example_cat.jpg",
-                "width": 128,
-                "height": 128,
-                "pos": [2, 0, 1, 1]
-            }
-        },
-        "frame_process": {
-            "label_network": {
-                "text": "Network",
-                "pos": [0, 0, 1, 1]  
-            },
-            "button_depth": {
-                "text": "Click here to see the network in more details",
-                "wraplength": 100,
-                "command": "go_to_edit",
-                "pos": [1, 0, 1, 1]
-            },
-            "label_details": {
-                "text": "Model accuracy",
-                "pos": [2, 0, 1, 1]
-            },
-            "button_details": {
-                "text": "Click here to see how the accuracy changes over time",
-                "command": "open_graph_page",
-                "wraplength": 100,
-                "pos": [3, 0, 1, 1]
-            }
-        },
-        "frame_output": {
-            "label_output": {
-                "text": "Output",
-                "pos": [0, 0, 1, 2]  
-            },
-            "label_output_image": {
-                "text": "Output image",
-                "image": "image_placeholder.png",
-                "wraplength": 100,
-                "pos": [1, 0, 1, 2]
-            },
-            "label_result": {
-                "text": "Result: ",
-                "pos": [2, 0, 1, 2]
-            },
-            "label_accuracy": {
-                "text": "Accuracy: ",
-                "pos": [3, 0, 1, 2]
-            },
-            "button_yes": {
-                "text": "YES",
-                "pos": [4, 0, 1, 1]
-            },
-            "button_no": {
-                "text": "NO",
-                "pos": [4, 1, 1, 1]
-            }
-        }
-    }
+    # inner_widgets = {
+    #     "frame_input": {
+    #         "label_data": {
+    #             "text": "Data",
+    #             "pos": [0, 0, 1, 1]
+    #         },
+    #         "label_description": {
+    #             # More info here
+    #             "text": "The training data needs to be 36x36 pixels",
+    #             "wraplength": 100,
+    #             "pos": [1, 0, 1, 1]
+    #         },
+    #         "label_test_images": {
+    #             "text": "Evaluate the network",
+    #             "wraplength": 100,
+    #             "pos": [2, 0, 1, 1]
+    #         },
+    #         "button_test_images": {
+    #             "text": "Click here to see test the network with 200 images it has never seen before",
+    #             "command": "test_network",
+    #             "wraplength": 100,
+    #             "pos": [3, 0, 1, 1]
+    #         }
+    #     },
+    #     "frame_process": {
+    #         "label_network": {
+    #             "text": "Network",
+    #             "pos": [0, 0, 1, 1]  
+    #         },
+    #         "button_depth": {
+    #             "text": "Click here to see the network in more details",
+    #             "wraplength": 100,
+    #             "command": "go_to_edit",
+    #             "pos": [1, 0, 1, 1]
+    #         },
+    #         "label_details": {
+    #             "text": "Model accuracy",
+    #             "pos": [2, 0, 1, 1]
+    #         },
+    #         "button_details": {
+    #             "text": "Click here to see how the accuracy changes over time",
+    #             "command": "open_graph_page",
+    #             "wraplength": 100,
+    #             "pos": [3, 0, 1, 1]
+    #         }
+    #     },
+    #     "frame_output": {
+    #         "label_output": {
+    #             "text": "Output",
+    #             "pos": [0, 0, 1, 2]  
+    #         },
+    #         "label_output_image": {
+    #             "text": "Output image",
+    #             "image": "image_placeholder.png",
+    #             "wraplength": 100,
+    #             "pos": [1, 0, 1, 2]
+    #         },
+    #         "label_result": {
+    #             "text": "Result:",
+    #             "pos": [2, 0, 1, 1]
+    #         },
+    #         "label_result_value": {
+    #             "text": "---",
+    #             "pos": [2, 1, 1, 1]
+    #         },
+    #         "label_prediction": {
+    #             "text": "Prediction value:",
+    #             "pos": [3, 0, 1, 1]
+    #         },
+    #         "label_prediction_value": {
+    #             "text": "---",
+    #             "pos": [3, 1, 1, 1]
+    #         },
+    #         "label_accuracy": {
+    #             "text": "Accuracy on test data",
+    #             "pos": [4, 0, 1, 2]
+    #         },
+    #         "label_accuracy_value": {
+    #             "text": "---",
+    #             "pos": [5, 0, 1, 2]
+    #         }
+    #     }
+    # }
 
     def __init__(self, parent=None, *args, **kwargs):
         super().__init__(parent=parent, *args, **kwargs)
-        self.hist = None
-
-        # TODO: Work on design
         self.file_storage = self.parent.file_storage
+        self.inner_widgets = self.file_storage.widgets[self.__class__.__name__]
+        
         # add column span to array
         self.widgets["label_name"] = [tk.Label(self, text=self.WELCOME_TEXT, bg="#00ff00"), 0, 1, 1, 4]
         # FRAMES THAT HAVE INPUT PROCESS AND OUTPUT
@@ -158,6 +170,9 @@ class NeuralMainPage(Page):
         # This function will run when the page is opened
         self.current_network = network
         
+        # DEBUG purposes
+        self.current_network.is_trained = True
+
         # Show text and description at the top
         text = self.WELCOME_TEXT.replace("0", network.name)
         text = text.replace("1", network.description)
@@ -190,27 +205,69 @@ class NeuralMainPage(Page):
         self.parent.update_page("NeuralEditPage")
         self.parent.pages["NeuralEditPage"].fetch_network(self.current_network)
 
+    def test_network(self):
+        if self.current_network.is_trained:
+            dataset = self.file_storage.dataset
+            pred = self.current_network.model.predict_generator(dataset.test_image_generator, steps=dataset.test_total/dataset.batch_size, verbose=1)
+            predicted_class_indices = np.round(pred)
+
+            labels = (dataset.train_image_generator.class_indices)
+            labels = dict((v,k) for k,v in labels.items())
+            predictions = [labels[k[0]] for k in predicted_class_indices]
+
+            filenames = dataset.test_image_generator.filenames
+
+            correct = 0
+            incorrect = 0
+            for i in range(len(filenames)):
+                filename = filenames[i].replace('cats_and_dogs\\', '')
+                prediction_value = predictions[i]
+                if (filename.split('.')[0] + 's' == prediction_value):
+                    correct = correct + 1
+                else:
+                    incorrect = incorrect + 1
+
+            percentage = str(round((correct/dataset.test_total)*100, 1)) + '%'
+            frame_dict = self.inner_widgets["frame_output"]
+            frame_dict["label_accuracy_value"]["widget"]["text"] = percentage
+        else:
+            Log.w(self.TAG, "Network not trained")
+
     # Buttons
     def add_data(self):
         # self.go_to_edit()
-        self.current_network.is_trained = True
         if self.current_network.is_trained:
             filename = tk.filedialog.askopenfilename()
-            img = mpimg.imread(filename)
-            imgplot = plt.imshow(img)
-            plt.show()
-
-            image = np.array(Image.open(filename))
+            # img = mpimg.imread(filename)
+            # imgplot = plt.imshow(img)
+            # plt.show()
+            
+            image = Image.open(filename)
+            self.file_storage["test_image"] = ImageTk.PhotoImage(image.resize((100, 100), Image.ANTIALIAS))
+            
+            frame_dict = self.inner_widgets["frame_output"]
+            frame_dict["label_output_image"]["widget"].configure(image=self.file_storage["test_image"])
+            frame_dict["label_output_image"]["widget"]["image"] = self.file_storage["test_image"]
+            
+            # Normalise it
+            image = np.array(image)
             image = np.resize(image, (IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS))
             image = image.astype('float32')
             image /= 255
 
             predictions = self.current_network.model.predict(np.array([ image ]))
-            print(predictions)
-            if predictions[0][1] > predictions[0][0]:
+            output = ""
+            if predictions[0][0] < 0.5:
                 Log.w(self.TAG, "It's a cat")
+                output = "Cat"
             else:
                 Log.e(self.TAG, "It's a dog")
+                output = "Dog"
+
+            frame_dict["label_result_value"]["widget"]["text"] = output
+            frame_dict["label_prediction_value"]["widget"]["text"] = str(round(predictions[0][0], 5))
+        else:
+            Log.w(self.TAG, "Network not trained")
 
     def click_train_button(self):
         if not self.parent.app.is_loaded:
@@ -254,42 +311,6 @@ class NeuralMainPage(Page):
         #     shuffle=True,
         #     validation_split=0.1
         # )
-
-        # self.axes["model_accuracy"].plot(hist.history['accuracy'])
-        # self.axes["model_accuracy"].plot(hist.history['val_accuracy'])
-        # self.axes["model_accuracy"][0].scatter(x,y, marker="o", color="r", label="Admitted")
-        # self.axes["model_accuracy"][1].scatter(x,y, marker="x", color="k", label="Not-Admitted")
-        # self.axes["model_accuracy"][0].set(xlabel="Exam score-1", ylabel="Exam score-2")
-        # self.axes["model_accuracy"][1].set(xlabel="Exam score-1", ylabel="Exam score-2")
-        # df2.plot(kind='line', legend=True, ax=self.axes["model_accuracy"], color='r',marker='o', fontsize=10)
-        # self.axes["model_accuracy"].set_title('Model accuracy')
-
-        # # Visualize model accuracy
-        # plt.plot(hist.history['accuracy'])
-        # plt.plot(hist.history['val_accuracy'])
-        # plt.title('Model accuracy')
-        # plt.xlabel('Epoch')
-        # plt.ylabel('Accuracy')
-        # plt.legend(['Training', 'Val'], loc='upper left')
-        # plt.show()
-
-        # # Visualize model loss
-        # plt.plot(hist.history['loss'])
-        # plt.plot(hist.history['val_loss'])
-        # plt.title('Model loss')
-        # plt.xlabel('Epoch')
-        # plt.ylabel('Loss')
-        # plt.legend(['Training', 'Val'], loc='upper right')
-        # plt.show()
-
-        # Test with an example
-        # image_test = dataset.data["test"][random.randint(0, len(dataset["test"]))]
-        # img = plt.imshow(image_test)
-        # plt.title('Test image')
-        # plt.show()
-
-        # predictions = self.current_network.model.predict(np.array([ image_test ]))
-        # print(predictions)
 
     def click_save_button(self):
         message_box = PopUpConfirm(self, SAVE, self.save_network)

@@ -37,14 +37,6 @@ def resize_image(image, size):
 def today():
     return str(date.today())
 
-# def mergeListsAlternatively(dict):
-#     lst1 = dict["dogs"]
-#     lst2 = dict["cats"] 
-#     return [sub[item] for item in range(len(lst2)) for sub in [lst1, lst2]] 
-
-def concatenate_dataset(dict):
-    return np.concatenate(dict["dogs"], dict["cats"])
-
 def create_file(folder, file_name, file_content):
     file_path = get_main_path(folder, file_name)
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -61,3 +53,17 @@ def get_image_from_folder(file_name):
     file_path = get_main_path("images", file_name)
     image = Image.open(file_path)
     return ImageTk.PhotoImage(image)
+
+def turn_to_camel_case(string):
+    return ''.join(x for x in string.title() if x != "_")
+
+def turn_dict_values_to_float(dictionary):
+    for key, value in dictionary.items():
+        try:
+            new_value = float(value)
+        except TypeError:
+            new_value = [float(x) for x in value]
+        
+        dictionary[key] = new_value
+
+    return dictionary

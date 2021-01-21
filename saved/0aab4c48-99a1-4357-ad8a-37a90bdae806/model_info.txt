@@ -1,2 +1,2 @@
 name,description,is_trained,date
-dhuhdiuh,huidhiudhsa,False,2021-01-04
+95 accurate,80 onwards overfitting,False,2021-01-04

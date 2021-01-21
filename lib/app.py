@@ -46,8 +46,8 @@ class App:
                 self.stop_progress()
                 self.is_loaded = True
                 
-            for graph in self.graphs.values():
-                ani = animation.FuncAnimation(graph["figure"], graph["animate"], interval=5000)
+            # for graph in self.graphs.values():
+            #     ani = animation.FuncAnimation(graph["figure"], graph["animate"], interval=5000)
 
             self.root.update()
 

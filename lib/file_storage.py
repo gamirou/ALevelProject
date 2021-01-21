@@ -3,6 +3,7 @@ from .utils.log import Log
 from .neural.network import Network
 from .neural.dataset import Dataset
 import os
+import json
 
 from tensorflow import get_default_graph, Session
 from keras.models import model_from_json
@@ -15,6 +16,7 @@ class FileStorage:
     TAG = "FileStorage"
     cache = {}
     saved_networks = {}
+    widgets = {}
 
     def __init__(self, app):
         self.app = app
@@ -28,6 +30,7 @@ class FileStorage:
         K.set_session(self.session)
 
         self.load_all_images()
+        self.load_all_widgets()
         self.load_all_networks()
 
     def load_all_networks(self):
@@ -46,9 +49,14 @@ class FileStorage:
     def save_network(self, network):    
         neural_id = network.network_id
         neural_id_path = self.path + "\\saved\\" + neural_id
-        model_json = network.model.to_json()
-        with open(os.path.join(neural_id_path, "model_json"), "w") as json_file:
-            json_file.write(model_json)
+        json_data = {
+            "metrics": network.callback.metrics,
+            "epochs": network.callback.epochs
+        }
+       
+        stringified_json = json.loads(json.dumps(json_data), parse_int=str, parse_float=str)
+        with open(os.path.join(neural_id_path, "model_metrics.json"), "w") as json_file:
+            json.dump(stringified_json, json_file)
 
         txt = ""
         with open(os.path.join(neural_id_path, "model_info.txt"), "r") as txt_file:
@@ -74,8 +82,19 @@ class FileStorage:
             photo = get_image_from_folder(file_name)
             self.cache[file_name] = photo
 
-    ### FOR IMAGES ###
+    def load_all_widgets(self):
+        files = []
+        widgets_path = os.path.join(self.path, "assets", "widgets")
+        for (dirpath, dirnames, filenames) in os.walk(widgets_path):
+            files.extend(filenames)
+            break
+        
+        for file_name in files:
+            key = turn_to_camel_case(file_name.replace('.json', '')) + "Page"
+            with open(os.path.join(widgets_path, file_name), 'r') as json_file:
+                self.widgets[key] = json.load(json_file)
 
+    ### FOR IMAGES ###
     def __setitem__(self, key, item):
         self.cache[key] = item
 
