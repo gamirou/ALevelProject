@@ -1,0 +1,106 @@
+{
+    "conv_widgets": {
+        "label_title_1": {
+            "text": "Convolutional Layer",
+            "pos": [0, 0, 1, 2]
+        },
+        "label_filters": {
+            "text": "Number of filters",
+            "pos": [1, 0, 1, 1]
+        },
+        "entry_filters": {
+            "text": "self.layers[0].filters",
+            "pos": [1, 1, 1, 1]
+        },
+        "label_kernel_size": {
+            "text": "Kernel size",
+            "pos": [2, 0, 1, 1]
+        },
+        "entry_kernel_size": {
+            "text": "self.layers[0].kernel_size",
+            "pos": [2, 1, 1, 1]
+        },
+        "label_stride_x": {
+            "text": "Stride in the x-axis",
+            "pos": [3, 0, 1, 1]
+        },
+        "entry_stride_x": {
+            "text": "self.layers[0].strides[0]",
+            "pos": [3, 1, 1, 1]
+        },
+        "label_stride_y": {
+            "text": "Stride in the y-axis",
+            "pos": [4, 0, 1, 1]
+        },
+        "entry_stride_y": {
+            "text": "self.layers[0].strides[1]",
+            "pos": [4, 1, 1, 1]
+        },
+        "label_padding": {
+            "text": "Padding",
+            "pos": [5, 0, 1, 1]
+        },
+        "combo_padding": {
+            "options": ["valid", "same"],
+            "text": "self.layers[0].padding",
+            "pos": [5, 1, 1, 1]
+        },
+        "label_title_2": {
+            "text": "Max Pooling",
+            "pos": [6, 0, 1, 2]
+        },
+        "label_pool_x": {
+            "text": "Pool size x-axis",
+            "pos": [7, 0, 1, 1]
+        },
+        "entry_pool_x": {
+            "text": "self.layers[1].pool_size[0]",
+            "pos": [7, 1, 1, 1]
+        },
+        "label_pool_y": {
+            "text": "Pool size y-axis",
+            "pos": [8, 0, 1, 1]
+        },
+        "entry_pool_y": {
+            "text": "self.layers[1].pool_size[1]",
+            "pos": [8, 1, 1, 1]
+        },
+        "delete_button": {
+            "text": "Delete",
+            "command": "delete_layer",
+            "pos": [9, 0, 1, 1]
+        }
+    },
+    "fully_connected_widgets": {
+        "label_title_1": {
+            "text": "Main Layer",
+            "pos": [0, 0, 1, 2]
+        },
+        "label_neurons": {
+            "text": "Number of neurons: ",
+            "pos": [1, 0, 1, 1]
+        },
+        "entry_neurons": {
+            "pos": [1, 1, 1, 1],
+            "text": "self.layers[0].units"
+        },
+        "checkbutton_dropout": {
+            "text": "Dropout",
+            "pos": [2, 0, 1, 2],
+            "variable": "",
+            "command": "open_dropout"
+        },
+        "label_dropout": {
+            "text": "Rate",
+            "pos": [3, 0, 1, 1]
+        },
+        "entry_dropout": {
+            "pos": [3, 1, 1, 1]
+        },
+        "delete_button": {
+            "text": "Delete",
+            "command": "delete_layer",
+            "pos": [4, 0, 1, 1]
+        }
+    }
+}

@@ -90,7 +90,7 @@ class FileStorage:
             break
         
         for file_name in files:
-            key = turn_to_camel_case(file_name.replace('.json', '')) + "Page"
+            key = turn_to_camel_case(file_name.replace('.json', ''))
             with open(os.path.join(widgets_path, file_name), 'r') as json_file:
                 self.widgets[key] = json.load(json_file)
 

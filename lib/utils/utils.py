@@ -13,6 +13,17 @@ CONVOLUTIONAL = "convolutional"
 FULLY_CONNECTED = "fully-connected"
 DROPOUT = "dropout"
 
+# Type of widget
+WIDGETS_TYPE = {
+    CONVOLUTIONAL: "conv_widgets",
+    FULLY_CONNECTED: "fully_connected_widgets"
+}
+
+SAVE_BUTTON_POS = {
+    CONVOLUTIONAL: 10,
+    FULLY_CONNECTED: 4
+}
+
 # States of pop up boxes
 RESET = "RESET LAYERS"
 TRAIN = "TRAIN"

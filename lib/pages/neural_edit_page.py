@@ -27,75 +27,6 @@ class NeuralEditPage(Page):
 
     # same as NeuralMainPage
     widgets = {}
-    inner_widgets = {
-        "frame_conv": {
-            "label_title": {
-                "text": "Convolutional layers",
-                "pos": [0, 0, 1, 2]
-            },
-            "label_input": {
-                "text": "Input layer",
-                "pos": [1, 0, 1, 1]
-            },
-            "button_input": {
-                "text": "Click to edit input layer",
-                "pos": [1, 1, 1, 1],
-                "command": "open_hidden_layer"#(0, 'convolutional')"
-            },
-            "label_hidden": {
-                "text": "Hidden layers: 1-4",
-                "pos": [2, 0, 1, 2]
-            },
-            "button_add": {
-                "text": "Add hidden layer",
-                "pos": [10, 0, 1, 2],
-                "command": "add_conv_layer"
-            }
-        },
-        "frame_fully": {
-            "label_title": {
-                "text": "Fully-connected layers",
-                "pos": [0, 0, 1, 2]
-            },
-            "label_input": {
-                "text": "Input layer: cannot be changed",
-                "pos": [1, 0, 1, 1]
-            },
-            "label_hidden": {
-                "text": "Hidden layers: 1-4",
-                "pos": [2, 0, 1, 1]
-            },
-            "button_add": {
-                "text": "Add hidden layer",
-                "pos": [10, 0, 1, 2],
-                "command": "add_fully_layer"
-            }
-        },
-        "frame_output": {
-            "label_title": {
-                "text": "Optimiser and finishing touches",
-                "pos": [0, 0, 1, 2]
-            },
-            "label_optimizer": {
-                "text": "Optimiser",
-                "pos": [1, 0, 1, 1]
-            },
-            "combo_optimizer": {
-                "options": ["rmsprop", "adam", "sgd"],
-                "text": "rmsprop",
-                "pos": [1, 1, 1, 1]
-            },
-            "label_learning_rate": {
-                "text": "Learning rate",
-                "pos": [2, 0, 1, 1]
-            },
-            "entry_learning_rate": {
-                "text": "0.01",
-                "pos": [2, 1, 1, 1],
-                "validate": "callback_entry_numbers"
-            }
-        }
-    }
     visibility_buttons = {}
 
     def __init__(self, parent=None, *args, **kwargs):
@@ -105,6 +36,8 @@ class NeuralEditPage(Page):
             "learning_rate": tk.StringVar(),
             "optimizer": tk.StringVar() 
         }
+
+        self.inner_widgets = self.parent.file_storage.widgets[self.__class__.__name__]
 
         # Edit layers
         # padding and stride and all that shize
@@ -198,7 +131,6 @@ class NeuralEditPage(Page):
 
             elif "entry" in inner_key:
                 widget_name = inner_key.replace("entry_", "")
-                print(eval(value["text"]))
                 try:
                     default_value = eval(value["text"])
                 except:

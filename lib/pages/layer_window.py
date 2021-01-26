@@ -1,9 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 from ..utils.log import Log
-from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED
+from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED, WIDGETS_TYPE, SAVE_BUTTON_POS
 
 import warnings
+import copy
 warnings.filterwarnings("ignore")
 from keras.layers import Dropout
 
@@ -20,113 +21,6 @@ class LayerWindow(tk.Toplevel):
             "text": "Save",
             "command": "save_layer",
             "pos": [4, 1, 1, 1]
-        }
-
-        self.conv_widgets = {
-            "label_title_1": {
-                "text": "Convolutional Layer",
-                "pos": [0, 0, 1, 2]
-            },
-            "label_filters": {
-                "text": "Number of filters",
-                "pos": [1, 0, 1, 1]
-            },
-            "entry_filters": {
-                "text": "self.layers[0].filters",
-                "pos": [1, 1, 1, 1]
-            },
-            "label_kernel_size": {
-                "text": "Kernel size",
-                "pos": [2, 0, 1, 1]
-            },
-            "entry_kernel_size": {
-                "text": "self.layers[0].kernel_size",
-                "pos": [2, 1, 1, 1]
-            },
-            "label_stride_x": {
-                "text": "Stride in the x-axis",
-                "pos": [3, 0, 1, 1]
-            },
-            "entry_stride_x": {
-                "text": "self.layers[0].strides[0]",
-                "pos": [3, 1, 1, 1]
-            },
-            "label_stride_y": {
-                "text": "Stride in the y-axis",
-                "pos": [4, 0, 1, 1]
-            },
-            "entry_stride_y": {
-                "text": "self.layers[0].strides[1]",
-                "pos": [4, 1, 1, 1]
-            },
-            "label_padding": {
-                "text": "Padding",
-                "pos": [5, 0, 1, 1]
-            },
-            "combo_padding": {
-                "options": ["valid", "same"],
-                "text": "self.layers[0].padding",
-                "pos": [5, 1, 1, 1]
-            },
-            "label_title_2": {
-                "text": "Max Pooling",
-                "pos": [6, 0, 1, 2]
-            },
-            "label_pool_x": {
-                "text": "Pool size x-axis",
-                "pos": [7, 0, 1, 1]
-            },
-            "entry_pool_x": {
-                "text": "self.layers[1].pool_size[0]",
-                "pos": [7, 1, 1, 1]
-            },
-            "label_pool_y": {
-                "text": "Pool size y-axis",
-                "pos": [8, 0, 1, 1]
-            },
-            "entry_pool_y": {
-                "text": "self.layers[1].pool_size[1]",
-                "pos": [8, 1, 1, 1]
-            },
-            "delete_button": {
-                "text": "Delete",
-                "command": "delete_layer",
-                "pos": [9, 0, 1, 1]
-            },
-            "save_button": self.save_button
-        }
-        self.fully_connected_widgets = {
-            "label_title_1": {
-                "text": "Main Layer",
-                "pos": [0, 0, 1, 2]
-            },
-            "label_neurons": {
-                "text": "Number of neurons: ",
-                "pos": [1, 0, 1, 1]
-            },
-            "entry_neurons": {
-                "pos": [1, 1, 1, 1],
-                "text": "self.layers[0].units"
-            },
-            "checkbutton_dropout": {
-                "text": "Dropout",
-                "pos": [2, 0, 1, 2],
-                "variable": tk.IntVar(),
-                "command": "open_dropout"
-            },
-            "label_dropout": {
-                "text": "Rate",
-                "pos": [3, 0, 1, 1]
-            },
-            "entry_dropout": {
-                "pos": [3, 1, 1, 1]
-            },
-            "delete_button": {
-                "text": "Delete",
-                "command": "delete_layer",
-                "pos": [4, 0, 1, 1]
-            },
-            "save_button": self.save_button
         }
 
         # Variables
@@ -159,7 +53,7 @@ class LayerWindow(tk.Toplevel):
                 stride = (int(values["stride_x"], 10), int(values["stride_y"], 10))
                 pooling = (int(values["pool_x"], 10), int(values["pool_y"], 10))
                 conv.strides = stride
-                conv.padding = self.conv_widgets["combo_padding"]["widget"].get()
+                conv.padding = self.widgets["combo_padding"]["widget"].get()
                 # conv.padding = values["padding"]
                 maxpooling.pool_size = pooling
             else:
@@ -191,11 +85,22 @@ class LayerWindow(tk.Toplevel):
 
     # TODO: Validate
     def validate_values(self, values):
+        if self.layer_type == CONVOLUTIONAL:
+            # "filters": tk.StringVar(),
+            # "kernel_size": tk.StringVar(),
+            # "stride_x": tk.StringVar(),
+            # "stride_y": tk.StringVar(),
+            # "padding": tk.StringVar(),
+            # "pool_x": tk.StringVar(),
+            # "pool_y": tk.StringVar(),
+            pass
+        else:
+            pass
         return True
 
     def open_dropout(self):
-        var = self.fully_connected_widgets["checkbutton_dropout"]["variable"]
-        entry = self.fully_connected_widgets["entry_dropout"]["widget"]
+        var = self.widgets["checkbutton_dropout"]["variable"]
+        entry = self.widgets["entry_dropout"]["widget"]
     
         if var.get():
             entry.config(state='normal')
@@ -203,30 +108,28 @@ class LayerWindow(tk.Toplevel):
             entry.config(state='disabled')
 
     def render_widgets(self):
-        print(self.layers)
-        if self.layer_type == CONVOLUTIONAL:
-            widgets = self.conv_widgets
-            self.save_button["pos"][0] = 1111
-        else:
-            widgets = self.fully_connected_widgets
-            self.save_button["pos"][0] = 4
+        widget_json = self.parent.parent.file_storage.widgets[self.__class__.__name__]
+        self.widgets = copy.deepcopy(widget_json[WIDGETS_TYPE[self.layer_type]])
+        self.save_button["pos"][0] = SAVE_BUTTON_POS[self.layer_type]
+        self.widgets["save_button"] = self.save_button
         
         # Render - document
-        for widget_key, value in widgets.items():
+        for widget_key, value in self.widgets.items():
             pos = value.pop("pos", None)
             if "label" in widget_key:
-                widgets[widget_key]["widget"] = tk.Label(self, cnf=widgets[widget_key])
+                self.widgets[widget_key]["widget"] = tk.Label(self, cnf=self.widgets[widget_key])
 
             elif "checkbutton" in widget_key:
-                if "command" in widgets[widget_key].keys() and isinstance(widgets[widget_key]["command"], str):
-                    widgets[widget_key]["command"] = getattr(self, widgets[widget_key]["command"])
+                if "command" in self.widgets[widget_key].keys() and isinstance(self.widgets[widget_key]["command"], str):
+                    self.widgets[widget_key]["command"] = getattr(self, self.widgets[widget_key]["command"])
 
-                self.is_dropout = widgets[widget_key]["variable"]
+                self.widgets[widget_key]["variable"] = tk.IntVar()
+                self.is_dropout = self.widgets[widget_key]["variable"]
                 if self.layers[1] != None:
                     self.is_dropout.set(1)
-                    widgets["entry_dropout"]["text"] = "self.layers[1].rate"
+                    self.widgets["entry_dropout"]["text"] = "self.layers[1].rate"
                 
-                widgets[widget_key]["widget"] = tk.Checkbutton(self, cnf=widgets[widget_key])
+                self.widgets[widget_key]["widget"] = tk.Checkbutton(self, cnf=self.widgets[widget_key])
 
             elif "button" in widget_key:
                 if "delete" in widget_key and not self.can_be_deleted:
@@ -234,38 +137,38 @@ class LayerWindow(tk.Toplevel):
                     self.save_button["pos"] = [self.save_button["pos"][0], 0, 1, 2]
                     continue
 
-                if "command" in widgets[widget_key].keys() and isinstance(widgets[widget_key]["command"], str):
-                    widgets[widget_key]["command"] = getattr(self, widgets[widget_key]["command"])
-                widgets[widget_key]["widget"] = tk.Button(self, cnf=widgets[widget_key])
+                if "command" in self.widgets[widget_key].keys() and isinstance(self.widgets[widget_key]["command"], str):
+                    self.widgets[widget_key]["command"] = getattr(self, self.widgets[widget_key]["command"])
+                self.widgets[widget_key]["widget"] = tk.Button(self, cnf=self.widgets[widget_key])
                 
             elif "entry" in widget_key:
                 widget_name = widget_key.replace("entry_", "")
                 try:
-                    default_value = eval(widgets[widget_key]["text"])
+                    default_value = eval(self.widgets[widget_key]["text"])
                     self.variables[widget_name].set(default_value)
                 except:
                     default_value = ""
                 
-                widgets[widget_key]["textvariable"] = self.variables[widget_name]
-                widgets[widget_key]["widget"] = tk.Entry(self, cnf=widgets[widget_key])
+                self.widgets[widget_key]["textvariable"] = self.variables[widget_name]
+                self.widgets[widget_key]["widget"] = tk.Entry(self, cnf=self.widgets[widget_key])
                 # widgets[widget_key]["widget"].delete(0, tk.END)
                 # widgets[widget_key]["widget"].insert(0, default_value)
 
                 if widget_key == "entry_dropout":
                     if not self.is_dropout.get():
-                        widgets[widget_key]["widget"].config(state='disabled')
+                        self.widgets[widget_key]["widget"].config(state='disabled')
 
             elif "combo" in widget_key:
-                options = widgets[widget_key]["options"]
+                options = self.widgets[widget_key]["options"]
                 widget = ttk.Combobox(self, state='readonly', value=options)
 
                 try:
-                    default_value = eval(widgets[widget_key]["text"])
+                    default_value = eval(self.widgets[widget_key]["text"])
                     index = options.index(default_value)
                 except:
                     index = 0
                 
                 widget.current(index)
-                widgets[widget_key]["widget"] = widget
+                self.widgets[widget_key]["widget"] = widget
 
-            widgets[widget_key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
+            self.widgets[widget_key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])

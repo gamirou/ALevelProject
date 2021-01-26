@@ -26,95 +26,9 @@ class NeuralMainPage(Page):
     ACCURACY_TEXT = "Accuracy: "
 
     is_training = False
-    axes = {}
-    widgets = {
-        # will use grid system
-        # "key": [label, x, y, rowspan, colspan]
-    }
-
-    # inner_widgets = {
-    #     "frame_input": {
-    #         "label_data": {
-    #             "text": "Data",
-    #             "pos": [0, 0, 1, 1]
-    #         },
-    #         "label_description": {
-    #             # More info here
-    #             "text": "The training data needs to be 36x36 pixels",
-    #             "wraplength": 100,
-    #             "pos": [1, 0, 1, 1]
-    #         },
-    #         "label_test_images": {
-    #             "text": "Evaluate the network",
-    #             "wraplength": 100,
-    #             "pos": [2, 0, 1, 1]
-    #         },
-    #         "button_test_images": {
-    #             "text": "Click here to see test the network with 200 images it has never seen before",
-    #             "command": "test_network",
-    #             "wraplength": 100,
-    #             "pos": [3, 0, 1, 1]
-    #         }
-    #     },
-    #     "frame_process": {
-    #         "label_network": {
-    #             "text": "Network",
-    #             "pos": [0, 0, 1, 1]  
-    #         },
-    #         "button_depth": {
-    #             "text": "Click here to see the network in more details",
-    #             "wraplength": 100,
-    #             "command": "go_to_edit",
-    #             "pos": [1, 0, 1, 1]
-    #         },
-    #         "label_details": {
-    #             "text": "Model accuracy",
-    #             "pos": [2, 0, 1, 1]
-    #         },
-    #         "button_details": {
-    #             "text": "Click here to see how the accuracy changes over time",
-    #             "command": "open_graph_page",
-    #             "wraplength": 100,
-    #             "pos": [3, 0, 1, 1]
-    #         }
-    #     },
-    #     "frame_output": {
-    #         "label_output": {
-    #             "text": "Output",
-    #             "pos": [0, 0, 1, 2]  
-    #         },
-    #         "label_output_image": {
-    #             "text": "Output image",
-    #             "image": "image_placeholder.png",
-    #             "wraplength": 100,
-    #             "pos": [1, 0, 1, 2]
-    #         },
-    #         "label_result": {
-    #             "text": "Result:",
-    #             "pos": [2, 0, 1, 1]
-    #         },
-    #         "label_result_value": {
-    #             "text": "---",
-    #             "pos": [2, 1, 1, 1]
-    #         },
-    #         "label_prediction": {
-    #             "text": "Prediction value:",
-    #             "pos": [3, 0, 1, 1]
-    #         },
-    #         "label_prediction_value": {
-    #             "text": "---",
-    #             "pos": [3, 1, 1, 1]
-    #         },
-    #         "label_accuracy": {
-    #             "text": "Accuracy on test data",
-    #             "pos": [4, 0, 1, 2]
-    #         },
-    #         "label_accuracy_value": {
-    #             "text": "---",
-    #             "pos": [5, 0, 1, 2]
-    #         }
-    #     }
-    # }
+    axes = {}    
+    # "key": [label, x, y, rowspan, colspan]
+    widgets = {}
 
     def __init__(self, parent=None, *args, **kwargs):
         super().__init__(parent=parent, *args, **kwargs)
