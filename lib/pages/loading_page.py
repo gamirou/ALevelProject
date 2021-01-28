@@ -16,18 +16,18 @@ class LoadingPage(Page):
         # tk.Label(self, text="Loading Networks").pack()
 
         # Main frame
-        canvas_frame = tk.Frame(self)
-        canvas_frame.pack(fill=tk.BOTH, expand=1)
+        self.canvas_frame = tk.Frame(self)
+        self.canvas_frame.pack(fill=tk.BOTH, expand=1)
 
         # Canvas
-        canvas = tk.Canvas(canvas_frame, bg="#ff0000")
-        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        canvas = tk.Canvas(self.canvas_frame, bg="#ff0000")
+        canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
         # Scrollbar
-        scrollbar = ttk.Scrollbar(canvas_frame, orient=tk.VERTICAL, command=canvas.yview)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        scrollbar = ttk.Scrollbar(self.canvas_frame, orient=tk.HORIZONTAL, command=canvas.xview)
+        scrollbar.pack(side=tk.BOTTOM, fill=tk.BOTH)
         
-        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.configure(xscrollcommand=scrollbar.set)
         canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion = canvas.bbox("all")))
 
         self.inside_frame = tk.Frame(canvas, bg="#00ff00", width=600, height=600)
@@ -43,11 +43,11 @@ class LoadingPage(Page):
         for network in networks.values():
             self.frames.append(LoadingNetworkFrame(
                 self.inside_frame, bg="#ffffff", network=network, file_storage=self.file_storage, page=self
-            ).grid(row=index, column=0, pady=20, padx=20))
+            ).grid(row=0, column=index, pady=20, padx=20))
             index += 1
 
         arrow_left = tk.Button(
-            self.inside_frame, text="Back", image=self.file_storage["arrow_left.png"], 
+            self.canvas_frame, text="Back", image=self.file_storage["arrow_left.png"], 
             width=100, height=60, command=self.parent.back_page
         )
-        arrow_left.grid(row=index, column=0)
+        arrow_left.pack()
