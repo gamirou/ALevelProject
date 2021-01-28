@@ -8,7 +8,8 @@
             "text": "Number of filters",
             "pos": [1, 0, 1, 1]
         },
-        "entry_filters": {
+        "combo_filters": {
+            "options": ["16", "32", "64", "128", "256"],
             "text": "self.layers[0].filters",
             "pos": [1, 1, 1, 1]
         },
@@ -17,8 +18,9 @@
             "pos": [2, 0, 1, 1]
         },
         "entry_kernel_size": {
-            "text": "self.layers[0].kernel_size",
-            "pos": [2, 1, 1, 1]
+            "text": "self.layers[0].kernel_size[0]",
+            "pos": [2, 1, 1, 1],
+            "validate": "callback_entry_kernel"
         },
         "label_stride_x": {
             "text": "Stride in the x-axis",
@@ -26,7 +28,8 @@
         },
         "entry_stride_x": {
             "text": "self.layers[0].strides[0]",
-            "pos": [3, 1, 1, 1]
+            "pos": [3, 1, 1, 1],
+            "validate": "callback_entry_stride"
         },
         "label_stride_y": {
             "text": "Stride in the y-axis",
@@ -34,7 +37,8 @@
         },
         "entry_stride_y": {
             "text": "self.layers[0].strides[1]",
-            "pos": [4, 1, 1, 1]
+            "pos": [4, 1, 1, 1],
+            "validate": "callback_entry_stride"
         },
         "label_padding": {
             "text": "Padding",
@@ -49,26 +53,19 @@
             "text": "Max Pooling",
             "pos": [6, 0, 1, 2]
         },
-        "label_pool_x": {
-            "text": "Pool size x-axis",
+        "label_pool": {
+            "text": "Pool size",
             "pos": [7, 0, 1, 1]
         },
-        "entry_pool_x": {
+        "entry_pool": {
             "text": "self.layers[1].pool_size[0]",
-            "pos": [7, 1, 1, 1]
-        },
-        "label_pool_y": {
-            "text": "Pool size y-axis",
-            "pos": [8, 0, 1, 1]
-        },
-        "entry_pool_y": {
-            "text": "self.layers[1].pool_size[1]",
-            "pos": [8, 1, 1, 1]
+            "pos": [7, 1, 1, 1],
+            "validate": "callback_entry_pool"
         },
         "delete_button": {
             "text": "Delete",
             "command": "delete_layer",
-            "pos": [9, 0, 1, 1]
+            "pos": [8, 0, 1, 1]
         }
     },
     "fully_connected_widgets": {
@@ -82,7 +79,8 @@
         },
         "entry_neurons": {
             "pos": [1, 1, 1, 1],
-            "text": "self.layers[0].units"
+            "text": "self.layers[0].units",
+            "validate": "callback_entry_neurons"
         },
         "checkbutton_dropout": {
             "text": "Dropout",
@@ -95,7 +93,8 @@
             "pos": [3, 0, 1, 1]
         },
         "entry_dropout": {
-            "pos": [3, 1, 1, 1]
+            "pos": [3, 1, 1, 1],
+            "validate": "callback_entry_dropout_rate"
         },
         "delete_button": {
             "text": "Delete",

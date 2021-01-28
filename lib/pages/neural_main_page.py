@@ -93,8 +93,7 @@ class NeuralMainPage(Page):
         self.widgets["label_name"][0]["text"] = text
 
         if self.current_network.model == None:
-            self.current_network.build_model()
-            Log.i(self.TAG, "Click the button to edit your network")
+            self.current_network.add_layers_to_model()
         else:
             self.current_network.get_layers_from_model()
 
@@ -191,8 +190,7 @@ class NeuralMainPage(Page):
         if self.is_training:
             Log.w(self.TAG, "Network training in process")
             return
-        
-        self.current_network.compile_model()
+
         message_box = PopUpConfirm(self, TRAIN, self.start_training_thread)
 
     def open_graph_page(self):
@@ -213,6 +211,33 @@ class NeuralMainPage(Page):
 
         self.current_network.is_trained = True
         self.is_training = False
+
+        # from time import sleep
+        # import sys
+
+        # epochs = 10
+
+        # for e in range(epochs):
+        #     sys.stdout.write('\r')
+
+        #     for X, y in data.next_batch():
+        #         model.fit(X, y, nb_epoch=1, batch_size=data.batch_size, verbose=0)
+
+        #     # print loss and accuracy
+
+        #     # the exact output you're looking for:
+        #     sys.stdout.write("[%-60s] %d%%" % ('='*(60*(e+1)/10), (100*(e+1)/10)))
+        #     sys.stdout.flush()
+        #     sys.stdout.write(", epoch %d"% (e+1))
+        #     sys.stdout.flush()
+
+        # from keras.utils import generic_utils
+
+        # progbar = generic_utils.Progbar(X_train.shape[0])
+
+        # for X_batch, Y_batch in datagen.flow(X_train, Y_train):
+        #     loss, acc = model_test.train([X_batch]*2, Y_batch, accuracy=True)
+        #     progbar.add(X_batch.shape[0], values=[("train loss", loss), ("acc", acc)])
 
         # Train the model
         # x_train = dataset.data["training"] # concatenate_dataset(dataset.data["training"])

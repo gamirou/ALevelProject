@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 from ..page import Page
+from ..frames.pop_up_confirm import PopUpConfirm
 from ..pages.layer_window import LayerWindow
-from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED, DROPOUT
+from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED, DROPOUT, BUILD_MODEL
 from ..utils.log import Log
 from ..utils.visibility_buttons import VisibilityButtons
 import time
@@ -58,8 +59,22 @@ class NeuralEditPage(Page):
 
     def go_back(self):
         # Compile the model
-        self.current_network.learning_rate = float(self.variables["learning_rate"].get())
-        self.current_network.optimizer = self.variables["optimizer"].get()
+        new_lr = float(self.variables["learning_rate"].get())
+        new_optimiser = self.variables["optimizer"].get()
+        print(new_optimiser)
+        print(self.current_network.optimizer)
+        
+        if new_lr != self.current_network.learning_rate or new_optimiser != self.current_network.optimizer:
+            message_box = PopUpConfirm(
+                self, BUILD_MODEL, 
+                lambda: self.save_finishing_touches(new_lr, new_optimiser)
+            )
+        else:
+            self.parent.back_page()
+    
+    def save_finishing_touches(self, new_lr, new_optimiser):
+        self.current_network.learning_rate = new_lr
+        self.current_network.optimizer = new_optimiser
         self.parent.back_page()
 
     def fetch_network(self, network):
@@ -67,7 +82,10 @@ class NeuralEditPage(Page):
         self.configure_buttons()
     
     def add_conv_layer(self):
+        Log.i(self.TAG, len(self.current_network.layers["convolutional"]))
+        Log.i(self.TAG, self.MAX_LAYERS * 2)
         if len(self.current_network.layers["convolutional"]) < (self.MAX_LAYERS * 2):
+            Log.e(self.TAG, "this gets called")
             conv = Conv2D(32, (5,5), activation='relu')
             maxpool = MaxPooling2D(pool_size=(2,2))
             self.visibility["frame_conv"].show_next()
@@ -149,16 +167,17 @@ class NeuralEditPage(Page):
             
             elif "combo" in inner_key:
                 options = inner_dict[inner_key]["options"]
-                widget = ttk.Combobox(frame, state='readonly', value=options)
-
+                
                 try:
                     default_value = eval(inner_dict[inner_key]["text"])
                     index = options.index(default_value)
                 except:
                     index = 0
                 
-                self.variables[inner_key.replace("combo_", "")].set(value["text"])
+                var = self.variables[inner_key.replace("combo_", "")]
+                var.set(value["text"])
 
+                widget = ttk.Combobox(frame, textvariable=var , state='readonly', value=options)
                 widget.current(index)
                 inner_dict[inner_key]["widget"] = widget
 
@@ -172,12 +191,15 @@ class NeuralEditPage(Page):
         Log.i(self.TAG + "/open_hidden_layer", f"Key: {key} = Value: {layer_type}")
 
         # get the layers
-        Log.w("ABC",self.current_network.layers)
+        # Log.w("ABC", self.current_network.layers)
         all_layers = self.current_network.layers[layer_type]
+        # for i in all_layers:
+        #     Log.w(self.TAG, i)
         if layer_type == CONVOLUTIONAL:
             index = key * 2
             convolutional = all_layers[index]
             pooling = all_layers[index + 1]
+            print(convolutional, pooling)
             layers = (convolutional, pooling)
         else:
             index = key - 1

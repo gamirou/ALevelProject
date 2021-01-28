@@ -6,6 +6,7 @@ from ..utils.utils import *
 
 # Load all libraries
 import random
+import copy
 import tensorflow as tf
 from tensorflow import keras
 from keras.models import Sequential
@@ -50,6 +51,7 @@ class Network:
 
         # Model specific
         self.model = None
+        self.flatten_layer = Flatten()
         self.learning_rate = 0.01
         self.optimizer = "rmsprop"
         self.is_trained = False
@@ -83,9 +85,6 @@ class Network:
         # Max pooling
         self.layers["convolutional"].append(MaxPooling2D(pool_size=(2,2)))
 
-        # Flatten
-        self.layers["convolutional"].append(Flatten())
-
         # Add dropout in order to prevent overfitting
         for i in range(4):
             self.layers["dropout"].append(None)
@@ -98,18 +97,34 @@ class Network:
         # Output layer
         self.layers["fully-connected"].append(Dense(1, activation='sigmoid'))
 
-    def build_model(self):
+    def add_layers_to_model(self):
         self.new_layers()
         for layer in self.layers["convolutional"]:
             self.model.add(layer)  
 
-        dense_index = 0
+        # Flatten
+        self.model.add(self.flatten_layer)
+
         for i in range(len(self.layers['dropout'])):
             if self.layers['dropout'][i] != None:
                 self.model.add(self.layers['dropout'][i])
             
             if i < len(self.layers['fully-connected']):
                 self.model.add(self.layers['fully-connected'][i])
+
+        for layer in self.model.layers:
+            Log.w(self.TAG, layer)
+    
+    def are_layers_changed(self):
+        network_layers = copy.copy(self.layers["convolutional"])
+        network_layers.append(self.flatten_layer)
+        for i in range(len(self.layers['dropout'])):
+            if self.layers['dropout'][i] != None:
+                network_layers.append(self.layers['dropout'][i])
+            
+            if i < len(self.layers['fully-connected']):
+                network_layers.append(self.layers['fully-connected'][i])
+        return network_layers != self.model.layers
 
     def train(self, dataset, epochs=None):
         with self.graph.as_default():
@@ -129,10 +144,12 @@ class Network:
         dense_index = 0
         self.layers["dropout"] = [None, None, None, None]
         for layer in self.model.layers:
-            if isinstance(layer, (Conv2D, MaxPooling2D, Flatten)):
+            if isinstance(layer, (Conv2D, MaxPooling2D)):
                 self.layers["convolutional"].append(layer)
             elif isinstance(layer, Dropout):
                 self.layers["dropout"][dense_index] = layer
+            elif isinstance(layer, Flatten):
+                self.flatten_layer = layer
             else:
                 self.layers["fully-connected"].append(layer)
                 dense_index += 1

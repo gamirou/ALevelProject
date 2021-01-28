@@ -50,8 +50,8 @@ class WeightsCallback(Callback):
                 self.weights["weights"][layer.name] = weights
                 self.weights["biases"][layer.name] = biases
 
-                np.save(f'weights_{layer.name}.npy', weights)
-                np.save(f'biases_{layer.name}.npy', biases)
+                # np.save(f'weights_{layer.name}.npy', weights)
+                # np.save(f'biases_{layer.name}.npy', biases)
             else:
                 self.weights["weights"][layer.name] = np.dstack((self.weights["weights"][layer.name], weights))
                 self.weights["biases"][layer.name] = np.dstack((self.weights["biases"][layer.name], biases))

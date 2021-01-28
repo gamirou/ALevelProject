@@ -20,7 +20,7 @@ WIDGETS_TYPE = {
 }
 
 SAVE_BUTTON_POS = {
-    CONVOLUTIONAL: 10,
+    CONVOLUTIONAL: 8,
     FULLY_CONNECTED: 4
 }
 
@@ -29,11 +29,13 @@ RESET = "RESET LAYERS"
 TRAIN = "TRAIN"
 PAUSE = "PAUSE"
 SAVE = "SAVE"
+BUILD_MODEL = "BUILD MODEL"
 
 # Messages
 POPUP_MESSAGES = {
     SAVE: "Are you sure you want to save the network?",
-    TRAIN: "Are you sure you want to train the network?"
+    TRAIN: "Are you sure you want to train the network?",
+    BUILD_MODEL: "Are you sure you want to overwrite the previous model?"
 }
 
 IMAGE_WIDTH = 52
