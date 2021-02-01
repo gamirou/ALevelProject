@@ -3,7 +3,7 @@ from tkinter import ttk
 from ..page import Page
 from ..frames.pop_up_confirm import PopUpConfirm
 from ..pages.layer_window import LayerWindow
-from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED, DROPOUT, BUILD_MODEL
+from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED, DROPOUT, BUILD_MODEL, RESET_ARCHITECTURE
 from ..utils.log import Log
 from ..utils.visibility_buttons import VisibilityButtons
 import time
@@ -235,6 +235,17 @@ class NeuralEditPage(Page):
                 self.delete_dropout(layers[1])
 
             self.visibility['frame_fully'].hide_last_visible()
+
+    def reset_architecture_popup(self):
+        message_box = PopUpConfirm(self, RESET_ARCHITECTURE, self.reset_architecture)
+
+    def reset_architecture(self):
+        self.current_network.layers = {
+            "convolutional": [],
+            "fully-connected": [],
+            "dropout": []
+        }
+        self.current_network.add_layers_to_model()
 
     def callback_entry_numbers(self, action, value_if_allowed, text):
         if action=='1' :

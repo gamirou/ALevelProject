@@ -25,17 +25,21 @@ SAVE_BUTTON_POS = {
 }
 
 # States of pop up boxes
-RESET = "RESET LAYERS"
+RESET_MODEL = "RESET MODEL"
 TRAIN = "TRAIN"
 PAUSE = "PAUSE"
 SAVE = "SAVE"
 BUILD_MODEL = "BUILD MODEL"
+DELETE = "DELETE"
+RESET_ARCHITECTURE = "RESET ARCHITECTURE"
 
 # Messages
 POPUP_MESSAGES = {
     SAVE: "Are you sure you want to save the network?",
     TRAIN: "Are you sure you want to train the network?",
-    BUILD_MODEL: "Are you sure you want to overwrite the previous model?"
+    BUILD_MODEL: "Are you sure you want to overwrite the previous model?",
+    DELETE: "Are you sure you want to delete this network? This action cannot be undone!",
+    RESET_ARCHITECTURE: "Are you sure you want to reset your model to default? Your changes will be lost!"
 }
 
 IMAGE_WIDTH = 52
@@ -80,3 +84,7 @@ def turn_dict_values_to_float(dictionary):
         dictionary[key] = new_value
 
     return dictionary
+
+def get_os_name():
+    import platform
+    return platform.system()

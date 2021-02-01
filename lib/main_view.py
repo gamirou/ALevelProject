@@ -68,4 +68,4 @@ class MainView(tk.Frame):
 
     def add_network(self, neural_id):
         self.file_storage.add_network(neural_id)
-        self.pages["LoadingPage"].load_networks(self.file_storage.saved_networks)
+        self.pages["LoadingPage"].add_frame(neural_id)

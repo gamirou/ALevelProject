@@ -9,6 +9,7 @@ import random
 import copy
 import tensorflow as tf
 from tensorflow import keras
+# import tensorflow_addons as tfa
 from keras.models import Sequential
 from keras.models import model_from_json, load_model
 from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout
@@ -60,6 +61,7 @@ class Network:
             "fully-connected": [],
             "dropout": []
         }
+        #self.tqdm_callback = tfa.callbacks.TQDMProgressBar()
         self.callback = WeightsCallback()
         self.load_files()
 
@@ -115,6 +117,7 @@ class Network:
         for layer in self.model.layers:
             Log.w(self.TAG, layer)
     
+    # ORANGE HIGHLIGHT
     def are_layers_changed(self):
         network_layers = copy.copy(self.layers["convolutional"])
         network_layers.append(self.flatten_layer)
@@ -125,6 +128,13 @@ class Network:
             if i < len(self.layers['fully-connected']):
                 network_layers.append(self.layers['fully-connected'][i])
         return network_layers != self.model.layers
+
+    def reset_weights(self):
+        for layer in self.model.layers: 
+            if hasattr(layer, 'kernel_initializer'): 
+                layer.kernel.initializer.run(session=self.session)
+            if hasattr(layer, 'bias_initializer'):
+                layer.bias.initializer.run(session=self.session) 
 
     def train(self, dataset, epochs=None):
         with self.graph.as_default():

@@ -4,6 +4,8 @@ from .neural.network import Network
 from .neural.dataset import Dataset
 import os
 import json
+import shutil
+from tkinter.font import Font
 
 from tensorflow import get_default_graph, Session
 from keras.models import model_from_json
@@ -32,6 +34,7 @@ class FileStorage:
         self.load_all_images()
         self.load_all_widgets()
         self.load_all_networks()
+        self.load_font()
 
     def load_all_networks(self):
         # r=root, d=directories, f = files
@@ -72,6 +75,17 @@ class FileStorage:
         # serialize weights to HDF5
         network.model.save(os.path.join(neural_id_path, "model.h5"))
 
+    def delete_network(self, network_id, loading_page):
+        try:
+            shutil.rmtree(os.path.join(self.path, "saved", network_id))
+            Log.i(self.TAG, f"Network {network_id} has been deleted")
+        
+            loading_page[network_id].grid_forget()
+            loading_page.index -= 1
+            self.saved_networks.pop(network_id)
+        except OSError as err:
+            Log.e(self.TAG, "Network cannot be deleted", err)
+
     def load_all_images(self):
         files = []
         for (dirpath, dirnames, filenames) in os.walk(self.path + "\\images"):
@@ -93,6 +107,15 @@ class FileStorage:
             key = turn_to_camel_case(file_name.replace('.json', ''))
             with open(os.path.join(widgets_path, file_name), 'r') as json_file:
                 self.widgets[key] = json.load(json_file)
+
+    def load_font(self):
+        ### change to font inside assets later
+        family = "Helvetica"
+        self.fonts = {
+            "small": Font(family=family, size=16),
+            "medium": Font(family=family, size=32),
+            "large": Font(family=family, size=48)
+        }
 
     ### FOR IMAGES ###
     def __setitem__(self, key, item):

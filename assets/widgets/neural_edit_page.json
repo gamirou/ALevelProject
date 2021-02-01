@@ -64,6 +64,11 @@
             "text": "0.01",
             "pos": [2, 1, 1, 1],
             "validate": "callback_entry_numbers"
+        },
+        "button_reset_architecture": {
+            "text": "Reset Network Architecture",
+            "pos": [3, 0, 1, 1],
+            "command": "reset_architecture_popup"
         }
     }
 }

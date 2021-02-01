@@ -203,6 +203,23 @@ class NeuralMainPage(Page):
         self.training_thread = threading.Thread(target=self.train_network, args=[epochs])
         self.training_thread.start()
 
+    def delete_network_popup(self):
+        message_box = PopUpConfirm(self, DELETE, self.delete_network)
+
+    def delete_network(self):
+        self.file_storage.delete_network(
+            self.current_network.network_id,
+            self.parent.pages["LoadingPage"]
+        )
+        self.parent.back_page()
+
+    def reset_network_popup(self):
+        message_box = PopUpConfirm(self, DELETE, self.reset_network)
+
+    def reset_network(self):
+        self.current_network.reset_weights()
+        Log.i(self.TAG, "Network has been reset to default values")
+
     def train_network(self, epochs=None):
         dataset = self.file_storage.dataset
         

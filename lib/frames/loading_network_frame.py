@@ -1,7 +1,7 @@
 import tkinter as tk
 from ..utils.log import Log
-from ..utils.utils import resize_image
-
+from ..utils.utils import resize_image, DELETE
+from ..frames.pop_up_confirm import PopUpConfirm
 class LoadingNetworkFrame(tk.Frame):
 
     TAG = "LoadingNetworkFrame"
@@ -10,19 +10,20 @@ class LoadingNetworkFrame(tk.Frame):
         super().__init__(master=master, cnf={}, **kw)
 
         self.widgets = []
+        self.file_storage = file_storage
         self.network = network
         self.page = page
 
-        brain_image = file_storage['clipart_brain.jpg']
+        brain_image = self.file_storage['clipart_brain.jpg']
       
         self.widgets.append(tk.Label(self, image=brain_image, bg="#ffffff"))
         self.widgets.append(tk.Label(self, wraplength=150, text=f"Name: {network.name}", bg="#ffffff"))
         self.widgets.append(tk.Label(self, wraplength=150, text=f"Description: {network.description}", bg="#ffffff"))
         self.widgets.append(tk.Label(self, wraplength=150, text=f"Date created: {network.date}", bg="#ffffff"))
-
-        for i in range(len(self.widgets)):
-            self.widgets[i].pack()
-            self.widgets[i].bind('<Button-1>', self.load_network)
+        
+        for widget in self.widgets:
+            widget.pack()
+            widget.bind('<Button-1>', self.load_network)
 
         self.bind('<Button-1>', self.load_network)
 
