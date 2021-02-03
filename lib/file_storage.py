@@ -54,6 +54,8 @@ class FileStorage:
     def save_network(self, network):    
         neural_id = network.network_id
         neural_id_path = self.path + "\\saved\\" + neural_id
+        
+        # Store metrics as json
         json_data = {
             "metrics": network.callback.metrics,
             "epochs": network.callback.epochs
@@ -63,14 +65,20 @@ class FileStorage:
         with open(os.path.join(neural_id_path, "model_metrics.json"), "w") as json_file:
             json.dump(stringified_json, json_file)
 
+        # Edit text file
         txt = ""
         with open(os.path.join(neural_id_path, "model_info.txt"), "r") as txt_file:
             txt = txt_file.readlines()
         
-        # TODO: Fix this
+        # Replace training thing
         index_false = txt[1].index("False")
         substring = "False" if index_false != -1 else "True"       
-        txt[1].replace(substring, str(network.is_trained))
+        txt[1] = txt[1].replace(substring, str(network.is_trained))
+
+        # Replace date edited
+        index_date = len(txt[1]) - txt[1][::-1].index(',')
+        substring = txt[1][index_date:len(txt[1])]
+        txt[1] = txt[1].replace(substring, today())
         with open(os.path.join(neural_id_path, "model_info.txt"), "w") as txt_file:
             txt_file.writelines(txt)
 

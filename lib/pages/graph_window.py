@@ -30,35 +30,21 @@ class GraphWindow(tk.Toplevel):
         # }
 
         self.canvas.draw()
-        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         self.toolbar = NavigationToolbar2Tk(self.canvas, self)
         self.toolbar.update()
-        self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         self.callback.set_bridge_function(self.draw_logs)
-        # animation.FuncAnimation(self.figure, self.ani_draw_logs, interval=3000)
-
-        # self.draw_logs(
-        #     {
-        #         "accuracy": [5, 4, 3, 7, 6],
-        #         "val_accuracy": [2, 7, 8, 10, 12]
-        #     },
-
-        #     [1, 2, 3, 4, 5]
-        # )
-
-    def ani_draw_logs(self):
-        self.ax.clear()
-        self.ax.plot(self.callback.epochs, self.callback.metrics["accuracy"], label="acc")
-        self.ax.plot(self.callback.epochs, self.callback.metrics["val_accuracy"], label="val_acc")
-        self.ax.legend()
-        print("ANIMATE GRAPH WINDOW: I am called")
 
     def draw_logs(self, metrics, epochs):
         self.ax.clear()
-        self.ax.plot(epochs, metrics["accuracy"], label="acc")
-        self.ax.plot(epochs, metrics["val_accuracy"], label="val_acc")
+        print(metrics.keys())
+        self.ax.plot(epochs, metrics["accuracy"], label="accuracy")
+        self.ax.plot(epochs, metrics["val_accuracy"], label="validation dataset accuracy")
+        self.ax.plot(epochs, metrics["loss"], label="loss")
+        self.ax.plot(epochs, metrics["val_loss"], label="validation dataset loss")
         self.ax.legend()
         # This is the right line, this updates the graph, however it is not called from tkinter thread
         # self.canvas.draw()

@@ -7,6 +7,14 @@ from ..utils.utils import ARROW_WIDTH_IMAGE, ARROW_HEIGHT_IMAGE
 class LoadingPage(Page):
 
     TAG = "LoadingPage"
+    description = """
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+    Mauris quis ipsum dui. Nam mattis augue ut velit auctor rhoncus. 
+    Nam quis dui sapien. Nunc vitae urna est. Vestibulum commodo convallis massa sed sollicitudin. 
+    In sed vulputate tortor. Quisque semper eros eget placerat hendrerit. 
+    In hac habitasse platea dictumst. Proin vel tincidunt nulla. Donec a interdum arcu, a facilisis purus. 
+    Phasellus nec felis efficitur, accumsan lacus non, suscipit justo.
+    """
 
     def __init__(self, parent=None, *args, **kwargs):
         super().__init__(parent=parent, *args, **kwargs)
@@ -16,12 +24,22 @@ class LoadingPage(Page):
         # tk.Label(self, text="Loading Networks").pack()
 
         # Main frame
-        self.canvas_frame = tk.Frame(self)
-        self.canvas_frame.pack(fill=tk.BOTH, expand=1)
+        self.canvas_frame = tk.Frame(self, bg="#fff")
+        self.canvas_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Title and description
+        tk.Label(
+            self.canvas_frame, text="Load a neural network",
+            font=self.file_storage.fonts["bold medium"], bg="#fff"
+        ).pack(side=tk.TOP, anchor=tk.N, fill=tk.X)
+        tk.Label(
+            self.canvas_frame, text=self.description,
+            font=self.file_storage.fonts["x-small"], bg="#fff"
+        ).pack(side=tk.TOP, anchor=tk.N, fill=tk.X)
 
         # Canvas
-        canvas = tk.Canvas(self.canvas_frame, bg="#ff0000")
-        canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        canvas = tk.Canvas(self.canvas_frame, bg="#fff")
+        canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # Scrollbar
         scrollbar = ttk.Scrollbar(self.canvas_frame, orient=tk.HORIZONTAL, command=canvas.xview)
@@ -30,8 +48,8 @@ class LoadingPage(Page):
         canvas.configure(xscrollcommand=scrollbar.set)
         canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion = canvas.bbox("all")))
 
-        self.inside_frame = tk.Frame(canvas, bg="#00ff00", width=600, height=600)
-        canvas.create_window((0,0), window=self.inside_frame, anchor="nw")
+        self.inside_frame = tk.Frame(canvas, bg="#fff", width=600, height=600)
+        canvas.create_window((0,0), window=self.inside_frame, anchor=tk.NW)
         
         self.arrow_left = tk.Button(
             self.canvas_frame, text="Back", image=self.file_storage["arrow_left.png"], 
@@ -43,17 +61,13 @@ class LoadingPage(Page):
     def load_networks(self, networks):
         self.frames = {}
         self.index = 0
-        for network in networks.values():
-            self.frames[network.network_id] = LoadingNetworkFrame(
-                self.inside_frame, bg="#ffffff", network=network, file_storage=self.file_storage, page=self
-            )
-            self.frames[network.network_id].grid(row=0, column=self.index, pady=20, padx=20)
-            self.index += 1
+        for key in networks:
+            self.add_frame(key)
 
     def add_frame(self, neural_id):
         self.frames[neural_id] = LoadingNetworkFrame(
             self.inside_frame, bg="#ffffff", network=self.file_storage.saved_networks[neural_id], 
-            file_storage=self.file_storage, page=self
+            file_storage=self.file_storage, page=self, highlightbackground="black", highlightthickness=1
         )
         self.frames[neural_id].grid(row=0, column=self.index, pady=20, padx=20)
         self.index += 1

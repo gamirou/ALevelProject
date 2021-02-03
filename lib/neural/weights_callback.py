@@ -27,6 +27,8 @@ class WeightsCallback(Callback):
         self.logs.append(logs)
         self.metrics["accuracy"].append(float(logs.get('accuracy')))
         self.metrics["val_accuracy"].append(float(logs.get('val_accuracy')))
+        self.metrics["loss"].append(float(logs.get('loss')))
+        self.metrics["val_loss"].append(float(logs.get('val_loss')))
         self.epochs.append(epoch + self.last_epoch)
         
         # This will make sure we get [0, 1, 2] - a list of consecutive integers

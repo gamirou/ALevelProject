@@ -148,6 +148,7 @@ class Network:
                 validation_steps=int(np.ceil(dataset.validate_total / float(dataset.batch_size))),
                 callbacks=[self.callback]
             )
+            self.is_trained = True
             return fit_result
 
     def get_layers_from_model(self):

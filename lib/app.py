@@ -18,7 +18,6 @@ class App:
 
         self.is_running = True
         self.is_loaded = False
-        self.are_widgets_binded = False
         self.graphs = {}
 
         # Progress bar
@@ -52,10 +51,10 @@ class App:
 
             self.root.update()
 
-            if not self.are_widgets_binded:
-                for widget in self.view.widgets_bind_stack:
-                    widget.bind()
-                self.are_widgets_binded = True
+            # if not self.are_widgets_binded:
+            #     for widget in self.view.widgets_bind_stack:
+            #         widget.bind()
+            #     self.are_widgets_binded = True
 
     def stop_progress(self):
         self.progress_bar.stop()

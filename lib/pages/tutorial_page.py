@@ -1,6 +1,6 @@
 import tkinter as tk
+from tkinter import scrolledtext as st
 from ..page import Page
-from ..frames.scrollable_text import ScrollableText
 from ..utils.log import Log
 from ..utils.utils import *
 import os, json
@@ -10,7 +10,7 @@ class TutorialPage(Page):
     TAG = "TutorialPage"
     tutorial_data = []
     pages = []
-    current_index = 0;
+    current_index = 0
     arrows = {}
 
     def __init__(self, parent, *args, **kwargs):
@@ -32,14 +32,13 @@ class TutorialPage(Page):
                 side = tk.LEFT if j == 0 else tk.RIGHT
                 frame = tk.Frame(page)
                 title = tk.Label(frame, text=data["headers"][j], wraplength=300, font=self.file_storage.fonts["bold medium"])
-                label_cnf = {
-                    "text": data['text'][j],
-                    "wraplength": 300,
-                    "font": self.file_storage.fonts["small"]
-                }
-                content = ScrollableText(frame, bg="#ff0000", label_cnf=label_cnf)
-                self.parent.widgets_bind_stack.append(content)
+                content = st.ScrolledText(frame, width=40, height=10, wrap=tk.WORD, font=self.file_storage.fonts["small"])
+                content.insert(tk.INSERT, data['text'][j])
+                content.configure(state='disabled')
                 
+                # ScrollableText(frame, bg="#ff0000", label_cnf=label_cnf)
+                # self.parent.widgets_bind_stack.append(content)
+        
                 # pack them
                 title.pack(side=tk.TOP)
                 content.pack(side=tk.BOTTOM, fill=tk.Y, expand=True) 

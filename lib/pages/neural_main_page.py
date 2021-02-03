@@ -8,15 +8,9 @@ from ..frames.pop_up_confirm import PopUpConfirm
 from ..utils.log import Log
 from ..neural.weights_callback import WeightsCallback
 from ..utils.utils import *
-
 import threading
 import random
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
-matplotlib.use("TkAgg")
+
 class NeuralMainPage(Page):
 
     TAG = "NeuralMainPage"
@@ -44,9 +38,9 @@ class NeuralMainPage(Page):
         self.style = ttk.Style()
         self.style.configure("BW.TLabel", background="red")
 
-        self.widgets["frame_input"] = [ttk.Frame(self, width=100, height=200, style="BW.TLabel"), 1, 0, 1, 2]
-        self.widgets["frame_process"] = [ttk.Frame(self, width=100, height=200, style="BW.TLabel"), 1, 2, 1, 2]
-        self.widgets["frame_output"] = [ttk.Frame(self, width=100, height=200, style="BW.TLabel"), 1, 4, 1, 2]
+        self.widgets["frame_input"] = [tk.Frame(self, width=100, height=200, style="BW.TLabel"), 1, 0, 1, 2]
+        self.widgets["frame_process"] = [tk.Frame(self, width=100, height=200, style="BW.TLabel"), 1, 2, 1, 2]
+        self.widgets["frame_output"] = [tk.Frame(self, width=100, height=200, style="BW.TLabel"), 1, 4, 1, 2]
 
         self.widgets["button_add_data"] = [ttk.Button(self, text="ADD TEST DATA", command=self.add_data), 2, 0, 1, 2]
         self.widgets["button_train"] = [ttk.Button(self, text=TRAIN, command=self.click_train_button), 2, 2, 1, 2]
@@ -67,25 +61,12 @@ class NeuralMainPage(Page):
                 inner_dict[key]["widget"] = tk.Label(frame, cnf=inner_dict[key])
             elif "button" in key:
                 inner_dict[key]["widget"] = tk.Button(frame, cnf=inner_dict[key])
-            elif "figure" in key:
-                new_key = key.replace("figure_", "")
-                graph_dict = {}                
-                graph_dict["figure"] = plt.Figure(figsize=(6,5), dpi=100)
-                graph_dict["axis"] = graph_dict["figure"].add_subplot(111)
-                canvas = FigureCanvasTkAgg(graph_dict["figure"], self)
-                self.parent.graphs[new_key] = graph_dict
-                
-                canvas.get_tk_widget().configure(cnf=inner_dict[key])
-                inner_dict[key]["widget"] = canvas.get_tk_widget()
 
             inner_dict[key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
 
     def fetch_network(self, network):
         # This function will run when the page is opened
         self.current_network = network
-        
-        # DEBUG purposes
-        self.current_network.is_trained = True
 
         # Show text and description at the top
         text = self.WELCOME_TEXT.replace("0", network.name)
@@ -151,9 +132,6 @@ class NeuralMainPage(Page):
         # self.go_to_edit()
         if self.current_network.is_trained:
             filename = tk.filedialog.askopenfilename()
-            # img = mpimg.imread(filename)
-            # imgplot = plt.imshow(img)
-            # plt.show()
             
             image = Image.open(filename)
             self.file_storage["test_image"] = ImageTk.PhotoImage(image.resize((100, 100), Image.ANTIALIAS))

@@ -27,10 +27,6 @@ class NewNeuralPage(Page):
         super().__init__(parent, *args, **kwargs)
 
         fonts = self.parent.file_storage.fonts
-        self.variables = {
-            "name": tk.StringVar(),
-            "description": tk.StringVar()
-        }
 
         # Top frame
         top_frame = tk.Frame(self, bg="#ff0")
@@ -57,8 +53,8 @@ class NewNeuralPage(Page):
             middle_frame, text="Description: ",
             bg="#fff", font=fonts["small"]
         ).grid(row=1, column=0)
-        self.entries["name"] = tk.Entry(middle_frame, text="name", textvariable=self.variables["name"])
-        self.entries["description"] = tk.Entry(middle_frame, text="description", textvariable=self.variables["description"])
+        self.entries["name"] = tk.Entry(middle_frame)
+        self.entries["description"] = tk.Text(middle_frame, width=40, height=10, font=fonts["x-small"])
         self.entries["name"].grid(row=0, column=1)
         self.entries["description"].grid(row=1, column=1, ipady=10)
 
@@ -81,29 +77,16 @@ class NewNeuralPage(Page):
         bottom_frame.pack(side=tk.BOTTOM, anchor=tk.S, fill=tk.X)
 
     def create_network(self):
-        # Lst is a boolean list
-        # true = value is empty or key = default
-        # if all three are false, the network can be created
-        # if any are true, it will not allow the user to enter any more info
-        values_changed = [value.get() == "" for key, value in self.variables.items()]
-        if any(values_changed):
-            # TODO: Change it to message shown on window
+        name = self.entries["name"].get()
+        description = self.entries["description"].get("1.0", tk.END)
+
+        print(name, description)
+        if name == "" or description == "":
             Log.w(self.TAG, "The fields are mandatory")
             return
-
-        # TODO: Do something about new lines in description
-
-        # Data will be stored in a directory
-        # dir name = uuid 
-        # files - model_info.txt (name, description and date)
-        #       - model.h5 (actual model)
-        #       - model_metrics.json (nice details in JSON format)
-        desc = self.variables["description"].get()
-        desc = desc.replace("\n", " ")
-        values = "{},{},{}".format(
-            self.variables["name"].get(),
-            desc, False
-        )
+        
+        description = description.replace("\n", "")
+        values = "{},{},{}".format(name, description, False)
         text = "name,description,is_trained,date\n" + values + "," + today()
         neural_id = str(uuid.uuid4())
 
@@ -111,3 +94,35 @@ class NewNeuralPage(Page):
         create_file("saved/" + neural_id, "model_info.txt", text)
         self.parent.add_network(neural_id)
         self.parent.go_to_neural_page(neural_id)
+
+    # def create_network(self):
+    #     # Lst is a boolean list
+    #     # true = value is empty or key = default
+    #     # if all three are false, the network can be created
+    #     # if any are true, it will not allow the user to enter any more info
+    #     values_changed = [value.get() == "" for key, value in self.variables.items()]
+    #     if any(values_changed):
+    #         # TODO: Change it to message shown on window
+    #         Log.w(self.TAG, "The fields are mandatory")
+    #         return
+
+    #     # TODO: Do something about new lines in description
+
+    #     # Data will be stored in a directory
+    #     # dir name = uuid 
+    #     # files - model_info.txt (name, description and date)
+    #     #       - model.h5 (actual model)
+    #     #       - model_metrics.json (nice details in JSON format)
+    #     desc = self.variables["description"].get()
+    #     desc = desc.replace("\n", " ")
+    #     values = "{},{},{}".format(
+    #         self.variables["name"].get(),
+    #         desc, False
+    #     )
+    #     text = "name,description,is_trained,date\n" + values + "," + today()
+    #     neural_id = str(uuid.uuid4())
+
+    #     # Create the directory and file
+    #     create_file("saved/" + neural_id, "model_info.txt", text)
+    #     self.parent.add_network(neural_id)
+    #     self.parent.go_to_neural_page(neural_id)

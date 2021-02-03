@@ -15,11 +15,12 @@ class LoadingNetworkFrame(tk.Frame):
         self.page = page
 
         brain_image = self.file_storage['clipart_brain.jpg']
+        font = self.file_storage.fonts["bold x-small"]
       
-        self.widgets.append(tk.Label(self, image=brain_image, bg="#ffffff"))
-        self.widgets.append(tk.Label(self, wraplength=150, text=f"Name: {network.name}", bg="#ffffff"))
-        self.widgets.append(tk.Label(self, wraplength=150, text=f"Description: {network.description}", bg="#ffffff"))
-        self.widgets.append(tk.Label(self, wraplength=150, text=f"Date created: {network.date}", bg="#ffffff"))
+        self.widgets.append(tk.Label(self, image=brain_image, bg="#ffffff", font=font))
+        self.widgets.append(tk.Label(self, wraplength=150, text=f"Name: {network.name}", bg="#ffffff", font=font))
+        self.widgets.append(tk.Label(self, wraplength=150, text=f"Description: {network.description}", bg="#ffffff", font=font))
+        self.widgets.append(tk.Label(self, wraplength=150, text=f"Last edited: {network.date}", bg="#ffffff", font=font))
         
         for widget in self.widgets:
             widget.pack()
