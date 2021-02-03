@@ -3,7 +3,7 @@ from tkinter import ttk
 from ..page import Page
 from ..utils.log import Log
 from ..frames.loading_network_frame import LoadingNetworkFrame
-
+from ..utils.utils import ARROW_WIDTH_IMAGE, ARROW_HEIGHT_IMAGE
 class LoadingPage(Page):
 
     TAG = "LoadingPage"
@@ -35,9 +35,9 @@ class LoadingPage(Page):
         
         self.arrow_left = tk.Button(
             self.canvas_frame, text="Back", image=self.file_storage["arrow_left.png"], 
-            width=100, height=60, command=self.parent.back_page
+            width=ARROW_WIDTH_IMAGE, height=ARROW_HEIGHT_IMAGE, command=self.parent.back_page
         )
-        self.arrow_left.pack()
+        self.arrow_left.pack(side=tk.LEFT)
         self.load_networks(self.file_storage.saved_networks)
 
     def load_networks(self, networks):

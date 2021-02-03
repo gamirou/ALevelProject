@@ -11,13 +11,14 @@ class App:
     TAG = "App"
 
     def __init__(self):
-        self.title = "Image Recognition for all"
+        self.title = "Image Classification for all"
         self.root = tk.Tk()
         self.root.title(self.title)
         self.root.wm_geometry("600x600")
 
         self.is_running = True
         self.is_loaded = False
+        self.are_widgets_binded = False
         self.graphs = {}
 
         # Progress bar
@@ -50,6 +51,11 @@ class App:
             #     ani = animation.FuncAnimation(graph["figure"], graph["animate"], interval=5000)
 
             self.root.update()
+
+            if not self.are_widgets_binded:
+                for widget in self.view.widgets_bind_stack:
+                    widget.bind()
+                self.are_widgets_binded = True
 
     def stop_progress(self):
         self.progress_bar.stop()

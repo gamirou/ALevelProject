@@ -67,7 +67,7 @@
         },
         "button_reset_architecture": {
             "text": "Reset Network Architecture",
-            "pos": [3, 0, 1, 1],
+            "pos": [3, 0, 1, 2],
             "command": "reset_architecture_popup"
         }
     }

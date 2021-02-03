@@ -1,34 +1,25 @@
 {
     "frame_input": {
-        "label_data": {
-            "text": "Data",
-            "pos": [0, 0, 1, 1]
-        },
-        "label_description": {
-            "text": "The training data needs to be 36x36 pixels",
-            "wraplength": 100,
-            "pos": [1, 0, 1, 1]
-        },
         "label_test_images": {
             "text": "Evaluate the network",
             "wraplength": 100,
-            "pos": [2, 0, 1, 1]
+            "pos": [0, 0, 1, 1]
         },
         "button_test_images": {
             "text": "Click here to see test the network with 200 images it has never seen before",
             "command": "test_network",
             "wraplength": 100,
-            "pos": [3, 0, 1, 1]
+            "pos": [1, 0, 1, 1]
         },
         "label_reset": {
             "text": "Reset the network",
-            "pos": [4, 0, 1, 1]
+            "pos": [2, 0, 1, 1]
         },
         "button_reset": {
             "text": "Click this button if you want to reset the network",
             "command": "reset_network_popup",
             "wraplength": 100,
-            "pos": [5, 0, 1, 1]
+            "pos": [3, 0, 1, 1]
         }
     },
     "frame_process": {

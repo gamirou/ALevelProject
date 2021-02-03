@@ -31,10 +31,12 @@ class FileStorage:
         self.session = Session()
         K.set_session(self.session)
 
+        # Load all files
         self.load_all_images()
         self.load_all_widgets()
         self.load_all_networks()
         self.load_font()
+        self.load_tutorial_info()
 
     def load_all_networks(self):
         # r=root, d=directories, f = files
@@ -112,10 +114,25 @@ class FileStorage:
         ### change to font inside assets later
         family = "Helvetica"
         self.fonts = {
-            "small": Font(family=family, size=16),
-            "medium": Font(family=family, size=32),
-            "large": Font(family=family, size=48)
+            "x-small": Font(family=family, size=10),
+            "small": Font(family=family, size=14),
+            "medium": Font(family=family, size=24),    
+            "large": Font(family=family, size=32),
+            "x-large": Font(family=family, size=48),
+
+            "bold x-small": Font(family=family, size=10, weight="bold"),
+            "bold small": Font(family=family, size=14, weight="bold"),
+            "bold medium": Font(family=family, size=24, weight="bold"),
+            "bold large": Font(family=family, size=32, weight="bold"),
+            "bold x-large": Font(family=family, size=48, weight="bold")
         }
+
+    def load_tutorial_info(self):
+        abs_file_path = get_main_path("assets", "tutorial.json")
+
+        with open(abs_file_path) as json_file:
+            data = json.load(json_file)
+            self.tutorial_data = data
 
     ### FOR IMAGES ###
     def __setitem__(self, key, item):

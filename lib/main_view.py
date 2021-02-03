@@ -13,6 +13,7 @@ class MainView(tk.Frame):
     current_id = "MainMenu"
     page_stack = []
     pages = {}
+    widgets_bind_stack = []
 
     def __init__(self, master, app, file_storage, *args, **kwargs):
         super().__init__(master, *args, **kwargs)

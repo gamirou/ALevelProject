@@ -1,5 +1,6 @@
 import tkinter as tk
 from ..page import Page
+from ..frames.scrollable_text import ScrollableText
 from ..utils.log import Log
 from ..utils.utils import *
 import os, json
@@ -14,47 +15,54 @@ class TutorialPage(Page):
 
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        self.load_tutorial_info()
+        self.file_storage = self.parent.file_storage
+        self.tutorial_data = self.file_storage.tutorial_data
         self.initialise_pages()
         self.show_page(self.current_index)
 
-    def load_tutorial_info(self):
-        # script_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__))) #<-- absolute dir the script is in
-        # rel_path = "assets\\tutorial.json"
-        # abs_file_path = os.path.join(script_dir, rel_path)
-        
-        abs_file_path = get_main_path("assets", "tutorial.json")
-
-        with open(abs_file_path) as json_file:
-            data = json.load(json_file)
-            self.tutorial_data = data
-
     def initialise_pages(self):
-        self.container = tk.Frame(self, bg="#ff0000", width=120, height=120)
-        self.container.pack(side="top", fill="both", expand=False)
+        self.container = tk.Frame(self)
+        self.container.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         for i in range(len(self.tutorial_data)):
             page = Page(self)
             data = self.tutorial_data[i]
 
             for j in range(len(data["headers"])):
-                tk.Label(page, text=data["headers"][j]).grid(row=0, column=j)
-                tk.Label(page, text=data["text"][j]).grid(row=1, column=j)
+                side = tk.LEFT if j == 0 else tk.RIGHT
+                frame = tk.Frame(page)
+                title = tk.Label(frame, text=data["headers"][j], wraplength=300, font=self.file_storage.fonts["bold medium"])
+                label_cnf = {
+                    "text": data['text'][j],
+                    "wraplength": 300,
+                    "font": self.file_storage.fonts["small"]
+                }
+                content = ScrollableText(frame, bg="#ff0000", label_cnf=label_cnf)
+                self.parent.widgets_bind_stack.append(content)
+                
+                # pack them
+                title.pack(side=tk.TOP)
+                content.pack(side=tk.BOTTOM, fill=tk.Y, expand=True) 
+                frame.pack(side=side, anchor=tk.N, fill=tk.Y, expand=True)
 
             # Add rest of text
             self.pages.append(page)
         
+        self.footer = tk.Frame(self, bg="#fff")
         self.arrows["left"] = tk.Button(
-            self, text="Back", image=self.parent.file_storage["arrow_left.png"], width=ARROW_WIDTH_IMAGE, 
+            self.footer, text="Back", image=self.file_storage["arrow_left.png"], 
+            width=ARROW_WIDTH_IMAGE, 
             height=ARROW_HEIGHT_IMAGE, command=lambda index=-1: self.change_page(index)
         )
         self.arrows["right"] = tk.Button(
-            self, text="Create New Network", image=self.parent.file_storage["arrow_right.png"], width=ARROW_WIDTH_IMAGE, 
+            self.footer, text="Create New Network", image=self.file_storage["arrow_right.png"], 
+            width=ARROW_WIDTH_IMAGE, 
             height=ARROW_HEIGHT_IMAGE, command=lambda index=1: self.change_page(index)
         )
 
-        self.arrows["left"].pack(side="bottom")
-        self.arrows["right"].pack(side="bottom")
+        self.footer.pack(side=tk.BOTTOM, fill=tk.BOTH)
+        self.arrows["left"].pack(side=tk.LEFT)
+        self.arrows["right"].pack(side=tk.RIGHT)
             
     def show_page(self, index):
         self.current_index = index

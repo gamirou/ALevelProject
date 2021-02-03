@@ -17,18 +17,19 @@ class MainMenu(Page):
 
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        
-        app_title = "Image Recognition for all"
-        label = tk.Label(self, text=app_title, bg="#ff0000")
-        label.pack(expand=True)
-        #label.grid(row=0, column=0)
 
-        # Buttons
-        # buttons[0] = tk.Button(self, text="How to Use")
+        fonts = self.parent.file_storage.fonts        
+        app_title = "Image Classification for all"
+        label = tk.Label(self, text=app_title, bg="#fff", font=fonts["bold large"])
+        label.pack(expand=True)
+        
         index = 1
         for key in self.buttons:
             # Add buttons to dictionary
-            self.buttons[key][0] = tk.Button(self, text=key, bg='#fff', fg='#5e0800', relief='flat')
+            self.buttons[key][0] = tk.Button(
+                self, text=key, bg='#fff', fg='#5e0800', 
+                relief='flat', font=fonts["medium"]
+            )
             self.buttons[key][0].configure(
                 command=lambda page_name=self.buttons[key][1]: self.on_click(page_name, self.open_page)
             )

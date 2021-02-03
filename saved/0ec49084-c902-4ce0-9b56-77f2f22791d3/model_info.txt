@@ -1,0 +1,2 @@
+name,description,is_trained,date
+Role model,I show the world the true power of AI,False,2021-02-02
