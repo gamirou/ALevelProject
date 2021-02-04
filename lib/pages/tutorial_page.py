@@ -21,18 +21,18 @@ class TutorialPage(Page):
         self.show_page(self.current_index)
 
     def initialise_pages(self):
-        self.container = tk.Frame(self)
+        self.container = tk.Frame(self, bg="#fff")
         self.container.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         for i in range(len(self.tutorial_data)):
-            page = Page(self)
+            page = Page(self, bg="#fff")
             data = self.tutorial_data[i]
 
             for j in range(len(data["headers"])):
                 side = tk.LEFT if j == 0 else tk.RIGHT
-                frame = tk.Frame(page)
-                title = tk.Label(frame, text=data["headers"][j], wraplength=300, font=self.file_storage.fonts["bold medium"])
-                content = st.ScrolledText(frame, width=40, height=10, wrap=tk.WORD, font=self.file_storage.fonts["small"])
+                frame = tk.Frame(page, bg="#fff")
+                title = tk.Label(frame, bg="#fff", text=data["headers"][j], wraplength=300, font=self.file_storage.fonts["bold medium"])
+                content = st.ScrolledText(frame, bg="#fff", width=20, height=10, wrap=tk.WORD, font=self.file_storage.fonts["small"])
                 content.insert(tk.INSERT, data['text'][j])
                 content.configure(state='disabled')
                 
@@ -50,16 +50,16 @@ class TutorialPage(Page):
         self.footer = tk.Frame(self, bg="#fff")
         self.arrows["left"] = tk.Button(
             self.footer, text="Back", image=self.file_storage["arrow_left.png"], 
-            width=ARROW_WIDTH_IMAGE, 
+            width=ARROW_WIDTH_IMAGE,
             height=ARROW_HEIGHT_IMAGE, command=lambda index=-1: self.change_page(index)
         )
         self.arrows["right"] = tk.Button(
             self.footer, text="Create New Network", image=self.file_storage["arrow_right.png"], 
-            width=ARROW_WIDTH_IMAGE, 
+            width=ARROW_WIDTH_IMAGE,
             height=ARROW_HEIGHT_IMAGE, command=lambda index=1: self.change_page(index)
         )
 
-        self.footer.pack(side=tk.BOTTOM, fill=tk.BOTH)
+        self.footer.pack(side=tk.BOTTOM, fill=tk.BOTH, pady=(20, 0))
         self.arrows["left"].pack(side=tk.LEFT)
         self.arrows["right"].pack(side=tk.RIGHT)
             

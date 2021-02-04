@@ -2,92 +2,111 @@
     "frame_input": {
         "label_test_images": {
             "text": "Evaluate the network",
-            "wraplength": 100,
+            "font": "bold small",
+            "wraplength": 150,
             "pos": [0, 0, 1, 1]
         },
         "button_test_images": {
             "text": "Click here to see test the network with 200 images it has never seen before",
             "command": "test_network",
-            "wraplength": 100,
+            "font": "x-small",
+            "wraplength": 150,
             "pos": [1, 0, 1, 1]
         },
         "label_reset": {
             "text": "Reset the network",
+            "font": "bold small",
             "pos": [2, 0, 1, 1]
         },
         "button_reset": {
             "text": "Click this button if you want to reset the network",
             "command": "reset_network_popup",
-            "wraplength": 100,
+            "font": "x-small",
+            "wraplength": 150,
             "pos": [3, 0, 1, 1]
         }
     },
     "frame_process": {
         "label_network": {
             "text": "Network",
+            "font": "bold small",
             "pos": [0, 0, 1, 1]  
         },
         "button_depth": {
             "text": "Click here to see the network in more details",
-            "wraplength": 100,
+            "wraplength": 150,
+            "font": "x-small",
             "command": "go_to_edit",
             "pos": [1, 0, 1, 1]
         },
         "label_details": {
             "text": "Model accuracy",
+            "font": "bold small",
             "pos": [2, 0, 1, 1]
         },
         "button_details": {
             "text": "Click here to see how the accuracy changes over time",
             "command": "open_graph_page",
-            "wraplength": 100,
+            "wraplength": 150,
+            "font": "x-small",
             "pos": [3, 0, 1, 1]
         },
         "label_delete": {
             "text": "Delete",
+            "font": "bold small",
             "fg": "#ff0000",
             "pos": [4, 0, 1, 1]
         },
         "button_delete": {
             "text": "Click this button if you want to delete the network",
             "command": "delete_network_popup",
-            "wraplength": 100,
+            "wraplength": 150,
+            "font": "x-small",
+            "fg": "#ff0000",
             "pos": [5, 0, 1, 1]
         }
     },
     "frame_output": {
         "label_output": {
-            "text": "Output",
+            "text": "Prediction",
+            "font": "bold small",
             "pos": [0, 0, 1, 2]  
         },
         "label_output_image": {
             "text": "Output image",
             "image": "image_placeholder.png",
-            "wraplength": 100,
+            "wraplength": 150,
+            "font": "x-small",
             "pos": [1, 0, 1, 2]
         },
         "label_result": {
             "text": "Result:",
+            "font": "x-small",
             "pos": [2, 0, 1, 1]
         },
         "label_result_value": {
             "text": "---",
+            "font": "x-small",
             "pos": [2, 1, 1, 1]
         },
         "label_prediction": {
             "text": "Prediction value:",
+            "font": "x-small",
             "pos": [3, 0, 1, 1]
         },
         "label_prediction_value": {
             "text": "---",
+            "font": "x-small",
             "pos": [3, 1, 1, 1]
         },
         "label_accuracy": {
             "text": "Accuracy on test data",
+            "font": "x-small",
             "pos": [4, 0, 1, 2]
         },
         "label_accuracy_value": {
             "text": "---",
+            "font": "x-small",
             "pos": [5, 0, 1, 2]
         }
     }

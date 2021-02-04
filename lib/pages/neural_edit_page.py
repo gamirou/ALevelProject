@@ -7,6 +7,7 @@ from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED, DROPOUT, BUILD_MODEL, 
 from ..utils.log import Log
 from ..utils.visibility_buttons import VisibilityButtons
 import time
+import copy
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -19,51 +20,118 @@ class NeuralEditPage(Page):
     TAG = "NeuralEditPage"
 
     MAX_LAYERS = 4
-    CONVOLUTIONAL = "convolutional"
-    FULLY_CONNECTED = "fully-connected"
-    STATE = ""
-    # states = ["EDIT", "COMPILED", "TRAINED"]
-
     visibility = {}
-
-    # same as NeuralMainPage
-    widgets = {}
-    visibility_buttons = {}
+    # widgets = {}
+    frame_widgets = {
+        # "frame_conv": {
+        #     "side": tk.TOP,
+        #     "anchor": "nw",
+        #     "expand": True
+        # },
+        # "frame_fully": {
+        #     "side": tk.TOP,
+        #     "anchor": "ne",
+        #     "fill": tk.Y,
+        #     "expand": True
+        # },
+        # "frame_output": {
+        #     "side": tk.BOTTOM,
+        #     "anchor": "s",
+        #     "expand": True    
+        # },
+        "frame_conv": {
+            "row": 0,
+            "column": 0,
+            "rowspan": 1,
+            "columnspan": 1
+        },
+        "frame_fully": {
+            "row": 0,
+            "column": 1,
+            "rowspan": 1,
+            "columnspan": 1
+        },
+        "frame_output": {
+            "row": 1,
+            "column": 0,
+            "rowspan": 1,
+            "columnspan": 2
+        }
+    }
 
     def __init__(self, parent=None, *args, **kwargs):
         super().__init__(parent=parent, *args, **kwargs)
 
+        self.file_storage = self.parent.file_storage
         self.variables = {
             "learning_rate": tk.StringVar(),
             "optimizer": tk.StringVar() 
         }
 
-        self.inner_widgets = self.parent.file_storage.widgets[self.__class__.__name__]
+        self.widgets = self.file_storage.widgets["NepMainWidgets"]
+        self.inner_widgets = self.file_storage.widgets[self.__class__.__name__]
+
+        self.add_hidden_buttons()
+        self.render_main_widgets()
 
         # Edit layers
         # padding and stride and all that shize
-        self.widgets["frame_conv"] = [ttk.Frame(self, width=100, height=200), 0, 0, 2, 2]
-        self.widgets["frame_fully"] = [ttk.Frame(self, width=100, height=200), 0, 2, 2, 2]
-        self.widgets["frame_output"] = [ttk.Frame(self, width=100, height=200), 4, 0, 2, 4]
+        # self.widgets["frame_conv"] = [ttk.Frame(self, width=100, height=200), 0, 0, 2, 2]
+        # self.widgets["frame_fully"] = [ttk.Frame(self, width=100, height=200), 0, 2, 2, 2]
+        # self.widgets["frame_output"] = [ttk.Frame(self, width=100, height=200), 4, 0, 2, 4]
 
-        arrow_left = tk.Button(
-            self, text="Back", image=self.parent.file_storage["arrow_left.png"], 
-            width=100, height=60, command=self.go_back
-        )
-        arrow_left.grid(row=10, column=0)
+        # arrow_left = tk.Button(
+        #     self, text="Back", image=self.file_storage["arrow_left.png"], 
+        #     width=100, height=60, command=self.go_back
+        # )
+        # arrow_left.grid(row=10, column=0)
+        # for key, lst in self.widgets.items():
+        #     # lst[0].grid(row=lst[1], column=lst[2], rowspan=lst[3], columnspan=lst[4])
+        #     self.render_inner(key, lst)
 
-        self.add_hidden_buttons()
-        for key, lst in self.widgets.items():
-            lst[0].grid(row=lst[1], column=lst[2], rowspan=lst[3], columnspan=lst[4])
-            self.render_inner(key, lst)
+    def render_main_widgets(self, parent_widget=None, widgets=None):
+        if widgets == None:
+            widgets = self.widgets
+
+        for key in widgets:
+            text = widgets[key].pop("text", None)
+            font = self.get_font(widgets[key])
+            if "command" in widgets[key].keys():
+                command = getattr(self, widgets[key].pop("command", None))
+                
+            image_name = widgets[key].pop("image", None)
+            width = widgets[key].pop("width", None)
+            height = widgets[key].pop("height", None)
+
+            pack_options = copy.copy(widgets[key])
+            if "label" in key:
+                widgets[key]["widget"] = tk.Label(self, bg="#fff", text=text, font=font, wraplength=400)
+            elif "button" in key:
+                widgets[key]["widget"] = tk.Button(
+                    self, text=text, font=font, command=command, height=height,
+                    image=self.file_storage[image_name], width=width
+                )
+            else:
+                if key == "frame_main":    
+                    widgets[key]["widget"] = tk.Frame(self, bg="#fff")
+                    for i in range(2):
+                        widgets[key]["widget"].rowconfigure(i, weight=1)
+                        widgets[key]["widget"].columnconfigure(i, weight=1)
+                    self.render_main_widgets(widgets[key]["widget"], self.frame_widgets)
+                else:
+                    widgets[key]["widget"] = tk.Frame(parent_widget, bg="#fff")
+                    self.render_inner(key, widgets[key]["widget"])
+
+            if parent_widget == None:
+                widgets[key]["widget"].pack(pack_options)
+            else:
+                widgets[key]["widget"].grid(pack_options)
 
     def go_back(self):
         # Compile the model
         new_lr = float(self.variables["learning_rate"].get())
         new_optimiser = self.variables["optimizer"].get()
-        print(new_optimiser)
-        print(self.current_network.optimizer)
-        
+
         if new_lr != self.current_network.learning_rate or new_optimiser != self.current_network.optimizer:
             message_box = PopUpConfirm(
                 self, BUILD_MODEL, 
@@ -126,21 +194,21 @@ class NeuralEditPage(Page):
             self.inner_widgets["frame_conv"][f"button_hidden_{i}"] = conv_widget
             self.inner_widgets["frame_fully"][f"button_hidden_{i}"] = fully_widget
 
-    def render_inner(self, key, lst):
-        frame = lst[0]
+    def render_inner(self, key, frame):
         inner_dict = self.inner_widgets[key]
 
         # Render - document
         for inner_key, value in inner_dict.items():
             is_hidden = False
             pos = value.pop("pos", None)
+            font = self.get_font(inner_dict[inner_key])
             if "label" in inner_key:
-                inner_dict[inner_key]["widget"] = tk.Label(frame, cnf=inner_dict[inner_key])
+                inner_dict[inner_key]["widget"] = tk.Label(frame, font=font, cnf=inner_dict[inner_key])
                 
             elif "button" in inner_key:
                 if "command" in inner_dict[inner_key].keys() and isinstance(inner_dict[inner_key]["command"], str):
                     inner_dict[inner_key]["command"] = getattr(self, inner_dict[inner_key]["command"])
-                inner_dict[inner_key]["widget"] = tk.Button(frame, cnf=inner_dict[inner_key])
+                inner_dict[inner_key]["widget"] = tk.Button(frame, font=font, cnf=inner_dict[inner_key])
                 
                 # add button to visibility buttons class
                 if "hidden" in inner_key:
@@ -160,10 +228,10 @@ class NeuralEditPage(Page):
                 if "validate" in inner_dict[inner_key].keys():
                     validate = value.pop("validate", None)
                     vcmd = (frame.register(getattr(self, validate)))
-                    widget = tk.Entry(frame, validate='key', validatecommand=(vcmd, '%d', '%P', '%S'), cnf=value)
+                    widget = tk.Entry(frame, font=font, validate='key', validatecommand=(vcmd, '%d', '%P', '%S'), cnf=value)
                     inner_dict[inner_key]["widget"] = widget
                 else:
-                    inner_dict[inner_key]["widget"] = tk.Entry(frame, cnf=inner_dict[inner_key])
+                    inner_dict[inner_key]["widget"] = tk.Entry(frame, font=font, cnf=inner_dict[inner_key])
             
             elif "combo" in inner_key:
                 options = inner_dict[inner_key]["options"]
@@ -272,4 +340,7 @@ class NeuralEditPage(Page):
                     self.visibility["frame_fully"][index] = True
                     index += 1
 
-        # print(self.visibility_buttons)
+    def get_font(self, widget_dict):
+        font_name = widget_dict.pop("font", None)
+        if font_name != None:
+            return self.file_storage.fonts[font_name]

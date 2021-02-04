@@ -45,6 +45,13 @@ class MainView(tk.Frame):
         else:
             self.current_id = self.page_stack[-1]
 
+        # self.pages[self.current_id].place({
+        #     "in_": self,
+        #     "x": 0,
+        #     "y": 0,
+        #     "relwidth": 1,
+        #     "relheight": 1
+        # })
         self.pages[self.current_id].place(in_=self, x=0, y=0, relwidth=1, relheight=1)
         self.pages[self.current_id].show()
 

@@ -1,0 +1,45 @@
+{
+    "label_title": {
+        "text": "",
+        "font": "bold medium",
+        "side": "top",
+        "fill": "x",
+        "anchor": "n"
+    },
+    "label_description": {
+        "text": "",
+        "font": "small",
+        "side": "top",
+        "fill": "x",
+        "anchor": "n"
+    },
+    "frame_main": {
+        "anchor": "center",
+        "fill": "both",
+        "expand": 1
+    },
+    "button_add_data": {
+        "text": "ADD TEST DATA",
+        "side": "left",
+        "anchor": "s",
+        "expand": 1,
+        "pady": 20,
+        "command": "add_data"
+    },
+    "button_train": {
+        "text": "TRAIN",
+        "side": "left",
+        "expand": 1,
+        "anchor": "s",
+        "pady": 20,
+        "command": "click_train_button"
+    },
+    "button_save": {
+        "text": "SAVE",
+        "side": "left",
+        "anchor": "s",
+        "pady": 20, 
+        "expand": 1,
+        "command": "click_save_button"
+    }
+}

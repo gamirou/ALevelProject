@@ -10,59 +10,58 @@ from ..neural.weights_callback import WeightsCallback
 from ..utils.utils import *
 import threading
 import random
+import copy
 
 class NeuralMainPage(Page):
 
     TAG = "NeuralMainPage"
 
-    WELCOME_TEXT = "Hello my friend! My name is 0! My description says: 1!"
+    WELCOME_TEXT = "Hello my friend! My name is 0!"
     RESULT_TEXT = "Result: "
     ACCURACY_TEXT = "Accuracy: "
 
     is_training = False
     axes = {}    
     # "key": [label, x, y, rowspan, colspan]
-    widgets = {}
+    # widgets = {}
+    
+    frame_widgets = {
+        "frame_input": {
+            "side": tk.LEFT,
+            "expand": True
+        },
+        "frame_process": {
+            "side": tk.LEFT,
+            "expand": True
+        },
+        "frame_output": {
+            "side": tk.LEFT,
+            "expand": True    
+        },
+    }
 
     def __init__(self, parent=None, *args, **kwargs):
         super().__init__(parent=parent, *args, **kwargs)
         self.file_storage = self.parent.file_storage
         self.inner_widgets = self.file_storage.widgets[self.__class__.__name__]
-        
-        # add column span to array
-        self.widgets["label_name"] = [tk.Label(self, text=self.WELCOME_TEXT, bg="#00ff00"), 0, 1, 1, 4]
-        # FRAMES THAT HAVE INPUT PROCESS AND OUTPUT
-
         self.init_inner()
+        self.widgets = self.file_storage.widgets["NmpMainWidgets"]
 
-        self.style = ttk.Style()
-        self.style.configure("BW.TLabel", background="red")
+        # Main widgets
+        self.render_main_widgets()
+        # self.widgets["label_name"] = [tk.Label(self, text=self.WELCOME_TEXT, bg="#00ff00"), 0, 1, 1, 4]
+        # self.widgets["frame_input"] = [tk.Frame(self, width=100, height=200), 1, 0, 1, 2]
+        # self.widgets["frame_process"] = [tk.Frame(self, width=100, height=200), 1, 2, 1, 2]
+        # self.widgets["frame_output"] = [tk.Frame(self, width=100, height=200), 1, 4, 1, 2]
 
-        self.widgets["frame_input"] = [tk.Frame(self, width=100, height=200, style="BW.TLabel"), 1, 0, 1, 2]
-        self.widgets["frame_process"] = [tk.Frame(self, width=100, height=200, style="BW.TLabel"), 1, 2, 1, 2]
-        self.widgets["frame_output"] = [tk.Frame(self, width=100, height=200, style="BW.TLabel"), 1, 4, 1, 2]
+        # self.widgets["button_add_data"] = [ttk.Button(self, text="ADD TEST DATA", command=self.add_data), 2, 0, 1, 2]
+        # self.widgets["button_train"] = [ttk.Button(self, text=TRAIN, command=self.click_train_button), 2, 2, 1, 2]
+        # self.widgets["button_save"] = [ttk.Button(self, text=SAVE, command=self.click_save_button), 2, 4, 1, 2]
 
-        self.widgets["button_add_data"] = [ttk.Button(self, text="ADD TEST DATA", command=self.add_data), 2, 0, 1, 2]
-        self.widgets["button_train"] = [ttk.Button(self, text=TRAIN, command=self.click_train_button), 2, 2, 1, 2]
-        self.widgets["button_save"] = [ttk.Button(self, text=SAVE, command=self.click_save_button), 2, 4, 1, 2]
-
-        for key, lst in self.widgets.items():
-            lst[0].grid(row=lst[1], column=lst[2], rowspan=lst[3], columnspan=lst[4])
-            if "frame" in key:
-                self.render_inner(key, lst)
-
-    def render_inner(self, key, lst):
-        frame = lst[0]
-        inner_dict = self.inner_widgets[key]
-
-        for key, value in inner_dict.items():
-            pos = value.pop("pos", None)
-            if "label" in key:
-                inner_dict[key]["widget"] = tk.Label(frame, cnf=inner_dict[key])
-            elif "button" in key:
-                inner_dict[key]["widget"] = tk.Button(frame, cnf=inner_dict[key])
-
-            inner_dict[key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
+        # for key, lst in self.widgets.items():
+        #     lst[0].grid(row=lst[1], column=lst[2], rowspan=lst[3], columnspan=lst[4])
+        #     if "frame" in key:
+        #         self.render_inner(key, lst)
 
     def fetch_network(self, network):
         # This function will run when the page is opened
@@ -70,13 +69,54 @@ class NeuralMainPage(Page):
 
         # Show text and description at the top
         text = self.WELCOME_TEXT.replace("0", network.name)
-        text = text.replace("1", network.description)
-        self.widgets["label_name"][0]["text"] = text
+        self.widgets["label_title"]["widget"]["text"] = text
+        self.widgets["label_description"]["widget"]["text"] = network.description
 
         if self.current_network.model == None:
             self.current_network.add_layers_to_model()
         else:
             self.current_network.get_layers_from_model()
+
+    def render_main_widgets(self, parent_widget=None, widgets=None):
+        if widgets == None:
+            widgets = self.widgets
+
+        for key in widgets:
+            text = widgets[key].pop("text", None)
+            font = self.get_font(widgets[key])
+            if "command" in widgets[key].keys():
+                command = getattr(self, widgets[key].pop("command", None))
+            pack_options = copy.copy(widgets[key])
+            if "label" in key:
+                widgets[key]["widget"] = tk.Label(self, bg="#fff", text=text, font=font, wraplength=400)
+            elif "button" in key:
+                widgets[key]["widget"] = ttk.Button(self, text=text, font=font, command=command)
+            else:
+                if key == "frame_main":    
+                    widgets[key]["widget"] = tk.Frame(self, bg="#fff")
+                    self.render_main_widgets(widgets[key]["widget"], self.frame_widgets)
+                else:    
+                    widgets[key]["widget"] = tk.Frame(parent_widget, bg="#fff")
+                    self.render_inner(key, widgets[key]["widget"])
+
+            widgets[key]["widget"].pack(pack_options)
+
+    def render_inner(self, key, frame):
+        inner_dict = self.inner_widgets[key]
+
+        for key, value in inner_dict.items():
+            pos = value.pop("pos", None)
+            font = self.get_font(inner_dict[key])
+            inner_dict[key]["font"] = font
+            if "label" in key:
+                inner_dict[key]["widget"] = tk.Label(frame, bg="#fff", cnf=inner_dict[key])
+            elif "button" in key:
+                inner_dict[key]["widget"] = tk.Button(frame, bg="#fff", cnf=inner_dict[key])
+
+            inner_dict[key]["widget"].grid(
+                row=pos[0], column=pos[1], rowspan=pos[2], 
+                columnspan=pos[3], padx=5, pady=5
+            )
 
     def init_inner(self):
         for frame_value in self.inner_widgets.values():
@@ -101,6 +141,7 @@ class NeuralMainPage(Page):
 
     def test_network(self):
         if self.current_network.is_trained:
+            # TODO: Add this function to the network class
             dataset = self.file_storage.dataset
             pred = self.current_network.model.predict_generator(dataset.test_image_generator, steps=dataset.test_total/dataset.batch_size, verbose=1)
             predicted_class_indices = np.round(pred)
@@ -260,3 +301,8 @@ class NeuralMainPage(Page):
             "dropout": []
         }
         self.parent.back_page()
+
+    def get_font(self, widget_dict):
+        font_name = widget_dict.pop("font", None)
+        if font_name != None:
+            return self.file_storage.fonts[font_name]

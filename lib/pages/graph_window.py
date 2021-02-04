@@ -40,11 +40,11 @@ class GraphWindow(tk.Toplevel):
 
     def draw_logs(self, metrics, epochs):
         self.ax.clear()
-        print(metrics.keys())
+        # print(metrics.keys())
         self.ax.plot(epochs, metrics["accuracy"], label="accuracy")
         self.ax.plot(epochs, metrics["val_accuracy"], label="validation dataset accuracy")
-        self.ax.plot(epochs, metrics["loss"], label="loss")
-        self.ax.plot(epochs, metrics["val_loss"], label="validation dataset loss")
+        # self.ax.plot(epochs, metrics["loss"], label="loss")
+        # self.ax.plot(epochs, metrics["val_loss"], label="validation dataset loss")
         self.ax.legend()
         # This is the right line, this updates the graph, however it is not called from tkinter thread
         # self.canvas.draw()

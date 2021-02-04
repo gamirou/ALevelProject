@@ -1,53 +1,75 @@
 {
     "frame_conv": {
         "label_title": {
+            "font": "bold small",
             "text": "Convolutional layers",
+            "bg": "#fff",
             "pos": [0, 0, 1, 2]
         },
         "label_input": {
+            "font": "bold x-small",
             "text": "Input layer",
+            "bg": "#fff",
             "pos": [1, 0, 1, 1]
         },
         "button_input": {
+            "font": "x-small",
             "text": "Click to edit input layer",
+            "bg": "#fff",
             "pos": [1, 1, 1, 1],
             "command": "open_hidden_layer"
         },
         "label_hidden": {
+            "font": "bold x-small",
             "text": "Hidden layers: 1-4",
+            "bg": "#fff",
             "pos": [2, 0, 1, 2]
         },
         "button_add": {
+            "font": "x-small",
             "text": "Add hidden layer",
+            "bg": "#fff",
             "pos": [10, 0, 1, 2],
             "command": "add_conv_layer"
         }
     },
     "frame_fully": {
         "label_title": {
+            "font": "bold small",
             "text": "Fully-connected layers",
+            "bg": "#fff",
             "pos": [0, 0, 1, 2]
         },
         "label_input": {
+            "font": "bold x-small",
             "text": "Input layer: cannot be changed",
+            "bg": "#fff",
             "pos": [1, 0, 1, 1]
         },
         "label_hidden": {
+            "font": "bold x-small",
             "text": "Hidden layers: 1-4",
+            "bg": "#fff",
             "pos": [2, 0, 1, 1]
         },
         "button_add": {
+            "font": "x-small",
             "text": "Add hidden layer",
+            "bg": "#fff",
             "pos": [10, 0, 1, 2],
             "command": "add_fully_layer"
         }
     },
     "frame_output": {
         "label_title": {
+            "font": "bold small",
             "text": "Optimiser and finishing touches",
+            "bg": "#fff",
             "pos": [0, 0, 1, 2]
         },
         "label_optimizer": {
+            "font": "bold x-small",
+            "bg": "#fff",
             "text": "Optimiser",
             "pos": [1, 0, 1, 1]
         },
@@ -57,16 +79,21 @@
             "pos": [1, 1, 1, 1]
         },
         "label_learning_rate": {
+            "font": "bold x-small",
+            "bg": "#fff",
             "text": "Learning rate",
             "pos": [2, 0, 1, 1]
         },
         "entry_learning_rate": {
             "text": "0.01",
+            "bg": "#fff",
             "pos": [2, 1, 1, 1],
             "validate": "callback_entry_numbers"
         },
         "button_reset_architecture": {
+            "font": "bold x-small",
             "text": "Reset Network Architecture",
+            "fg": "#f00",
             "pos": [3, 0, 1, 2],
             "command": "reset_architecture_popup"
         }

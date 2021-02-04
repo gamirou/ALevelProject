@@ -1,0 +1,31 @@
+{
+    "label_title": {
+        "text": "Edit your neural network",
+        "font": "bold medium",
+        "side": "top",
+        "fill": "x",
+        "anchor": "n"
+    },
+    "label_description": {
+        "text": "On this page you can edit each layer and add your own finishing touches :)",
+        "font": "small",
+        "side": "top",
+        "fill": "x",
+        "anchor": "n"
+    },
+    "frame_main": {
+        "anchor": "center",
+        "fill": "both",
+        "expand": 1
+    },
+    "button_arrow_left": {
+        "text": "BACK",
+        "side": "left",
+        "image": "arrow_left.png",
+        "pady": 20,
+        "width": 100,
+        "height": 60,
+        "expand": 1,
+        "command": "go_back"
+    }
+}
