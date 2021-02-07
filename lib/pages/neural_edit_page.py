@@ -267,7 +267,6 @@ class NeuralEditPage(Page):
             index = key * 2
             convolutional = all_layers[index]
             pooling = all_layers[index + 1]
-            print(convolutional, pooling)
             layers = (convolutional, pooling)
         else:
             index = key - 1
@@ -278,7 +277,15 @@ class NeuralEditPage(Page):
                 dropout = dropout_layers[index]
             layers = (dense, dropout)
 
-        self.layer_window = LayerWindow(self, layer_type, layers, key > 1)
+        if layers[0].name in self.current_network.callback.weights["weights"].keys():
+            weights = (
+                self.current_network.callback.weights["weights"][layers[0].name],
+                self.current_network.callback.weights["weights"][layers[0].name],
+            )
+        else:
+            weights = ()
+
+        self.layer_window = LayerWindow(self, layer_type, layers, key > 0, weights)
         self.layer_window.title("Edit Layer")
         self.layer_window.grab_set()
 

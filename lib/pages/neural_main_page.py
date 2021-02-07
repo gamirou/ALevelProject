@@ -49,19 +49,6 @@ class NeuralMainPage(Page):
 
         # Main widgets
         self.render_main_widgets()
-        # self.widgets["label_name"] = [tk.Label(self, text=self.WELCOME_TEXT, bg="#00ff00"), 0, 1, 1, 4]
-        # self.widgets["frame_input"] = [tk.Frame(self, width=100, height=200), 1, 0, 1, 2]
-        # self.widgets["frame_process"] = [tk.Frame(self, width=100, height=200), 1, 2, 1, 2]
-        # self.widgets["frame_output"] = [tk.Frame(self, width=100, height=200), 1, 4, 1, 2]
-
-        # self.widgets["button_add_data"] = [ttk.Button(self, text="ADD TEST DATA", command=self.add_data), 2, 0, 1, 2]
-        # self.widgets["button_train"] = [ttk.Button(self, text=TRAIN, command=self.click_train_button), 2, 2, 1, 2]
-        # self.widgets["button_save"] = [ttk.Button(self, text=SAVE, command=self.click_save_button), 2, 4, 1, 2]
-
-        # for key, lst in self.widgets.items():
-        #     lst[0].grid(row=lst[1], column=lst[2], rowspan=lst[3], columnspan=lst[4])
-        #     if "frame" in key:
-        #         self.render_inner(key, lst)
 
     def fetch_network(self, network):
         # This function will run when the page is opened
@@ -125,8 +112,12 @@ class NeuralMainPage(Page):
                 # every widget
                 if "button" in widget_key:
                     # button widgets
+                    is_accuracy = widget.pop("is_accuracy", None)
                     if "command" in widget.keys():
-                        widget["command"] = getattr(self, widget["command"])
+                        if is_accuracy == None:
+                            widget["command"] = getattr(self, widget["command"])
+                        else:
+                            widget["command"] = lambda: self.open_graph_page(is_accuracy)
                 elif "label" in widget_key:
                     if "image" in widget.keys():
                         widget["image"] = self.file_storage[widget["image"]] 
@@ -141,36 +132,22 @@ class NeuralMainPage(Page):
 
     def test_network(self):
         if self.current_network.is_trained:
-            # TODO: Add this function to the network class
-            dataset = self.file_storage.dataset
-            pred = self.current_network.model.predict_generator(dataset.test_image_generator, steps=dataset.test_total/dataset.batch_size, verbose=1)
-            predicted_class_indices = np.round(pred)
-
-            labels = (dataset.train_image_generator.class_indices)
-            labels = dict((v,k) for k,v in labels.items())
-            predictions = [labels[k[0]] for k in predicted_class_indices]
-
-            filenames = dataset.test_image_generator.filenames
-
-            correct = 0
-            incorrect = 0
-            for i in range(len(filenames)):
-                filename = filenames[i].replace('cats_and_dogs\\', '')
-                prediction_value = predictions[i]
-                if (filename.split('.')[0] + 's' == prediction_value):
-                    correct = correct + 1
-                else:
-                    incorrect = incorrect + 1
-
-            percentage = str(round((correct/dataset.test_total)*100, 1)) + '%'
+            output = []
+            self.parent.start_progress_bar(mode=INDETERMINATE, text="Evaluating the network")
+            self.separate_thread = threading.Thread(
+                target=self.current_network.predict_test_images, 
+                args=[self.file_storage.dataset, output, self.inner_widgets['frame_output']['label_accuracy_value']['widget']]
+            )
+            self.separate_thread.start()
+            self.separate_thread.join()
+            self.parent.stop_progress_bar()
             frame_dict = self.inner_widgets["frame_output"]
-            frame_dict["label_accuracy_value"]["widget"]["text"] = percentage
+            frame_dict["label_accuracy_value"]["widget"]["text"] = output[0]
         else:
             Log.w(self.TAG, "Network not trained")
 
     # Buttons
     def add_data(self):
-        # self.go_to_edit()
         if self.current_network.is_trained:
             filename = tk.filedialog.askopenfilename()
             
@@ -182,22 +159,15 @@ class NeuralMainPage(Page):
             frame_dict["label_output_image"]["widget"]["image"] = self.file_storage["test_image"]
             
             # Normalise it
-            image = np.array(image)
-            image = np.resize(image, (IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS))
-            image = image.astype('float32')
-            image /= 255
+            output = []
+            self.parent.start_progress_bar(mode=INDETERMINATE, text="Is it a dog? Is it a cat? ")
+            self.separate_thread = threading.Thread(target=self.current_network.predict_one_image, args=[image, output])
+            self.separate_thread.start()
+            self.separate_thread.join()
+            self.parent.stop_progress_bar()
 
-            predictions = self.current_network.model.predict(np.array([ image ]))
-            output = ""
-            if predictions[0][0] < 0.5:
-                Log.w(self.TAG, "It's a cat")
-                output = "Cat"
-            else:
-                Log.e(self.TAG, "It's a dog")
-                output = "Dog"
-
-            frame_dict["label_result_value"]["widget"]["text"] = output
-            frame_dict["label_prediction_value"]["widget"]["text"] = str(round(predictions[0][0], 5))
+            frame_dict["label_result_value"]["widget"]["text"] = output[1]
+            frame_dict["label_prediction_value"]["widget"]["text"] = str(round(output[0], 5))
         else:
             Log.w(self.TAG, "Network not trained")
 
@@ -212,15 +182,18 @@ class NeuralMainPage(Page):
 
         message_box = PopUpConfirm(self, TRAIN, self.start_training_thread)
 
-    def open_graph_page(self):
-        self.graph_window = GraphWindow(self, self.current_network.callback)
+    def open_graph_page(self, is_accuracy=True):
+        self.graph_window = GraphWindow(self, self.current_network.callback, is_accuracy)
         self.graph_window.title("Model metrics")
         self.graph_window.grab_set()
 
     def start_training_thread(self, epochs=None):
         self.current_network.compile_model()
-        self.training_thread = threading.Thread(target=self.train_network, args=[epochs])
-        self.training_thread.start()
+        self.parent.start_progress_bar(
+            mode=DETERMINATE, is_sub_text=TRAIN, epochs=epochs, text="Training the network"
+        )
+        self.separate_thread = threading.Thread(target=self.train_network, args=[epochs])
+        self.separate_thread.start()
 
     def delete_network_popup(self):
         message_box = PopUpConfirm(self, DELETE, self.delete_network)
@@ -243,6 +216,8 @@ class NeuralMainPage(Page):
         dataset = self.file_storage.dataset
         
         # 0 to 0.5 is a cat, 0.5 to 1 is a dog
+        self.current_network.callback.set_connect_to_progress_function(self.parent.send_data_to_progress_bar)
+        self.current_network.callback.set_stop_progress_function(self.parent.stop_progress_bar)
         fit_result = self.current_network.train(dataset, epochs)
 
         self.current_network.is_trained = True
@@ -294,6 +269,7 @@ class NeuralMainPage(Page):
         # code to save it
         if len(self.current_network.model.layers) == 0:
             self.current_network.add_layers_to_model()
+        self.current_network.save_weights()
         self.file_storage.save_network(self.current_network)
         self.current_network.layers = {
             "convolutional": [],

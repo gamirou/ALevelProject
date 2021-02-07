@@ -4,7 +4,7 @@ import tkinter as tk
 class PopUpConfirm(tk.Toplevel):
 
     def __init__(self, master=None, state=None, yes_command=None, cnf={}, **kw):
-        super().__init__(master=master, cnf={}, **kw)
+        super().__init__(master=master, cnf=cnf, **kw)
         self.parent = master
         self.state = state
         self.yes_command = yes_command

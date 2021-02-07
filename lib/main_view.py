@@ -76,3 +76,12 @@ class MainView(tk.Frame):
     def add_network(self, neural_id):
         self.file_storage.add_network(neural_id)
         self.pages["LoadingPage"].add_frame(neural_id)
+    
+    def start_progress_bar(self, mode, text=None, is_sub_text=None, epochs=1):
+        self.app.progress_footer.start(mode, text, is_sub_text, epochs)
+
+    def stop_progress_bar(self):
+        self.app.progress_footer.is_finished = True
+
+    def send_data_to_progress_bar(self, value):
+        self.app.progress_footer.update_values(value)

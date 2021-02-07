@@ -1,2 +1,0 @@
-name,description,is_trained,date
-cretaye,amdsklads,True,1998-02-03

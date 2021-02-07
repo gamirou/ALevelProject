@@ -62,10 +62,20 @@
             "pos": [7, 1, 1, 1],
             "validate": "callback_entry_pool"
         },
+        "button_view_weights": {
+            "text": "View weights",
+            "pos": [8, 0, 1, 1],
+            "command": "view_weights"
+        },
+        "button_view_biases": {
+            "text": "View biases",
+            "pos": [8, 1, 1, 1],
+            "command": "view_biases"
+        },
         "delete_button": {
             "text": "Delete",
             "command": "delete_layer",
-            "pos": [8, 0, 1, 1]
+            "pos": [9, 0, 1, 1]
         }
     },
     "fully_connected_widgets": {
@@ -96,10 +106,20 @@
             "pos": [3, 1, 1, 1],
             "validate": "callback_entry_dropout_rate"
         },
+        "button_view_weights": {
+            "text": "View weights",
+            "pos": [4, 0, 1, 1],
+            "command": "view_weights"
+        },
+        "button_view_biases": {
+            "text": "View biases",
+            "pos": [4, 1, 1, 1],
+            "command": "view_biases"
+        },
         "delete_button": {
             "text": "Delete",
             "command": "delete_layer",
-            "pos": [4, 0, 1, 1]
+            "pos": [5, 0, 1, 1]
         }
     }
 }

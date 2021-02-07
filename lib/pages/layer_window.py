@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from ..utils.log import Log
 from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED, WIDGETS_TYPE, SAVE_BUTTON_POS
+from ..pages.weights_viewer import WeightsViewer
 
 import warnings
 import copy
@@ -12,10 +13,11 @@ class LayerWindow(tk.Toplevel):
 
     TAG = "LayerWindow"
 
-    def __init__(self, master=None, layer_type=None, layers=(), can_be_deleted=True, cnf={}, **kw):
-        super().__init__(master=master, cnf={}, **kw)
+    def __init__(self, master=None, layer_type=None, layers=(), can_be_deleted=True, weights=(), cnf={}, **kw):
+        super().__init__(master=master, cnf=cnf, **kw)
         self.parent = master
         self.can_be_deleted = can_be_deleted
+        self.weights = weights
 
         self.save_button = {
             "text": "Save",
@@ -188,9 +190,13 @@ class LayerWindow(tk.Toplevel):
                 widget.current(index)
                 self.widgets[widget_key]["widget"] = widget
 
-            self.widgets[widget_key]["widget"].grid(
-                row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3]
-            )
+            self.widgets[widget_key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
+
+    def view_weights(self):
+        viewer = WeightsViewer(self, self.weights[0])
+
+    def view_biases(self):
+        viewer = WeightsViewer(self, self.weights[1])
 
     # Validate functions
     def callback_entry_pool(self, action, value_if_allowed, text):

@@ -62,6 +62,7 @@ class LoadingPage(Page):
         self.frames = {}
         self.index = 0
         for key in networks:
+            Log.i(self.TAG, key)
             self.add_frame(key)
 
     def add_frame(self, neural_id):

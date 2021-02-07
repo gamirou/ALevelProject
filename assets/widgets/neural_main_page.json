@@ -39,23 +39,36 @@
             "command": "go_to_edit",
             "pos": [1, 0, 1, 1]
         },
-        "label_details": {
+        "label_accuracy": {
             "text": "Model accuracy",
             "font": "bold small",
             "pos": [2, 0, 1, 1]
         },
-        "button_details": {
+        "button_accuracy": {
             "text": "Click here to see how the accuracy changes over time",
             "command": "open_graph_page",
             "wraplength": 150,
             "font": "x-small",
             "pos": [3, 0, 1, 1]
         },
+        "label_loss": {
+            "text": "Model loss",
+            "font": "bold small",
+            "pos": [4, 0, 1, 1]
+        },
+        "button_loss": {
+            "text": "Click here to see how the loss functions changes over time",
+            "command": "open_graph_page",
+            "is_accuracy": false,
+            "wraplength": 150,
+            "font": "x-small",
+            "pos": [5, 0, 1, 1]
+        },
         "label_delete": {
             "text": "Delete",
             "font": "bold small",
             "fg": "#ff0000",
-            "pos": [4, 0, 1, 1]
+            "pos": [6, 0, 1, 1]
         },
         "button_delete": {
             "text": "Click this button if you want to delete the network",
@@ -63,7 +76,7 @@
             "wraplength": 150,
             "font": "x-small",
             "fg": "#ff0000",
-            "pos": [5, 0, 1, 1]
+            "pos": [7, 0, 1, 1]
         }
     },
     "frame_output": {

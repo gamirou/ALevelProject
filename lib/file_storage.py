@@ -43,6 +43,8 @@ class FileStorage:
         for root, directory, files in os.walk(self.path + "\\saved"):
             if len(directory) != 0:
                 for uuid in directory:
+                    if uuid in ["weights"]:
+                        continue
                     self.saved_networks[uuid] = Network(uuid, os.path.join(root, uuid), self.graph, self.session)
         
     def add_network(self, neural_id):

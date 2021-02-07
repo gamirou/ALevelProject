@@ -3,7 +3,7 @@ from tkinter import scrolledtext
 
 class ResizeableScrolledText(scrolledtext.ScrolledText):
     def __init__(self, master=None, cnf={}, **kw):
-        super().__init__(master=master, cnf={}, **kw)
+        super().__init__(master=master, cnf=cnf, **kw)
 
         # canvas = tk.Canvas(self)
         # scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=canvas.yview)

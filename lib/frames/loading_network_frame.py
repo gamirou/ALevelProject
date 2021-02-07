@@ -7,7 +7,7 @@ class LoadingNetworkFrame(tk.Frame):
     TAG = "LoadingNetworkFrame"
     
     def __init__(self, master=None, network=None, file_storage=None, page=None, cnf={}, **kw):
-        super().__init__(master=master, cnf={}, **kw)
+        super().__init__(master=master, cnf=cnf, **kw)
 
         self.widgets = []
         self.file_storage = file_storage

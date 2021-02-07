@@ -20,8 +20,8 @@ WIDGETS_TYPE = {
 }
 
 SAVE_BUTTON_POS = {
-    CONVOLUTIONAL: 8,
-    FULLY_CONNECTED: 4
+    CONVOLUTIONAL: 9,
+    FULLY_CONNECTED: 5
 }
 
 # States of pop up boxes
@@ -32,6 +32,10 @@ SAVE = "SAVE"
 BUILD_MODEL = "BUILD MODEL"
 DELETE = "DELETE"
 RESET_ARCHITECTURE = "RESET ARCHITECTURE"
+
+# Progress bar states
+DETERMINATE = 'determinate'
+INDETERMINATE = 'indeterminate'
 
 # Messages
 POPUP_MESSAGES = {
@@ -88,3 +92,9 @@ def turn_dict_values_to_float(dictionary):
 def get_os_name():
     import platform
     return platform.system()
+
+def type_layer_from_file(file_name):
+    file_name = file_name.replace('.npy', '')
+    weights_type = "biases" if file_name.startswith('b') else "weights"
+    layer_name = file_name.replace(weights_type + "_", "")
+    return (weights_type, layer_name)

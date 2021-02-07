@@ -1,2 +1,0 @@
-name,description,is_trained,date
-95 accurate,80 onwards overfitting,False,2021-01-04

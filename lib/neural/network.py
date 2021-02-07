@@ -18,14 +18,6 @@ from keras import backend as K
 from tensorflow.keras import layers
 from keras.utils import to_categorical
 import numpy as np
-import matplotlib.pyplot as plt
-plt.style.use('fivethirtyeight')
-
-# neural stuff
-# Warnings ignore for numpy future warning (possibly tensorflow uses a different version of numpy)
-import warnings
-warnings.filterwarnings("ignore")
-
 
 # convolutional
 # conv2d + maxpool2d
@@ -134,7 +126,15 @@ class Network:
             if hasattr(layer, 'kernel_initializer'): 
                 layer.kernel.initializer.run(session=self.session)
             if hasattr(layer, 'bias_initializer'):
-                layer.bias.initializer.run(session=self.session) 
+                layer.bias.initializer.run(session=self.session)
+
+    def save_weights(self):
+        weights_path = os.path.join(self.directory_path, "weights")
+        if not os.path.exists(weights_path):
+            os.makedirs(weights_path)
+
+        np.save(os.path.join(weights_path, f'weights_{layer.name}.npy'), weights)
+        np.save(os.path.join(weights_path, f'biases_{layer.name}.npy'), biases)
 
     def train(self, dataset, epochs=None):
         with self.graph.as_default():
@@ -178,9 +178,55 @@ class Network:
 
         self.model.compile(
             loss='binary_crossentropy',
-            optimizer='rmsprop',
+            optimizer=self.optimizer,
             metrics=['accuracy'],
         )
+
+    def predict_test_images(self, dataset, output, widget):
+        with self.graph.as_default():
+            K.set_session(self.session)
+            pred = self.model.predict_generator(
+                dataset.test_image_generator, 
+                steps=dataset.test_total/dataset.batch_size, verbose=1
+            )
+
+            import time
+
+            time.sleep(5)
+            widget['text'] = 'abc'
+            
+            predicted_class_indices = np.round(pred)
+
+            labels = (dataset.train_image_generator.class_indices)
+            labels = dict((v,k) for k,v in labels.items())
+            predictions = [labels[k[0]] for k in predicted_class_indices]
+
+            filenames = dataset.test_image_generator.filenames
+
+            correct = 0
+            incorrect = 0
+            for i in range(len(filenames)):
+                filename = filenames[i].replace('cats_and_dogs\\', '')
+                prediction_value = predictions[i]
+                if (filename.split('.')[0] + 's' == prediction_value):
+                    correct = correct + 1
+                else:
+                    incorrect = incorrect + 1
+
+            output.append(str(round((correct/dataset.test_total)*100, 1)) + '%')
+
+    def predict_one_image(self, input_image, output):
+        image = np.array(input_image)
+        image = np.resize(image, (IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS))
+        image = image.astype('float32')
+        image /= 255
+
+        with self.graph.as_default():
+            K.set_session(self.session)
+            pred = self.model.predict(np.array([ image ]))
+            
+            output.append(pred[0][0])
+            output.append("Cat" if output[0] < 0.5 else "Dog")
 
     def load_files(self):
         file_names = os.listdir(self.directory_path)
@@ -190,7 +236,7 @@ class Network:
                 self.save_path("txt", file)
 
                 # Read the file
-                i = 0;
+                i = 0
                 attributes = []
                 with open(self.PATHS["txt"], "r") as f:
                     for line in f.readlines():
@@ -217,6 +263,16 @@ class Network:
                 # Actual model with weights and everything
                 self.save_path("h5", file)
                 self.model = load_model(self.PATHS["h5"])
+            
+            elif file.endswith("weights"):
+                weights_dir_path = os.path.join(self.directory_path, file)
+                weights = {"weights": {}, "biases":{}}
+                for weights_file in os.listdir(weights_dir_path):
+                    file_path = os.path.join(weights_dir_path, weights_file)
+                    layer_type = type_layer_from_file(weights_file)
+                    weights[layer_type[0]][layer_type[1]] = np.load(file_path)
+                
+                self.callback.weights = weights
 
     def save_path(self, file_ending, file_name):
         self.PATHS[file_ending] = os.path.join(self.directory_path, file_name)

@@ -1,2 +1,0 @@
-name,description,is_trained,date
-skynet v2,no description,False,2021-01-18

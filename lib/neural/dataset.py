@@ -33,12 +33,13 @@ class Dataset:
         Log.i(self.TAG, "Loading started")
         # self.create_dataset("training")
         # self.create_dataset("test")
-        self.datagen()
+        time.sleep(2)
+        self.create_dataset_generator()
         self.file_storage.is_loading = False
         Log.i(self.TAG, "Loading stopped")
         print(time.thread_time())
 
-    def datagen(self):
+    def create_dataset_generator(self):
         self.batch_size = 32
 
         # Directories as os objects
