@@ -10,6 +10,7 @@ from ..neural.weights_callback import WeightsCallback
 from ..utils.utils import *
 import threading
 import random
+import time
 import copy
 
 class NeuralMainPage(Page):
@@ -114,6 +115,7 @@ class NeuralMainPage(Page):
                     # button widgets
                     is_accuracy = widget.pop("is_accuracy", None)
                     if "command" in widget.keys():
+                        # Adds argument to button that displays the graphs
                         if is_accuracy == None:
                             widget["command"] = getattr(self, widget["command"])
                         else:
@@ -132,17 +134,16 @@ class NeuralMainPage(Page):
 
     def test_network(self):
         if self.current_network.is_trained:
-            output = []
             self.parent.start_progress_bar(mode=INDETERMINATE, text="Evaluating the network")
             self.separate_thread = threading.Thread(
                 target=self.current_network.predict_test_images, 
-                args=[self.file_storage.dataset, output, self.inner_widgets['frame_output']['label_accuracy_value']['widget']]
+                args=[
+                    self.file_storage.dataset, self.set_prediction_test_images,
+                    self.send_thread_output_to_app, self.parent.stop_progress_bar
+                ]
             )
             self.separate_thread.start()
-            self.separate_thread.join()
-            self.parent.stop_progress_bar()
-            frame_dict = self.inner_widgets["frame_output"]
-            frame_dict["label_accuracy_value"]["widget"]["text"] = output[0]
+            
         else:
             Log.w(self.TAG, "Network not trained")
 
@@ -161,13 +162,11 @@ class NeuralMainPage(Page):
             # Normalise it
             output = []
             self.parent.start_progress_bar(mode=INDETERMINATE, text="Is it a dog? Is it a cat? ")
-            self.separate_thread = threading.Thread(target=self.current_network.predict_one_image, args=[image, output])
+            self.separate_thread = threading.Thread(
+                target=self.current_network.predict_one_image, 
+                args=[image, self.set_prediction_one_image, self.send_thread_output_to_app, self.parent.stop_progress_bar]
+            )
             self.separate_thread.start()
-            self.separate_thread.join()
-            self.parent.stop_progress_bar()
-
-            frame_dict["label_result_value"]["widget"]["text"] = output[1]
-            frame_dict["label_prediction_value"]["widget"]["text"] = str(round(output[0], 5))
         else:
             Log.w(self.TAG, "Network not trained")
 
@@ -277,6 +276,18 @@ class NeuralMainPage(Page):
             "dropout": []
         }
         self.parent.back_page()
+
+    def set_prediction_test_images(self, value):
+        frame_dict = self.inner_widgets["frame_output"]
+        frame_dict["label_accuracy_value"]["widget"]["text"] = value
+
+    def set_prediction_one_image(self, value):
+        frame_dict = self.inner_widgets["frame_output"]
+        frame_dict["label_result_value"]["widget"]["text"] = "Cat" if value < 0.5 else "Dog"
+        frame_dict["label_prediction_value"]["widget"]["text"] = str(round(value, 5))
+    
+    def send_thread_output_to_app(self, value, callback_function):
+        self.parent.app.thread_output.append((value, callback_function))
 
     def get_font(self, widget_dict):
         font_name = widget_dict.pop("font", None)

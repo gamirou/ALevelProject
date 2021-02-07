@@ -53,7 +53,8 @@ class Network:
             "fully-connected": [],
             "dropout": []
         }
-        #self.tqdm_callback = tfa.callbacks.TQDMProgressBar()
+
+        # Callback and files
         self.callback = WeightsCallback()
         self.load_files()
 
@@ -182,18 +183,13 @@ class Network:
             metrics=['accuracy'],
         )
 
-    def predict_test_images(self, dataset, output, widget):
+    def predict_test_images(self, dataset, callback_function, bridge_function, stop_progress_function):
         with self.graph.as_default():
             K.set_session(self.session)
             pred = self.model.predict_generator(
                 dataset.test_image_generator, 
                 steps=dataset.test_total/dataset.batch_size, verbose=1
             )
-
-            import time
-
-            time.sleep(5)
-            widget['text'] = 'abc'
             
             predicted_class_indices = np.round(pred)
 
@@ -213,9 +209,11 @@ class Network:
                 else:
                     incorrect = incorrect + 1
 
-            output.append(str(round((correct/dataset.test_total)*100, 1)) + '%')
+            # self.prediction_test_images = str(round((correct/dataset.test_total)*100, 1)) + '%'
+            bridge_function(str(round((correct/dataset.test_total)*100, 1)) + '%', callback_function)
+            stop_progress_function()
 
-    def predict_one_image(self, input_image, output):
+    def predict_one_image(self, input_image, callback_function, bridge_function, stop_progress_function):
         image = np.array(input_image)
         image = np.resize(image, (IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS))
         image = image.astype('float32')
@@ -224,9 +222,9 @@ class Network:
         with self.graph.as_default():
             K.set_session(self.session)
             pred = self.model.predict(np.array([ image ]))
-            
-            output.append(pred[0][0])
-            output.append("Cat" if output[0] < 0.5 else "Dog")
+            # self.prediction_one_image = (pred[0][0], "Cat" if pred[0][0] < 0.5 else "Dog")
+            bridge_function(pred[0][0], callback_function)
+            stop_progress_function()
 
     def load_files(self):
         file_names = os.listdir(self.directory_path)

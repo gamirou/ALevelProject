@@ -21,6 +21,7 @@ class App:
         self.is_running = True
         self.is_loaded = False
         self.graphs = {}
+        self.thread_output = []
 
         # Cache images
         self.file_storage = FileStorage(self)
@@ -44,6 +45,7 @@ class App:
 
     def update(self):
         while self.is_running:
+            # When loading dataset (progress bar is visible on start)
             if not self.file_storage.is_loading and not self.is_loaded:
                 self.progress_footer.stop()
                 self.is_loaded = True
@@ -53,9 +55,15 @@ class App:
                 self.progress_footer.show_updated_progress()
                 self.progress_footer.value_changed = False
 
+            # Stop progress bar
             if self.progress_footer.is_finished:
                 self.progress_footer.stop()
                 self.progress_footer.is_finished = False
+
+            # Do stuff with the values from threads in main tkinter thread
+            for val in self.thread_output:
+                val[1](val[0])
+                self.thread_output.remove(val)
 
             self.root.update()
 
