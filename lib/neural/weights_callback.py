@@ -18,16 +18,28 @@ class WeightsCallback(Callback):
         self.last_epoch = 0
         self.total_epochs = 0
 
+    """
+    Store a reference to the draw_logs function inside GraphWindow in order to call it
+    """
     def set_draw_logs_function(self, draw_logs_function):
         self.draw_logs_function = draw_logs_function
         self.draw_logs_function(metrics=self.metrics, epochs=self.epochs)
 
+    """
+    'Bridge' function that sends the logs to the progress bar
+    """
     def set_connect_to_progress_function(self, function):
         self.update_value = function
 
+    """
+    'Bridge' function that stops the progress bar once network has been trained
+    """
     def set_stop_progress_function(self, function):
         self.stop_progress = function
 
+    """
+    Sets metrics from loaded JSON file
+    """
     def set_metrics(self, metrics, epochs):
         self.metrics = metrics
         self.epochs = epochs
@@ -36,6 +48,7 @@ class WeightsCallback(Callback):
     """
     EVRIKA!!!
     THIS IS THE FUNCTION THIS IS THE FUNCTION!!!!!!
+    This function is self-explanatory
     """
     def on_train_batch_end(self, batch, logs=None):
         # Log.i(self.TAG, (batch, logs))
@@ -44,10 +57,14 @@ class WeightsCallback(Callback):
             'logs': logs,
             'epoch': self.current_epoch + 1
         })
-        
+    
+    """
+    Again, self-explanatory function
+    """
     def on_epoch_end(self, epoch, logs={}):
-        self.current_epoch = epoch + 1
+        self.current_epoch = epoch
 
+        # Get the logs
         self.metrics["accuracy"].append(float(logs.get('accuracy')))
         self.metrics["val_accuracy"].append(float(logs.get('val_accuracy')))
         self.metrics["loss"].append(float(logs.get('loss')))
@@ -60,15 +77,18 @@ class WeightsCallback(Callback):
             self.last_epoch = len(self.epochs)
             self.stop_progress()
         else:
+            # Reset the progress bar
             self.update_value({
                 'progress': 0,
                 'logs': logs,
-                'epoch': self.current_epoch
+                'epoch': self.current_epoch + 1
             })
 
+        # Draw the logs on the graphs
         if self.draw_logs_function != None:
             self.draw_logs_function(metrics=self.metrics, epochs=self.epochs)
 
+        # Store the weights inside a dictionary of numpy arrays
         for layer in self.model.layers:
             try:
                 weights = layer.get_weights()[0]
@@ -78,9 +98,11 @@ class WeightsCallback(Callback):
             except IndexError:
                 continue
             
-            if epoch == 0:
-                self.weights["weights"][layer.name] = weights
-                self.weights["biases"][layer.name] = biases
-            else:
-                self.weights["weights"][layer.name] = np.dstack((self.weights["weights"][layer.name], weights))
-                self.weights["biases"][layer.name] = np.dstack((self.weights["biases"][layer.name], biases))
+            # TODO: This is sus
+            # Add to numpy array or create new array
+            # if epoch == 0:
+            self.weights["weights"][layer.name] = weights
+            self.weights["biases"][layer.name] = biases
+            # else:
+            #     self.weights["weights"][layer.name] = np.dstack((self.weights["weights"][layer.name], weights))
+            #     self.weights["biases"][layer.name] = np.dstack((self.weights["biases"][layer.name], biases))

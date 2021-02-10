@@ -38,7 +38,7 @@ class Network:
         self.graph = graph
         self.session = session
 
-        # Files
+        # Path and neural id
         self.network_id = network_id
         self.directory_path = directory_path
 
@@ -58,6 +58,9 @@ class Network:
         self.callback = WeightsCallback()
         self.load_files()
 
+    """
+    Default model architecture
+    """
     def new_layers(self):
         # Building the model
         self.model = Sequential()
@@ -92,6 +95,9 @@ class Network:
         # Output layer
         self.layers["fully-connected"].append(Dense(1, activation='sigmoid'))
 
+    """
+    Add layers to actual keras model
+    """
     def add_layers_to_model(self):
         self.new_layers()
         for layer in self.layers["convolutional"]:
@@ -107,10 +113,10 @@ class Network:
             if i < len(self.layers['fully-connected']):
                 self.model.add(self.layers['fully-connected'][i])
 
-        for layer in self.model.layers:
-            Log.w(self.TAG, layer)
+        # for layer in self.model.layers:
+        #     Log.w(self.TAG, layer)
     
-    # ORANGE HIGHLIGHT
+    # ORANGE HIGHLIGHT #
     def are_layers_changed(self):
         network_layers = copy.copy(self.layers["convolutional"])
         network_layers.append(self.flatten_layer)
@@ -122,6 +128,9 @@ class Network:
                 network_layers.append(self.layers['fully-connected'][i])
         return network_layers != self.model.layers
 
+    """
+    Reset the weights of each layer
+    """
     def reset_weights(self):
         for layer in self.model.layers: 
             if hasattr(layer, 'kernel_initializer'): 
@@ -129,14 +138,25 @@ class Network:
             if hasattr(layer, 'bias_initializer'):
                 layer.bias.initializer.run(session=self.session)
 
+    """
+    Save weights as npy files to be loaded and read later on
+    """
     def save_weights(self):
-        weights_path = os.path.join(self.directory_path, "weights")
-        if not os.path.exists(weights_path):
-            os.makedirs(weights_path)
+        if self.callback.weights['weights']:
+            weights_path = os.path.join(self.directory_path, "weights")
+            if not os.path.exists(weights_path):
+                os.makedirs(weights_path)
 
-        np.save(os.path.join(weights_path, f'weights_{layer.name}.npy'), weights)
-        np.save(os.path.join(weights_path, f'biases_{layer.name}.npy'), biases)
+            for layer_name, weights in self.callback.weights['weights'].items():
+                np.save(os.path.join(weights_path, f'weights_{layer_name}.npy'), weights)
+            for layer_name, biases in self.callback.weights['biases'].items():
+                np.save(os.path.join(weights_path, f'biases_{layer_name}.npy'), biases)
 
+    """
+    Train the network
+    * dataset - dataset is sent as a parameter as it is a singleton
+    * epochs - the number of epochs
+    """
     def train(self, dataset, epochs=None):
         with self.graph.as_default():
             K.set_session(self.session)
@@ -152,6 +172,9 @@ class Network:
             self.is_trained = True
             return fit_result
 
+    """
+    Load layers from the model in the dictionary format
+    """
     def get_layers_from_model(self):
         dense_index = 0
         self.layers["dropout"] = [None, None, None, None]
@@ -166,6 +189,9 @@ class Network:
                 self.layers["fully-connected"].append(layer)
                 dense_index += 1
 
+    """
+    Add the 'finishing touches' to the network
+    """
     def compile_model(self):
         # Compile the model
         # 0.2 is kinda good
@@ -183,6 +209,9 @@ class Network:
             metrics=['accuracy'],
         )
 
+    """
+    Evaluate the network using the images from the test directory
+    """
     def predict_test_images(self, dataset, callback_function, bridge_function, stop_progress_function):
         with self.graph.as_default():
             K.set_session(self.session)
@@ -213,6 +242,9 @@ class Network:
             bridge_function(str(round((correct/dataset.test_total)*100, 1)) + '%', callback_function)
             stop_progress_function()
 
+    """
+    Feed in an input image to the network
+    """
     def predict_one_image(self, input_image, callback_function, bridge_function, stop_progress_function):
         image = np.array(input_image)
         image = np.resize(image, (IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS))
@@ -226,6 +258,9 @@ class Network:
             bridge_function(pred[0][0], callback_function)
             stop_progress_function()
 
+    """
+    Load up model_info.txt, model_metrics.json, model.h5 and the weights numpy files
+    """
     def load_files(self):
         file_names = os.listdir(self.directory_path)
         for file in file_names:
@@ -272,5 +307,8 @@ class Network:
                 
                 self.callback.weights = weights
 
+    """
+    Saves the path of each file based on its file type
+    """
     def save_path(self, file_ending, file_name):
         self.PATHS[file_ending] = os.path.join(self.directory_path, file_name)

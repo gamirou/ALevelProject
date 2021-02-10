@@ -4,9 +4,10 @@ from tkinter import ttk
 from .main_view import MainView
 from .file_storage import FileStorage
 from .frames.progress_bar_footer import ProgressBarFooter
+from .frames.notification_header import NotificationHeader
 from .utils.log import Log
 import matplotlib.animation as animation
-from .utils.utils import DETERMINATE, INDETERMINATE
+from .utils.utils import DETERMINATE, INDETERMINATE, get_main_path
 class App:
 
     TAG = "App"
@@ -16,6 +17,7 @@ class App:
         self.root = tk.Tk()
         self.root.title(self.title)
         self.root.minsize(700, 700)
+        # self.root.iconbitmap(get_main_path('assets', 'favicon.ico'))
         # self.root.wm_geometry("600x600")
 
         self.is_running = True
@@ -25,6 +27,12 @@ class App:
 
         # Cache images
         self.file_storage = FileStorage(self)
+
+        # Notification header
+        self.notification_header = NotificationHeader(
+            self.root, font=self.file_storage.fonts["bold small"], bg="#78f542",
+            highlightbackground="black", highlightthickness=1
+        )
 
         # Progress bar
         self.progress_footer = ProgressBarFooter(
@@ -38,7 +46,6 @@ class App:
 
     def init_main_view(self):
         # MainView is a container for all pages
-        Log.i(self.TAG, "Init Main View")
         self.view = MainView(self.root, self, self.file_storage, 
                 width=self.root.winfo_width(), height=self.root.winfo_height(), bg="#00ff00")
         self.view.pack(side="top", fill="both", expand=True)
@@ -64,6 +71,11 @@ class App:
             for val in self.thread_output:
                 val[1](val[0])
                 self.thread_output.remove(val)
+
+            # Hide the notification header panel thing
+            if self.notification_header.is_finished:
+                self.notification_header.pack_forget()
+                self.notification_header.is_finished = False
 
             self.root.update()
 

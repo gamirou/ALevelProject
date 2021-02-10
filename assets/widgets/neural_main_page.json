@@ -13,32 +13,32 @@
             "wraplength": 150,
             "pos": [1, 0, 1, 1]
         },
-        "label_reset": {
-            "text": "Reset the network",
-            "font": "bold small",
-            "pos": [2, 0, 1, 1]
-        },
-        "button_reset": {
-            "text": "Click this button if you want to reset the network",
-            "command": "reset_network_popup",
-            "font": "x-small",
-            "wraplength": 150,
-            "pos": [3, 0, 1, 1]
-        }
-    },
-    "frame_process": {
         "label_network": {
-            "text": "Network",
+            "text": "Edit the network",
             "font": "bold small",
-            "pos": [0, 0, 1, 1]  
+            "pos": [2, 0, 1, 1]  
         },
         "button_depth": {
             "text": "Click here to see the network in more details",
             "wraplength": 150,
             "font": "x-small",
             "command": "go_to_edit",
-            "pos": [1, 0, 1, 1]
+            "pos": [3, 0, 1, 1]
         },
+        "label_reset": {
+            "text": "Reset the network",
+            "font": "bold small",
+            "pos": [4, 0, 1, 1]
+        },
+        "button_reset": {
+            "text": "Click this button if you want to reset the network",
+            "command": "reset_network_popup",
+            "font": "x-small",
+            "wraplength": 150,
+            "pos": [5, 0, 1, 1]
+        }
+    },
+    "frame_process": {
         "label_accuracy": {
             "text": "Model accuracy",
             "font": "bold small",

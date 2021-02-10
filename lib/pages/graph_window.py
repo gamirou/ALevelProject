@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
-import matplotlib.animation as animation
 
 class GraphWindow(tk.Toplevel):
 

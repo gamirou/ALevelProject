@@ -30,13 +30,8 @@ class Dataset:
         # thread.start()
 
     def load_data(self):
-        Log.i(self.TAG, "Loading started")
-        # self.create_dataset("training")
-        # self.create_dataset("test")
-        time.sleep(2)
         self.create_dataset_generator()
         self.file_storage.is_loading = False
-        Log.i(self.TAG, "Loading stopped")
         print(time.thread_time())
 
     def create_dataset_generator(self):
@@ -148,7 +143,6 @@ class Dataset:
                         folder_path = os.path.join(self.path, 'normalised', f"{img_type}_set")
                         np.save(os.path.join(folder_path, "data.npy"), self.data[img_type])
                         np.save(os.path.join(folder_path, "categories.npy"), self.categories[img_type])
-
                         break
         else:
             folder_path = os.path.join(self.path, 'normalised', f"{img_type}_set")

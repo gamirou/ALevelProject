@@ -21,24 +21,7 @@ class NeuralEditPage(Page):
 
     MAX_LAYERS = 4
     visibility = {}
-    # widgets = {}
     frame_widgets = {
-        # "frame_conv": {
-        #     "side": tk.TOP,
-        #     "anchor": "nw",
-        #     "expand": True
-        # },
-        # "frame_fully": {
-        #     "side": tk.TOP,
-        #     "anchor": "ne",
-        #     "fill": tk.Y,
-        #     "expand": True
-        # },
-        # "frame_output": {
-        #     "side": tk.BOTTOM,
-        #     "anchor": "s",
-        #     "expand": True    
-        # },
         "frame_conv": {
             "row": 0,
             "column": 0,
@@ -73,21 +56,6 @@ class NeuralEditPage(Page):
 
         self.add_hidden_buttons()
         self.render_main_widgets()
-
-        # Edit layers
-        # padding and stride and all that shize
-        # self.widgets["frame_conv"] = [ttk.Frame(self, width=100, height=200), 0, 0, 2, 2]
-        # self.widgets["frame_fully"] = [ttk.Frame(self, width=100, height=200), 0, 2, 2, 2]
-        # self.widgets["frame_output"] = [ttk.Frame(self, width=100, height=200), 4, 0, 2, 4]
-
-        # arrow_left = tk.Button(
-        #     self, text="Back", image=self.file_storage["arrow_left.png"], 
-        #     width=100, height=60, command=self.go_back
-        # )
-        # arrow_left.grid(row=10, column=0)
-        # for key, lst in self.widgets.items():
-        #     # lst[0].grid(row=lst[1], column=lst[2], rowspan=lst[3], columnspan=lst[4])
-        #     self.render_inner(key, lst)
 
     def render_main_widgets(self, parent_widget=None, widgets=None):
         if widgets == None:
@@ -150,8 +118,6 @@ class NeuralEditPage(Page):
         self.configure_buttons()
     
     def add_conv_layer(self):
-        Log.i(self.TAG, len(self.current_network.layers["convolutional"]))
-        Log.i(self.TAG, self.MAX_LAYERS * 2)
         if len(self.current_network.layers["convolutional"]) < (self.MAX_LAYERS * 2):
             Log.e(self.TAG, "this gets called")
             conv = Conv2D(32, (5,5), activation='relu')
@@ -159,8 +125,9 @@ class NeuralEditPage(Page):
             self.visibility["frame_conv"].show_next()
             self.current_network.layers["convolutional"].append(conv)
             self.current_network.layers["convolutional"].append(maxpool)
+            self.parent.notify("New convolutional layer :)")
         else:
-            Log.w(self.TAG, "Limit of convolutional layers reached")
+            self.parent.notify("Limit of convolutional layers reached")
 
     def add_fully_layer(self):
         if len(self.current_network.layers["fully-connected"]) < self.MAX_LAYERS:
@@ -169,8 +136,9 @@ class NeuralEditPage(Page):
             index = self.visibility["frame_fully"].show_next()
             self.current_network.layers["fully-connected"].append(dense)
             self.current_network.layers["dropout"][index] = dropout
+            self.parent.notify("New fully-connected layer :)")
         else:
-            Log.w(self.TAG, "Limit of fully connected layers reached")
+            self.parent.notify("Limit of fully connected layers reached")
 
     def add_hidden_buttons(self):
         self.visibility["frame_conv"] = VisibilityButtons([False, False, False, False])
@@ -256,7 +224,6 @@ class NeuralEditPage(Page):
     def open_hidden_layer(self, key=0, layer_type=None):
         if layer_type == None:
             layer_type = CONVOLUTIONAL
-        Log.i(self.TAG + "/open_hidden_layer", f"Key: {key} = Value: {layer_type}")
 
         # get the layers
         # Log.w("ABC", self.current_network.layers)
@@ -277,15 +244,18 @@ class NeuralEditPage(Page):
                 dropout = dropout_layers[index]
             layers = (dense, dropout)
 
+        inputs = None
         if layers[0].name in self.current_network.callback.weights["weights"].keys():
             weights = (
                 self.current_network.callback.weights["weights"][layers[0].name],
-                self.current_network.callback.weights["weights"][layers[0].name],
+                self.current_network.callback.weights["biases"][layers[0].name],
             )
+            if layer_type == CONVOLUTIONAL:
+                inputs = self.current_network.model.inputs
         else:
             weights = ()
 
-        self.layer_window = LayerWindow(self, layer_type, layers, key > 0, weights)
+        self.layer_window = LayerWindow(self, layer_type, layers, key > 0, weights, inputs=inputs)
         self.layer_window.title("Edit Layer")
         self.layer_window.grab_set()
 

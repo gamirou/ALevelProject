@@ -1,2 +1,0 @@
-name,description,is_trained,date
-Steve,I am Steve! I am the default neural network! You can edit me :),False,2021-02-06

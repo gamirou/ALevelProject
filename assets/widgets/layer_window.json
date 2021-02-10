@@ -62,15 +62,15 @@
             "pos": [7, 1, 1, 1],
             "validate": "callback_entry_pool"
         },
-        "button_view_weights": {
-            "text": "View weights",
+        "button_view_filters": {
+            "text": "View filters",
             "pos": [8, 0, 1, 1],
-            "command": "view_weights"
+            "command": "view_filters"
         },
-        "button_view_biases": {
-            "text": "View biases",
+        "button_view_feature_maps": {
+            "text": "View feature maps",
             "pos": [8, 1, 1, 1],
-            "command": "view_biases"
+            "command": "view_feature_maps"
         },
         "delete_button": {
             "text": "Delete",
@@ -106,20 +106,10 @@
             "pos": [3, 1, 1, 1],
             "validate": "callback_entry_dropout_rate"
         },
-        "button_view_weights": {
-            "text": "View weights",
-            "pos": [4, 0, 1, 1],
-            "command": "view_weights"
-        },
-        "button_view_biases": {
-            "text": "View biases",
-            "pos": [4, 1, 1, 1],
-            "command": "view_biases"
-        },
         "delete_button": {
             "text": "Delete",
             "command": "delete_layer",
-            "pos": [5, 0, 1, 1]
+            "pos": [4, 0, 1, 1]
         }
     }
 }

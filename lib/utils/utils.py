@@ -21,7 +21,7 @@ WIDGETS_TYPE = {
 
 SAVE_BUTTON_POS = {
     CONVOLUTIONAL: 9,
-    FULLY_CONNECTED: 5
+    FULLY_CONNECTED: 4
 }
 
 # States of pop up boxes
@@ -37,6 +37,12 @@ RESET_ARCHITECTURE = "RESET ARCHITECTURE"
 DETERMINATE = 'determinate'
 INDETERMINATE = 'indeterminate'
 
+# Weights viewer states
+WEIGHTS = 'weights'
+BIASES = 'biases'
+FILTERS = 'filters'
+FEATURE_MAPS = 'feature maps'
+
 # Messages
 POPUP_MESSAGES = {
     SAVE: "Are you sure you want to save the network?",
@@ -46,8 +52,8 @@ POPUP_MESSAGES = {
     RESET_ARCHITECTURE: "Are you sure you want to reset your model to default? Your changes will be lost!"
 }
 
-IMAGE_WIDTH = 52
-IMAGE_HEIGHT = 52
+IMAGE_WIDTH = 128
+IMAGE_HEIGHT = 128
 IMAGE_SIZE = (IMAGE_WIDTH, IMAGE_HEIGHT)
 IMAGE_CHANNELS = 3
 

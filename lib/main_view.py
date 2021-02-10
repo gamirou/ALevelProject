@@ -70,7 +70,6 @@ class MainView(tk.Frame):
         self.update_page()
 
         network = self.file_storage.get_network(neural_id)
-        Log.e(self.TAG + "/go_to_neural_page", network.layers)
         self.pages[self.current_id].fetch_network(network)
 
     def add_network(self, neural_id):
@@ -85,3 +84,6 @@ class MainView(tk.Frame):
 
     def send_data_to_progress_bar(self, value):
         self.app.progress_footer.update_values(value)
+
+    def notify(self, text):
+        self.app.notification_header.show(text)

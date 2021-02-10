@@ -73,8 +73,14 @@ class FileStorage:
             txt = txt_file.readlines()
         
         # Replace training thing
-        index_false = txt[1].index("False")
-        substring = "False" if index_false != -1 else "True"       
+        # TODO: When is_trained is true it returns a value error
+        try:
+            index_false = txt[1].index("False")
+            substring = "False" if index_false != -1 else "True"       
+        except ValueError:
+            index_false = txt[1].index("True")
+            substring = "True" if index_false != -1 else "False"
+
         txt[1] = txt[1].replace(substring, str(network.is_trained))
 
         # Replace date edited
@@ -86,17 +92,18 @@ class FileStorage:
 
         # serialize weights to HDF5
         network.model.save(os.path.join(neural_id_path, "model.h5"))
+        self.app.notification_header.show(f"The network has been saved")
 
     def delete_network(self, network_id, loading_page):
         try:
             shutil.rmtree(os.path.join(self.path, "saved", network_id))
-            Log.i(self.TAG, f"Network {network_id} has been deleted")
+            self.app.notification_header.show(f"The network has been deleted")
         
             loading_page[network_id].grid_forget()
             loading_page.index -= 1
             self.saved_networks.pop(network_id)
         except OSError as err:
-            Log.e(self.TAG, "Network cannot be deleted", err)
+            self.app.notification_header.show("Network cannot be deleted. Try again!")
 
     def load_all_images(self):
         files = []

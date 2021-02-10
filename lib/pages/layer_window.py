@@ -1,23 +1,31 @@
 import tkinter as tk
 from tkinter import ttk
-from ..utils.log import Log
-from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED, WIDGETS_TYPE, SAVE_BUTTON_POS
-from ..pages.weights_viewer import WeightsViewer
-
-import warnings
 import copy
-warnings.filterwarnings("ignore")
+import threading
+from ..utils.log import Log
+from ..utils.utils import *
+from ..pages.weights_viewer import WeightsViewer
+import matplotlib.pyplot as plt
 from keras.layers import Dropout
+from keras.models import Model
+from keras import backend as K
+from keras.preprocessing.image import load_img, img_to_array
+from math import sqrt
 
 class LayerWindow(tk.Toplevel):
 
     TAG = "LayerWindow"
 
-    def __init__(self, master=None, layer_type=None, layers=(), can_be_deleted=True, weights=(), cnf={}, **kw):
+    def __init__(
+        self, master=None, layer_type=None, layers=(), can_be_deleted=True, 
+        weights=(), inputs=None, cnf={}, **kw
+    ):
         super().__init__(master=master, cnf=cnf, **kw)
         self.parent = master
         self.can_be_deleted = can_be_deleted
         self.weights = weights
+        self.inputs = inputs
+        self.model = None
 
         self.save_button = {
             "text": "Save",
@@ -75,10 +83,10 @@ class LayerWindow(tk.Toplevel):
                     if dropout != None:
                         self.parent.delete_dropout(dropout)
         else:
-            Log.e(self.TAG, "Convolutional layer cannot be saved", "Invalid input")
+            self.parent.parent.notify("Convolutional layer cannot be saved", "Invalid input")
             return
         
-        Log.i(self.TAG, self.layer_type + " layer saved!")
+        self.parent.parent.notify(self.layer_type.capitalize() + " layer saved!")
         self.destroy()
 
     def delete_layer(self):
@@ -117,7 +125,7 @@ class LayerWindow(tk.Toplevel):
             entry.config(state='disabled')
 
     def render_widgets(self):
-        widget_json = self.parent.parent.file_storage.widgets[self.__class__.__name__]
+        widget_json = self.parent.file_storage.widgets[self.__class__.__name__]
         self.widgets = copy.deepcopy(widget_json[WIDGETS_TYPE[self.layer_type]])
         self.save_button["pos"][0] = SAVE_BUTTON_POS[self.layer_type]
         self.widgets["save_button"] = self.save_button
@@ -146,8 +154,14 @@ class LayerWindow(tk.Toplevel):
                     self.save_button["pos"] = [self.save_button["pos"][0], 0, 1, 2]
                     continue
 
+                # boolean algebra
+                weights_buttons = ("button_view_biases", "button_view_weights", "button_view_filters", "button_view_feature_maps")
+                if widget_key in weights_buttons and len(self.weights) == 0:
+                    continue
+
                 if "command" in self.widgets[widget_key].keys() and isinstance(self.widgets[widget_key]["command"], str):
                     self.widgets[widget_key]["command"] = getattr(self, self.widgets[widget_key]["command"])
+                
                 self.widgets[widget_key]["widget"] = tk.Button(self, cnf=self.widgets[widget_key])
                 
             elif "entry" in widget_key:
@@ -192,11 +206,80 @@ class LayerWindow(tk.Toplevel):
 
             self.widgets[widget_key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
 
-    def view_weights(self):
-        viewer = WeightsViewer(self, self.weights[0])
+    def view_filters(self):
+        # viewer = WeightsViewer(self, self.weights[0], state=FILTERS)
+        filters = np.copy(self.weights[0])
+        f_min, f_max = filters.min(), filters.max()
+        filters = (filters - f_min) / (f_max - f_min)
 
-    def view_biases(self):
-        viewer = WeightsViewer(self, self.weights[1])
+        n_filters, ix = 6, 1
+        for i in range(n_filters):
+            # get the filter
+            f = filters[:, :, :, i]
+            # plot each channel separately
+            for j in range(3):
+                # specify subplot and turn of axis
+                ax = plt.subplot(n_filters, 3, ix)
+                ax.set_xticks([])
+                ax.set_yticks([])
+                # plot filter channel in grayscale
+                # grayscale allows you to visualise it better, but filters look really cool in colour
+                plt.imshow(f[:, :, j], cmap='gray')
+                ix += 1
+        # show the figure
+        plt.show()
+
+    def view_feature_maps(self):
+        # viewer = WeightsViewer(self, self.weights[0], state=FEATURE_MAPS)
+        if self.model == None:
+            self.model = Model(inputs=self.inputs, outputs=self.layers[0].output)
+        
+        filename = tk.filedialog.askopenfilename()
+        img = load_img(filename, target_size=IMAGE_SIZE)
+        # convert the image to an array
+        img = img_to_array(img)
+        # expand dimensions so that it represents a single 'sample'
+        img = np.expand_dims(img, axis=0)
+        # prepare the image (e.g. scale pixel values for the vgg)
+        img /= 255.0
+        # get feature map for first hidden layer
+        # feature_maps = self.model.predict(img)
+        self.feature_map_thread = threading.Thread(
+            target=self.thread_generate_feature_maps, 
+            args=[
+                img, self.parent.parent.pages['NeuralMainPage'].send_thread_output_to_app, 
+                self.plot_feature_maps
+            ]
+        )
+        self.feature_map_thread.start()
+    
+    def plot_feature_maps(self, feature_maps):
+        # plot the output from each block
+        width = 8
+        print("THIS IS CALLED")
+        # only include 64 feature maps, it gets too slow at 128 and 256
+        height = int((self.layers[0].filters if self.layers[0].filters <= 64 else 64) / width)
+        for fmap in feature_maps:
+            # plot all 64 maps in an 8x8 squares
+            ix = 1
+            for i in range(width):
+                for j in range(height):
+                    # specify subplot and turn of axis
+                    ax = plt.subplot(width, height, ix)
+                    ax.set_xticks([])
+                    ax.set_yticks([])
+                    # plot filter channel in grayscale
+                    
+                    plt.imshow(fmap[:, :, ix-1], cmap='gray')
+                    ix += 1
+            # show the figure
+            plt.show()
+
+    def thread_generate_feature_maps(self, img, bridge_function, callback_function):
+        with self.parent.file_storage.graph.as_default():
+            K.set_session(self.parent.file_storage.session)
+            feature_maps = self.model.predict(img)
+            bridge_function(feature_maps, callback_function)
 
     # Validate functions
     def callback_entry_pool(self, action, value_if_allowed, text):
