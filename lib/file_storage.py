@@ -37,6 +37,7 @@ class FileStorage:
         self.load_all_networks()
         self.load_font()
         self.load_tutorial_info()
+        self.load_dictionary()
 
     def load_all_networks(self):
         # r=root, d=directories, f = files
@@ -150,6 +151,13 @@ class FileStorage:
         with open(abs_file_path) as json_file:
             data = json.load(json_file)
             self.tutorial_data = data
+
+    def load_dictionary(self):
+        abs_file_path = get_main_path("assets", "dictionary.json")
+
+        with open(abs_file_path) as json_file:
+            data = json.load(json_file)
+            self.dictionary_data = data
 
     ### FOR IMAGES ###
     def __setitem__(self, key, item):

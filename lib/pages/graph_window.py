@@ -23,11 +23,6 @@ class GraphWindow(tk.Toplevel):
         self.figure = plt.Figure(figsize=(6,5), dpi=100)
         self.ax = self.figure.add_subplot(111)
         self.canvas = FigureCanvasTkAgg(self.figure, self)
-        
-        # self.parent.parent.app.graphs["model_accuracy"] = {
-        #     "figure": self.figure,
-        #     "animate": self.fetch_logs
-        # }
 
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)

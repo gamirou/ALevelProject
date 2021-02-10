@@ -4,7 +4,6 @@ import copy
 import threading
 from ..utils.log import Log
 from ..utils.utils import *
-from ..pages.weights_viewer import WeightsViewer
 import matplotlib.pyplot as plt
 from keras.layers import Dropout
 from keras.models import Model

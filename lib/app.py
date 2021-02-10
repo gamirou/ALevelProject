@@ -18,11 +18,10 @@ class App:
         self.root.title(self.title)
         self.root.minsize(700, 700)
         # self.root.iconbitmap(get_main_path('assets', 'favicon.ico'))
-        # self.root.wm_geometry("600x600")
 
+        # Update loop variables        
         self.is_running = True
         self.is_loaded = False
-        self.graphs = {}
         self.thread_output = []
 
         # Cache images
@@ -78,8 +77,3 @@ class App:
                 self.notification_header.is_finished = False
 
             self.root.update()
-
-            # if not self.are_widgets_binded:
-            #     for widget in self.view.widgets_bind_stack:
-            #         widget.bind()
-            #     self.are_widgets_binded = True

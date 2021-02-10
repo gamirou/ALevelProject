@@ -5,6 +5,7 @@ from .pages.new_neural_page import NewNeuralPage
 from .pages.neural_main_page import NeuralMainPage
 from .pages.loading_page import LoadingPage
 from .pages.neural_edit_page import NeuralEditPage
+from .pages.dictionary_page import DictionaryPage
 from .utils.log import Log
 
 class MainView(tk.Frame):
@@ -30,6 +31,7 @@ class MainView(tk.Frame):
         self.add_page(NeuralMainPage(self, bg="#fff"))
         self.add_page(LoadingPage(self, bg="#fff"))
         self.add_page(NeuralEditPage(self, bg="#fff"))
+        self.add_page(DictionaryPage(self, bg="#fff"))
 
     def add_page(self, instance):
         self.pages[instance.__class__.__name__] = instance
