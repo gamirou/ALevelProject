@@ -47,8 +47,6 @@ class DictionaryPage(Page):
             label_term.grid(row=i, column=0, padx=20, pady=20, sticky=tk.W)
             text_definition.grid(row=i, column=1, pady=5, sticky=tk.W)
 
-            # self.add_to_wrapping_labels_list(label_definition)
-
         # Back page
         self.arrow_left = tk.Button(
             self.inside_frame, text="Back", image=self.parent.file_storage["arrow_left.png"], 
@@ -59,9 +57,3 @@ class DictionaryPage(Page):
         # 1:9 term:definition
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=9)
-
-    # def add_to_wrapping_labels_list(self, label):
-    #     self.parent.app.wrapping_labels.append({
-    #         'widget': label, 
-    #         'has_been_configured': False
-    #     })

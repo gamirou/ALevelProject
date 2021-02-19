@@ -4,7 +4,8 @@
             "font": "bold small",
             "text": "Convolutional layers",
             "bg": "#fff",
-            "pos": [0, 0, 1, 2]
+            "pos": [0, 0, 1, 2],
+            "info": true
         },
         "label_input": {
             "font": "bold x-small",
@@ -38,7 +39,8 @@
             "font": "bold small",
             "text": "Fully-connected layers",
             "bg": "#fff",
-            "pos": [0, 0, 1, 2]
+            "pos": [0, 0, 1, 2],
+            "info": true
         },
         "label_input": {
             "font": "bold x-small",
@@ -71,7 +73,8 @@
             "font": "bold x-small",
             "bg": "#fff",
             "text": "Optimiser",
-            "pos": [1, 0, 1, 1]
+            "pos": [1, 0, 1, 1],
+            "info": true
         },
         "combo_optimizer": {
             "options": ["rmsprop", "adam", "sgd"],
@@ -82,7 +85,8 @@
             "font": "bold x-small",
             "bg": "#fff",
             "text": "Learning rate",
-            "pos": [2, 0, 1, 1]
+            "pos": [2, 0, 1, 1],
+            "info": true
         },
         "entry_learning_rate": {
             "text": "0.01",

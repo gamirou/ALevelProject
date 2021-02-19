@@ -39,7 +39,6 @@ class App:
             bg="#f2e463", highlightbackground="black", highlightthickness=1
         )
         self.progress_footer.start(mode=INDETERMINATE)
-
         self.init_main_view()
         self.progress_footer.pack(side=tk.BOTTOM, fill=tk.X)
 
@@ -55,6 +54,7 @@ class App:
             if not self.file_storage.is_loading and not self.is_loaded:
                 self.progress_footer.stop()
                 self.is_loaded = True
+                self.notification_header.show('The data has been loaded')
 
             # Only if mode is determinate
             if self.progress_footer.value_changed and self.progress_footer.mode == DETERMINATE:
@@ -70,10 +70,5 @@ class App:
             for val in self.thread_output:
                 val[1](val[0])
                 self.thread_output.remove(val)
-
-            # Hide the notification header panel thing
-            if self.notification_header.is_finished:
-                self.notification_header.pack_forget()
-                self.notification_header.is_finished = False
 
             self.root.update()

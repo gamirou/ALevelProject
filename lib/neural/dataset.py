@@ -32,7 +32,6 @@ class Dataset:
     def load_data(self):
         self.create_dataset_generator()
         self.file_storage.is_loading = False
-        print(time.thread_time())
 
     def create_dataset_generator(self):
         self.batch_size = 32

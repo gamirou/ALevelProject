@@ -3,16 +3,13 @@ from tkinter import ttk
 from ..page import Page
 from ..frames.pop_up_confirm import PopUpConfirm
 from ..pages.layer_window import LayerWindow
+from ..frames.tooltip import ToolTip
 from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED, DROPOUT, BUILD_MODEL, RESET_ARCHITECTURE
-from ..utils.log import Log
 from ..utils.visibility_buttons import VisibilityButtons
+from ..utils.log import Log
+from keras.layers import Conv2D, Flatten, MaxPooling2D, Dense, Dropout
 import time
 import copy
-
-import warnings
-warnings.filterwarnings("ignore")
-from keras.layers import Conv2D, Flatten, MaxPooling2D, Dense, Dropout
-
 import random
 
 class NeuralEditPage(Page):
@@ -107,6 +104,7 @@ class NeuralEditPage(Page):
             )
         else:
             self.parent.back_page()
+            self.tooltip = None
     
     def save_finishing_touches(self, new_lr, new_optimiser):
         self.current_network.learning_rate = new_lr
@@ -164,19 +162,28 @@ class NeuralEditPage(Page):
 
     def render_inner(self, key, frame):
         inner_dict = self.inner_widgets[key]
-
+        
         # Render - document
         for inner_key, value in inner_dict.items():
+            frame_with_info = None
             is_hidden = False
+            is_info = value.pop("info", False)
             pos = value.pop("pos", None)
             font = self.get_font(inner_dict[inner_key])
+            
+            # If there is an info button, make a frame that will store both the widget and the button
+            if is_info:
+                parent_frame = tk.Frame(frame, bg='#fff')
+            else:
+                parent_frame = frame
+
             if "label" in inner_key:
-                inner_dict[inner_key]["widget"] = tk.Label(frame, font=font, cnf=inner_dict[inner_key])
+                inner_dict[inner_key]["widget"] = tk.Label(parent_frame, font=font, cnf=inner_dict[inner_key])
                 
             elif "button" in inner_key:
                 if "command" in inner_dict[inner_key].keys() and isinstance(inner_dict[inner_key]["command"], str):
                     inner_dict[inner_key]["command"] = getattr(self, inner_dict[inner_key]["command"])
-                inner_dict[inner_key]["widget"] = tk.Button(frame, font=font, cnf=inner_dict[inner_key])
+                inner_dict[inner_key]["widget"] = tk.Button(parent_frame, font=font, cnf=inner_dict[inner_key])
                 
                 # add button to visibility buttons class
                 if "hidden" in inner_key:
@@ -195,11 +202,11 @@ class NeuralEditPage(Page):
 
                 if "validate" in inner_dict[inner_key].keys():
                     validate = value.pop("validate", None)
-                    vcmd = (frame.register(getattr(self, validate)))
-                    widget = tk.Entry(frame, font=font, validate='key', validatecommand=(vcmd, '%d', '%P', '%S'), cnf=value)
+                    vcmd = (parent_frame.register(getattr(self, validate)))
+                    widget = tk.Entry(parent_frame, font=font, validate='key', validatecommand=(vcmd, '%d', '%P', '%S'), cnf=value)
                     inner_dict[inner_key]["widget"] = widget
                 else:
-                    inner_dict[inner_key]["widget"] = tk.Entry(frame, font=font, cnf=inner_dict[inner_key])
+                    inner_dict[inner_key]["widget"] = tk.Entry(parent_frame, font=font, cnf=inner_dict[inner_key])
             
             elif "combo" in inner_key:
                 options = inner_dict[inner_key]["options"]
@@ -213,14 +220,25 @@ class NeuralEditPage(Page):
                 var = self.variables[inner_key.replace("combo_", "")]
                 var.set(value["text"])
 
-                widget = ttk.Combobox(frame, textvariable=var , state='readonly', value=options)
+                widget = ttk.Combobox(parent_frame, textvariable=var , state='readonly', value=options)
                 widget.current(index)
                 inner_dict[inner_key]["widget"] = widget
 
             # Only show if it is a layer
             if not is_hidden:
-                inner_dict[inner_key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
-
+                if is_info:
+                    parent_frame.grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
+                    definition = self.file_storage.get_definition_by_term(value['text'])
+                    info_button = tk.Button(
+                        parent_frame, bg='#fff', width=32, height=32, relief='flat',
+                        image=self.file_storage['info_button_icon.png']
+                    )
+                    inner_dict[inner_key]["widget"].pack(side=tk.LEFT)
+                    info_button.pack(side=tk.LEFT)
+                    self.tooltip = ToolTip(info_button, definition)
+                else:
+                    inner_dict[inner_key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
+                
     def open_hidden_layer(self, key=0, layer_type=None):
         if layer_type == None:
             layer_type = CONVOLUTIONAL

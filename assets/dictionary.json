@@ -9,10 +9,6 @@
     },
     {
         "term": "abc",
-        "definition": "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc"
-    },
-    {
-        "term": "abc",
         "definition": "abc"
     },
     {
@@ -44,15 +40,19 @@
         "definition": "abc"
     },
     {
-        "term": "abc",
+        "term": "Optimiser",
+        "definition": "Optimisers are algorithms or methods used to change the attributes of the neural network such as weights and learning rate to reduce the losses. Optimisers are used to solve optimisation problems by minimising the function."
+    },
+    {
+        "term": "Learning rate",
         "definition": "abc"
     },
     {
-        "term": "abc",
+        "term": "Convolutional layers",
         "definition": "abc"
     },
     {
-        "term": "abc",
+        "term": "Fully-connected layers",
         "definition": "abc"
     },
     {

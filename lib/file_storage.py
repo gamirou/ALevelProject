@@ -159,6 +159,11 @@ class FileStorage:
             data = json.load(json_file)
             self.dictionary_data = data
 
+    def get_definition_by_term(self, term):
+        for data in self.dictionary_data:
+            if data['term'] == term:
+                return data['definition']
+
     ### FOR IMAGES ###
     def __setitem__(self, key, item):
         self.cache[key] = item
