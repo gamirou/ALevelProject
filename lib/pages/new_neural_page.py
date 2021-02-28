@@ -9,18 +9,22 @@ class NewNeuralPage(Page):
     TAG = "NewNeuralPage"
 
     entries = {}    
+    # fancy_description = """
+    # Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam augue turpis, ornare id aliquam at, 
+    # tristique vel magna. Mauris ultricies tincidunt libero, ac fermentum velit vestibulum vel. 
+    # Etiam feugiat, felis in suscipit semper, ex magna scelerisque nulla, dictum commodo orci 
+    # est sed diam. Morbi finibus arcu nec augue ultrices dapibus. Aenean et placerat lorem. 
+    # Pellentesque tempor sem arcu, vitae cursus mauris imperdiet at. Praesent vestibulum ex sit amet 
+    # erat elementum, sed ultrices nisi commodo. Vestibulum sed sem feugiat, tempus nibh nec, faucibus 
+    # justo. In vulputate aliquet nulla, eget pulvinar nisl pharetra vel. Nam tempus aliquam urna, 
+    # rutrum tincidunt tortor tincidunt eu. Vestibulum blandit ut est quis maximus. Nullam sagittis 
+    # rhoncus lectus hendrerit eleifend. Etiam id neque dui. Ut finibus tortor quis justo condimentum, 
+    # eu sollicitudin massa pretium. Nullam posuere varius urna sit amet volutpat. Nunc ut rhoncus magna, 
+    # accumsan efficitur justo.
+    # """
     fancy_description = """
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam augue turpis, ornare id aliquam at, 
-    tristique vel magna. Mauris ultricies tincidunt libero, ac fermentum velit vestibulum vel. 
-    Etiam feugiat, felis in suscipit semper, ex magna scelerisque nulla, dictum commodo orci 
-    est sed diam. Morbi finibus arcu nec augue ultrices dapibus. Aenean et placerat lorem. 
-    Pellentesque tempor sem arcu, vitae cursus mauris imperdiet at. Praesent vestibulum ex sit amet 
-    erat elementum, sed ultrices nisi commodo. Vestibulum sed sem feugiat, tempus nibh nec, faucibus 
-    justo. In vulputate aliquet nulla, eget pulvinar nisl pharetra vel. Nam tempus aliquam urna, 
-    rutrum tincidunt tortor tincidunt eu. Vestibulum blandit ut est quis maximus. Nullam sagittis 
-    rhoncus lectus hendrerit eleifend. Etiam id neque dui. Ut finibus tortor quis justo condimentum, 
-    eu sollicitudin massa pretium. Nullam posuere varius urna sit amet volutpat. Nunc ut rhoncus magna, 
-    accumsan efficitur justo.
+    It is very easy and simple to create a new network. Type in the name of your network and you could
+    add some words about it, describe it :). Once you finished, click 'Create New Network' and you're done.
     """
 
     def __init__(self, parent, *args, **kwargs):
@@ -80,7 +84,6 @@ class NewNeuralPage(Page):
         name = self.entries["name"].get()
         description = self.entries["description"].get("1.0", tk.END)
 
-        print(name, description)
         if name == "" or description == "":
             Log.w(self.TAG, "The fields are mandatory")
             return
@@ -94,35 +97,3 @@ class NewNeuralPage(Page):
         create_file("saved/" + neural_id, "model_info.txt", text)
         self.parent.add_network(neural_id)
         self.parent.go_to_neural_page(neural_id)
-
-    # def create_network(self):
-    #     # Lst is a boolean list
-    #     # true = value is empty or key = default
-    #     # if all three are false, the network can be created
-    #     # if any are true, it will not allow the user to enter any more info
-    #     values_changed = [value.get() == "" for key, value in self.variables.items()]
-    #     if any(values_changed):
-    #         # TODO: Change it to message shown on window
-    #         Log.w(self.TAG, "The fields are mandatory")
-    #         return
-
-    #     # TODO: Do something about new lines in description
-
-    #     # Data will be stored in a directory
-    #     # dir name = uuid 
-    #     # files - model_info.txt (name, description and date)
-    #     #       - model.h5 (actual model)
-    #     #       - model_metrics.json (nice details in JSON format)
-    #     desc = self.variables["description"].get()
-    #     desc = desc.replace("\n", " ")
-    #     values = "{},{},{}".format(
-    #         self.variables["name"].get(),
-    #         desc, False
-    #     )
-    #     text = "name,description,is_trained,date\n" + values + "," + today()
-    #     neural_id = str(uuid.uuid4())
-
-    #     # Create the directory and file
-    #     create_file("saved/" + neural_id, "model_info.txt", text)
-    #     self.parent.add_network(neural_id)
-    #     self.parent.go_to_neural_page(neural_id)

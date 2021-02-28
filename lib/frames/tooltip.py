@@ -1,53 +1,52 @@
 import tkinter as tk
 
 class ToolTip:
-    
-    def __init__(self, widget=None, text=None):
-        self.wraplength = 200   
-        self.wait_time = 100
-        self.widget = widget
-        self.text = text
+
+    def __init__(self):
+        self.wraplength = 200
+
+        # "definition" : tkinter widget
+        self.widgets = {}
+        self.active_widget = None
+        self.active_text = "$"
 
         self.offset = {'x': 10, 'y': 10}
         self.is_visible = False
 
         # Configure functions
-        self.widget.bind("<ButtonPress>", self.enter)
-        self.widget.bind("<Configure>", self.sync_position)
+        # self.widget.bind("<ButtonPress>", self.enter)
 
         self.top_level = None
-        self.after_function = None
 
-    def enter(self, event=None):
-        self.reset_after_function()
-        self.after_function = self.widget.after(self.wait_time, self.show)
+    def add_widget(self, widget, text):
+        self.widgets[text] = widget
+        widget.bind("<ButtonPress>", self.show)
+        self.top_level = None
 
     def leave(self, event=None):
-        self.reset_after_function()
         self.hide()
         self.is_visible = False
+        self.active_widget = None
 
-    def reset_after_function(self):
-        if self.after_function:
-            self.widget.after_cancel(self.after_function)
-        self.after_function = None
-
-    def show(self):
+    def show(self, event):
         if self.is_visible:
             self.leave()
-            return
+            if event.widget == self.active_widget:
+                return
 
+        self.active_widget = event.widget
         self.is_visible = True
         x = y = 0
-        x, y, cx, cy = self.widget.bbox("insert")
-        x += self.widget.winfo_rootx() + self.offset['x']
-        y += self.widget.winfo_rooty() + self.offset['y']
-        self.top_level = tk.Toplevel(self.widget)
+        x, y, cx, cy = self.active_widget.bbox("insert")
+        x += self.active_widget.winfo_rootx() + self.offset['x']
+        y += self.active_widget.winfo_rooty() + self.offset['y']
+        self.top_level = tk.Toplevel(self.active_widget)
         self.top_level.geometry(f"+{x}+{y}")
         self.top_level.overrideredirect(True)
         self.top_level.bind('<ButtonPress>', self.leave)
+        self.get_definition()
         label = tk.Label(
-            self.top_level, text=self.text, 
+            self.top_level, text=self.active_text, 
             bg="#5ce681", justify='left', relief='solid', borderwidth=1,
             wraplength = self.wraplength
         )
@@ -58,12 +57,8 @@ class ToolTip:
             self.top_level.destroy()
         self.top_level = None
 
-    def sync_position(self, event=None):
-        x = y = 0
-        x, y, cx, cy = self.widget.bbox("insert")
-        x += self.widget.winfo_rootx() + self.offset['x']
-        y += self.widget.winfo_rooty() + self.offset['y']
-        print('configure')
-        if self.top_level != None:
-            print("configure top level ain't none")
-            self.top_level.geometry(f"+{x}+{y}")
+    def get_definition(self):
+        for key, value in self.widgets.items():
+            if value == self.active_widget:
+                self.active_text = key
+                break

@@ -56,6 +56,8 @@ class MainView(tk.Frame):
         # })
         self.pages[self.current_id].place(in_=self, x=0, y=0, relwidth=1, relheight=1)
         self.pages[self.current_id].show()
+        if self.app.active_tooltip.active_widget != None:
+            self.app.active_tooltip.leave()
 
     def back_page(self):
         self.page_stack.pop()

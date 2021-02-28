@@ -6,7 +6,8 @@
         },
         "label_filters": {
             "text": "Number of filters",
-            "pos": [1, 0, 1, 1]
+            "pos": [1, 0, 1, 1],
+            "info": "Filters"
         },
         "combo_filters": {
             "options": ["16", "32", "64", "128", "256"],
@@ -14,8 +15,9 @@
             "pos": [1, 1, 1, 1]
         },
         "label_kernel_size": {
-            "text": "Kernel size",
-            "pos": [2, 0, 1, 1]
+            "text": "Filter size",
+            "pos": [2, 0, 1, 1],
+            "info": "Filter size"
         },
         "entry_kernel_size": {
             "text": "self.layers[0].kernel_size[0]",
@@ -24,7 +26,8 @@
         },
         "label_stride_x": {
             "text": "Stride in the x-axis",
-            "pos": [3, 0, 1, 1]
+            "pos": [3, 0, 1, 1],
+            "info": "Stride"
         },
         "entry_stride_x": {
             "text": "self.layers[0].strides[0]",
@@ -42,7 +45,8 @@
         },
         "label_padding": {
             "text": "Padding",
-            "pos": [5, 0, 1, 1]
+            "pos": [5, 0, 1, 1],
+            "info": "Padding"
         },
         "combo_padding": {
             "options": ["valid", "same"],
@@ -51,11 +55,13 @@
         },
         "label_title_2": {
             "text": "Max Pooling",
-            "pos": [6, 0, 1, 2]
+            "pos": [6, 0, 1, 2],
+            "info": "Max pooling"
         },
         "label_pool": {
             "text": "Pool size",
-            "pos": [7, 0, 1, 1]
+            "pos": [7, 0, 1, 1],
+            "info": "Pooling"
         },
         "entry_pool": {
             "text": "self.layers[1].pool_size[0]",
@@ -70,7 +76,8 @@
         "button_view_feature_maps": {
             "text": "View feature maps",
             "pos": [8, 1, 1, 1],
-            "command": "view_feature_maps"
+            "command": "view_feature_maps",
+            "info": "Feature map"
         },
         "delete_button": {
             "text": "Delete",
@@ -85,7 +92,8 @@
         },
         "label_neurons": {
             "text": "Number of neurons: ",
-            "pos": [1, 0, 1, 1]
+            "pos": [1, 0, 1, 1],
+            "info": "Neuron"
         },
         "entry_neurons": {
             "pos": [1, 1, 1, 1],
@@ -100,7 +108,8 @@
         },
         "label_dropout": {
             "text": "Rate",
-            "pos": [3, 0, 1, 1]
+            "pos": [3, 0, 1, 1],
+            "info": "Dropout"
         },
         "entry_dropout": {
             "pos": [3, 1, 1, 1],

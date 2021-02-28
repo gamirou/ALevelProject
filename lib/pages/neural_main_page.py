@@ -38,6 +38,7 @@ class NeuralMainPage(Page):
     def __init__(self, parent=None, *args, **kwargs):
         super().__init__(parent=parent, *args, **kwargs)
         self.file_storage = self.parent.file_storage
+        self.tooltip = self.parent.app.active_tooltip
         self.inner_widgets = self.file_storage.widgets[self.__class__.__name__]
         self.init_inner()
         self.widgets = self.file_storage.widgets["NmpMainWidgets"]
@@ -88,17 +89,36 @@ class NeuralMainPage(Page):
 
         for key, value in inner_dict.items():
             pos = value.pop("pos", None)
+            info_term = value.pop("info", None)
             font = self.get_font(inner_dict[key])
+
+            # If there is an info button, make a frame that will store both the widget and the button
+            if info_term != None:
+                parent_frame = tk.Frame(frame, bg='#fff')
+            else:
+                parent_frame = frame
+
             inner_dict[key]["font"] = font
             if "label" in key:
-                inner_dict[key]["widget"] = tk.Label(frame, bg="#fff", cnf=inner_dict[key])
+                inner_dict[key]["widget"] = tk.Label(parent_frame, bg="#fff", cnf=inner_dict[key])
             elif "button" in key:
-                inner_dict[key]["widget"] = tk.Button(frame, bg="#fff", cnf=inner_dict[key])
+                inner_dict[key]["widget"] = tk.Button(parent_frame, bg="#fff", cnf=inner_dict[key])
 
-            inner_dict[key]["widget"].grid(
-                row=pos[0], column=pos[1], rowspan=pos[2], 
-                columnspan=pos[3], padx=5, pady=5
-            )
+            if info_term != None:
+                parent_frame.grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3], padx=5, pady=5)
+                definition = self.file_storage.get_definition_by_term(info_term)
+                info_button = tk.Button(
+                    parent_frame, bg='#fff', width=32, height=32, relief='flat',
+                    image=self.file_storage['info_button_icon.png']
+                )
+                inner_dict[key]["widget"].pack(side=tk.LEFT)
+                info_button.pack(side=tk.LEFT)
+                self.tooltip.add_widget(info_button, definition)
+            else:
+                inner_dict[key]["widget"].grid(
+                    row=pos[0], column=pos[1], rowspan=pos[2], 
+                    columnspan=pos[3], padx=5, pady=5
+                )
 
     # Can add this to render_inner
     def init_inner(self):
@@ -124,7 +144,7 @@ class NeuralMainPage(Page):
     """
     def go_to_edit(self):
         if self.is_training:
-            self.parent.notify("You cannot enter the page when training data")
+            self.parent.notify("You cannot enter this page when training data")
             return
 
         self.parent.update_page("NeuralEditPage")
@@ -204,7 +224,7 @@ class NeuralMainPage(Page):
         self.parent.back_page()
 
     def reset_network_popup(self):
-        message_box = PopUpConfirm(self, DELETE, self.reset_network)
+        message_box = PopUpConfirm(self, BUILD_MODEL, self.reset_network)
 
     def reset_network(self):
         self.current_network.reset_weights()

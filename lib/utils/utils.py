@@ -3,12 +3,19 @@ from datetime import date
 import numpy as np
 import tkinter as tk
 import os
+import re
 
+# Initial size
+APP_SIZE = 700
+
+# Back page button
 ARROW_WIDTH_IMAGE = 100
 ARROW_HEIGHT_IMAGE = 60
 ARROW_WIDTH_CHARS = 20
 ARROW_HEIGHT_CHARS = 4
+INITIAL_SCROLLED_TEXT_WIDTH = 10
 
+# Types of layers
 CONVOLUTIONAL = "convolutional"
 FULLY_CONNECTED = "fully-connected"
 DROPOUT = "dropout"
@@ -47,11 +54,12 @@ FEATURE_MAPS = 'feature maps'
 POPUP_MESSAGES = {
     SAVE: "Are you sure you want to save the network?",
     TRAIN: "Are you sure you want to train the network?",
-    BUILD_MODEL: "Are you sure you want to overwrite the previous model?",
+    BUILD_MODEL: "Are you sure you want to reset the weights? This action cannot be undone and you will have to train the network again!",
     DELETE: "Are you sure you want to delete this network? This action cannot be undone!",
     RESET_ARCHITECTURE: "Are you sure you want to reset your model to default? Your changes will be lost!"
 }
 
+# Image
 IMAGE_WIDTH = 128
 IMAGE_HEIGHT = 128
 IMAGE_SIZE = (IMAGE_WIDTH, IMAGE_HEIGHT)
@@ -104,3 +112,6 @@ def type_layer_from_file(file_name):
     weights_type = "biases" if file_name.startswith('b') else "weights"
     layer_name = file_name.replace(weights_type + "_", "")
     return (weights_type, layer_name)
+
+def find_all_occurences(original_string, substring):
+    return [ch.start() for ch in re.finditer(substring, original_string)]

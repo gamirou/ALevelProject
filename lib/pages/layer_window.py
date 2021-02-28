@@ -4,6 +4,7 @@ import copy
 import threading
 from ..utils.log import Log
 from ..utils.utils import *
+from ..frames.tooltip import ToolTip
 import matplotlib.pyplot as plt
 from keras.layers import Dropout
 from keras.models import Model
@@ -19,12 +20,17 @@ class LayerWindow(tk.Toplevel):
         self, master=None, layer_type=None, layers=(), can_be_deleted=True, 
         weights=(), inputs=None, cnf={}, **kw
     ):
-        super().__init__(master=master, cnf=cnf, **kw)
+        super().__init__(master=master, bg="#fff", cnf=cnf, **kw)
         self.parent = master
+        self.tooltip = ToolTip()
         self.can_be_deleted = can_be_deleted
         self.weights = weights
         self.inputs = inputs
         self.model = None
+        
+        # Functions that depend on the window
+        self.bind('<Configure>', self.configure_tooltip)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
 
         self.save_button = {
             "text": "Save",
@@ -53,52 +59,46 @@ class LayerWindow(tk.Toplevel):
 
     def save_layer(self):    
         values = {key: self.variables[key].get() for key in self.variables}
-        if self.validate_values(values):
-            if self.layer_type == CONVOLUTIONAL:
-                conv = self.layers[0]
-                maxpooling = self.layers[1]
+        self.update_empty_values()
+        if self.layer_type == CONVOLUTIONAL:
+            conv = self.layers[0]
+            maxpooling = self.layers[1]
 
-                stride = (int(values["stride_x"], 10), int(values["stride_y"], 10))
-                pooling = (int(values["pool"], 10), int(values["pool"], 10))
-                conv.strides = stride
-                conv.padding = self.widgets["combo_padding"]["widget"].get()
-                conv.kernel_size = (int(values["kernel_size"] , 10), int(values["kernel_size"], 10))
-                conv.filters = int(values["filters"], 10)
-                
-                maxpooling.pool_size = pooling
-            else:
-                dense = self.layers[0]
-                dropout = self.layers[1]
-
-                dense.units = int(values['neurons'])
-                new_dropout = Dropout(float(values['dropout']))
-
-                if self.is_dropout.get():
-                    if dropout == None:
-                        self.parent.add_dropout(dense, new_dropout)
-                    else:
-                        dropout.rate = float(values['dropout'])
-                else:
-                    if dropout != None:
-                        self.parent.delete_dropout(dropout)
+            stride = (int(values["stride_x"], 10), int(values["stride_y"], 10))
+            pooling = (int(values["pool"], 10), int(values["pool"], 10))
+            conv.strides = stride
+            conv.padding = self.widgets["combo_padding"]["widget"].get()
+            conv.kernel_size = (int(values["kernel_size"] , 10), int(values["kernel_size"], 10))
+            conv.filters = int(values["filters"], 10)
+            
+            maxpooling.pool_size = pooling
         else:
-            self.parent.parent.notify("Convolutional layer cannot be saved", "Invalid input")
-            return
-        
+            dense = self.layers[0]
+            dropout = self.layers[1]
+
+            dense.units = int(values['neurons'])
+            new_dropout = Dropout(float(values['dropout']))
+
+            if self.is_dropout.get():
+                if dropout == None:
+                    self.parent.add_dropout(dense, new_dropout)
+                else:
+                    dropout.rate = float(values['dropout'])
+            else:
+                if dropout != None:
+                    self.parent.delete_dropout(dropout)
+
         self.parent.parent.notify(self.layer_type.capitalize() + " layer saved!")
         self.destroy()
 
     def delete_layer(self):
-        self.grab_release()
-        self.destroy()
-        self.parent.delete_layer(self.layer_type, self.layers)
+        if tk.messagebox.askokcancel("Delete layer", "Are you sure? It will be gone forever if you click 'OK'"):
+            self.grab_release()
+            self.destroy()
+            self.parent.delete_layer(self.layer_type, self.layers)
 
-    def validate_values(self, values):
+    def update_empty_values(self, values):
         if self.layer_type == CONVOLUTIONAL:
-            # "filters": tk.StringVar(),
-            # "stride_x": tk.StringVar(),
-            # "stride_y": tk.StringVar(),
-
             # Pool values are 1, 2, 4, 6 and 8
             if values["pool"] == "":
                 values["pool"] = "2"
@@ -112,7 +112,6 @@ class LayerWindow(tk.Toplevel):
 
             if values["stride_y"] == "":
                 values["stride_y"] = "1"
-        return True
 
     def open_dropout(self):
         var = self.widgets["checkbutton_dropout"]["variable"]
@@ -132,8 +131,15 @@ class LayerWindow(tk.Toplevel):
         # Render - document
         for widget_key, value in self.widgets.items():
             pos = value.pop("pos", None)
+            info_term = value.pop("info", None)
+
+            if info_term:
+                parent_frame = tk.Frame(self, bg="#fff")
+            else:
+                parent_frame = self
+
             if "label" in widget_key:
-                self.widgets[widget_key]["widget"] = tk.Label(self, cnf=self.widgets[widget_key])
+                self.widgets[widget_key]["widget"] = tk.Label(parent_frame, bg="#fff", cnf=self.widgets[widget_key])
 
             elif "checkbutton" in widget_key:
                 if "command" in self.widgets[widget_key].keys() and isinstance(self.widgets[widget_key]["command"], str):
@@ -145,7 +151,7 @@ class LayerWindow(tk.Toplevel):
                     self.is_dropout.set(1)
                     self.widgets["entry_dropout"]["text"] = "self.layers[1].rate"
                 
-                self.widgets[widget_key]["widget"] = tk.Checkbutton(self, cnf=self.widgets[widget_key])
+                self.widgets[widget_key]["widget"] = tk.Checkbutton(parent_frame, bg="#fff", cnf=self.widgets[widget_key])
 
             elif "button" in widget_key:
                 if "delete" in widget_key and not self.can_be_deleted:
@@ -161,7 +167,7 @@ class LayerWindow(tk.Toplevel):
                 if "command" in self.widgets[widget_key].keys() and isinstance(self.widgets[widget_key]["command"], str):
                     self.widgets[widget_key]["command"] = getattr(self, self.widgets[widget_key]["command"])
                 
-                self.widgets[widget_key]["widget"] = tk.Button(self, cnf=self.widgets[widget_key])
+                self.widgets[widget_key]["widget"] = tk.Button(parent_frame, bg="#fff", cnf=self.widgets[widget_key])
                 
             elif "entry" in widget_key:
                 widget_name = widget_key.replace("entry_", "")
@@ -177,10 +183,10 @@ class LayerWindow(tk.Toplevel):
                 if "validate" in value.keys():
                     validate = value.pop("validate", None)
                     vcmd = (self.register(getattr(self, validate)))
-                    widget = tk.Entry(self, validate='key', validatecommand=(vcmd, '%d', '%P', '%S'), cnf=value)
+                    widget = tk.Entry(parent_frame, bg="#fff", validate='key', validatecommand=(vcmd, '%d', '%P', '%S'), cnf=value)
                     self.widgets[widget_key]["widget"] = widget
                 else:
-                    self.widgets[widget_key]["widget"] = tk.Entry(self, cnf=self.widgets[widget_key])
+                    self.widgets[widget_key]["widget"] = tk.Entry(parent_frame, bg="#fff", cnf=self.widgets[widget_key])
 
                 # Disable dropout
                 if widget_key == "entry_dropout":
@@ -199,11 +205,23 @@ class LayerWindow(tk.Toplevel):
                 var = self.variables[widget_key.replace("combo_", "")]
                 var.set(default_value if default_value != None else options[index])
 
-                widget = ttk.Combobox(self, textvariable=var, state='readonly', value=options)
+                widget = ttk.Combobox(parent_frame, textvariable=var, state='readonly', value=options)
                 widget.current(index)
                 self.widgets[widget_key]["widget"] = widget
 
-            self.widgets[widget_key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
+            # Add info button
+            if info_term:
+                parent_frame.grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
+                definition = self.parent.file_storage.get_definition_by_term(info_term)
+                info_button = tk.Button(
+                    parent_frame, bg='#fff', width=32, height=32, relief='flat',
+                    image=self.parent.file_storage['info_button_icon.png']
+                )
+                self.widgets[widget_key]["widget"].pack(side=tk.LEFT)
+                info_button.pack(side=tk.LEFT)
+                self.tooltip.add_widget(info_button, definition)
+            else:
+                self.widgets[widget_key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
 
     def view_filters(self):
         # viewer = WeightsViewer(self, self.weights[0], state=FILTERS)
@@ -226,7 +244,7 @@ class LayerWindow(tk.Toplevel):
                 plt.imshow(f[:, :, j], cmap='gray')
                 ix += 1
         # show the figure
-        plt.show()
+        plt.show(block=False)
 
     def view_feature_maps(self):
         # viewer = WeightsViewer(self, self.weights[0], state=FEATURE_MAPS)
@@ -272,13 +290,25 @@ class LayerWindow(tk.Toplevel):
                     plt.imshow(fmap[:, :, ix-1], cmap='gray')
                     ix += 1
             # show the figure
-            plt.show()
+            plt.show(block=False)
 
     def thread_generate_feature_maps(self, img, bridge_function, callback_function):
         with self.parent.file_storage.graph.as_default():
             K.set_session(self.parent.file_storage.session)
             feature_maps = self.model.predict(img)
             bridge_function(feature_maps, callback_function)
+
+    def configure_tooltip(self, event=None):
+        if self.tooltip.top_level != None:
+            x = y = 0
+            x, y, cx, cy = self.tooltip.active_widget.bbox("insert")
+            x += self.tooltip.active_widget.winfo_rootx() + self.tooltip.offset['x']
+            y += self.tooltip.active_widget.winfo_rooty() + self.tooltip.offset['y']
+            self.tooltip.top_level.geometry(f"+{x}+{y}")
+
+    def close_window(self):
+        if tk.messagebox.askokcancel("Close layer", "Are you sure? Your progress will not be saved"):
+            self.destroy()
 
     # Validate functions
     def callback_entry_pool(self, action, value_if_allowed, text):

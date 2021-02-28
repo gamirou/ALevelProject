@@ -39,7 +39,7 @@ class DictionaryPage(Page):
             )
             text_definition = tk.Text(
                 self.inside_frame, bg='#fff', font=fonts['small'], relief='flat',
-                width=35, height=5, wrap=tk.WORD
+                width=35, height=7, wrap=tk.WORD
             )
             text_definition.insert(tk.INSERT, self.data[i]['definition'])
             text_definition.configure(state='disabled')

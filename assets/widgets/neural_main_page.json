@@ -16,12 +16,14 @@
         "label_network": {
             "text": "Edit the network",
             "font": "bold small",
+            "fg": "#0d6313",
             "pos": [2, 0, 1, 1]  
         },
         "button_depth": {
             "text": "Click here to see the network in more details",
             "wraplength": 150,
-            "font": "x-small",
+            "font": "bold x-small",
+            "fg": "#0d6313",
             "command": "go_to_edit",
             "pos": [3, 0, 1, 1]
         },
@@ -42,7 +44,8 @@
         "label_accuracy": {
             "text": "Model accuracy",
             "font": "bold small",
-            "pos": [2, 0, 1, 1]
+            "pos": [2, 0, 1, 1],
+            "info": "Accuracy"
         },
         "button_accuracy": {
             "text": "Click here to see how the accuracy changes over time",
@@ -54,7 +57,8 @@
         "label_loss": {
             "text": "Model loss",
             "font": "bold small",
-            "pos": [4, 0, 1, 1]
+            "pos": [4, 0, 1, 1],
+            "info": "Loss"
         },
         "button_loss": {
             "text": "Click here to see how the loss functions changes over time",
@@ -83,7 +87,8 @@
         "label_output": {
             "text": "Prediction",
             "font": "bold small",
-            "pos": [0, 0, 1, 2]  
+            "pos": [0, 0, 1, 2],
+            "info": "Prediction"
         },
         "label_output_image": {
             "text": "Output image",

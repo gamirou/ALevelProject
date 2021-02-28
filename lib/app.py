@@ -5,9 +5,10 @@ from .main_view import MainView
 from .file_storage import FileStorage
 from .frames.progress_bar_footer import ProgressBarFooter
 from .frames.notification_header import NotificationHeader
+from .frames.tooltip import ToolTip
 from .utils.log import Log
 import matplotlib.animation as animation
-from .utils.utils import DETERMINATE, INDETERMINATE, get_main_path
+from .utils.utils import *
 class App:
 
     TAG = "App"
@@ -16,13 +17,18 @@ class App:
         self.title = "Image Classification for all"
         self.root = tk.Tk()
         self.root.title(self.title)
-        self.root.minsize(700, 700)
+        self.root.minsize(APP_SIZE, APP_SIZE)
         # self.root.iconbitmap(get_main_path('assets', 'favicon.ico'))
 
         # Update loop variables        
         self.is_running = True
         self.is_loaded = False
         self.thread_output = []
+        self.wrapping_widgets = []
+        self.active_tooltip = ToolTip()
+
+        # Close window
+        self.root.protocol("WM_DELETE_WINDOW", self.close_window)
 
         # Cache images
         self.file_storage = FileStorage(self)
@@ -49,6 +55,8 @@ class App:
         self.view.pack(side="top", fill="both", expand=True)
 
     def update(self):
+        self.root.bind('<Configure>', self.configure_tooltip)
+
         while self.is_running:
             # When loading dataset (progress bar is visible on start)
             if not self.file_storage.is_loading and not self.is_loaded:
@@ -72,3 +80,15 @@ class App:
                 self.thread_output.remove(val)
 
             self.root.update()
+
+    def configure_tooltip(self, event=None):
+        if self.active_tooltip.top_level != None:
+            x = y = 0
+            x, y, cx, cy = self.active_tooltip.active_widget.bbox("insert")
+            x += self.active_tooltip.active_widget.winfo_rootx() + self.active_tooltip.offset['x']
+            y += self.active_tooltip.active_widget.winfo_rooty() + self.active_tooltip.offset['y']
+            self.active_tooltip.top_level.geometry(f"+{x}+{y}")
+    
+    def close_window(self):
+        if tk.messagebox.askokcancel("Quit", "Do you want to quit?"):
+            self.is_running = False

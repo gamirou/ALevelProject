@@ -43,6 +43,7 @@ class NeuralEditPage(Page):
         super().__init__(parent=parent, *args, **kwargs)
 
         self.file_storage = self.parent.file_storage
+        self.tooltip = self.parent.app.active_tooltip
         self.variables = {
             "learning_rate": tk.StringVar(),
             "optimizer": tk.StringVar() 
@@ -167,12 +168,12 @@ class NeuralEditPage(Page):
         for inner_key, value in inner_dict.items():
             frame_with_info = None
             is_hidden = False
-            is_info = value.pop("info", False)
+            info_term = value.pop("info", None)
             pos = value.pop("pos", None)
             font = self.get_font(inner_dict[inner_key])
             
             # If there is an info button, make a frame that will store both the widget and the button
-            if is_info:
+            if info_term != None:
                 parent_frame = tk.Frame(frame, bg='#fff')
             else:
                 parent_frame = frame
@@ -226,16 +227,16 @@ class NeuralEditPage(Page):
 
             # Only show if it is a layer
             if not is_hidden:
-                if is_info:
+                if info_term is not None:
                     parent_frame.grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
-                    definition = self.file_storage.get_definition_by_term(value['text'])
+                    definition = self.file_storage.get_definition_by_term(info_term)
                     info_button = tk.Button(
                         parent_frame, bg='#fff', width=32, height=32, relief='flat',
                         image=self.file_storage['info_button_icon.png']
                     )
                     inner_dict[inner_key]["widget"].pack(side=tk.LEFT)
                     info_button.pack(side=tk.LEFT)
-                    self.tooltip = ToolTip(info_button, definition)
+                    self.tooltip.add_widget(info_button, definition)
                 else:
                     inner_dict[inner_key]["widget"].grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3])
                 
@@ -276,6 +277,8 @@ class NeuralEditPage(Page):
         self.layer_window = LayerWindow(self, layer_type, layers, key > 0, weights, inputs=inputs)
         self.layer_window.title("Edit Layer")
         self.layer_window.grab_set()
+        if self.parent.app.active_tooltip.active_widget != None:
+            self.parent.app.active_tooltip.leave()
 
     def add_dropout(self, fully_layer, layer):
         index = self.current_network.layers['fully-connected'].index(fully_layer)

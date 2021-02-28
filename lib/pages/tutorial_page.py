@@ -23,6 +23,7 @@ class TutorialPage(Page):
     def initialise_pages(self):
         self.container = tk.Frame(self, bg="#fff")
         self.container.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        image_index = 1
 
         for i in range(len(self.tutorial_data)):
             page = Page(self, bg="#fff")
@@ -32,17 +33,31 @@ class TutorialPage(Page):
                 side = tk.LEFT if j == 0 else tk.RIGHT
                 frame = tk.Frame(page, bg="#fff")
                 title = tk.Label(frame, bg="#fff", text=data["headers"][j], wraplength=300, font=self.file_storage.fonts["bold medium"])
-                content = st.ScrolledText(frame, bg="#fff", width=20, height=10, wrap=tk.WORD, font=self.file_storage.fonts["small"])
-                content.insert(tk.INSERT, data['text'][j])
+                content = st.ScrolledText(frame, bg="#fff", width=INITIAL_SCROLLED_TEXT_WIDTH, height=10, wrap=tk.WORD, font=self.file_storage.fonts["small"])
+                # content.insert(tk.INSERT, data['text'][j])
+                # text.image_create(tk.END, image = img) # Example 1
+                
+                paragraphs = data['text'][j].split('<image>')
+                for k in range(len(paragraphs)):
+                    content.insert(tk.END, paragraphs[k])
+                    if k != len(paragraphs) - 1:
+                        content.image_create(tk.END, image=self.file_storage[f'tutorial_{image_index}.jpg'])
+                        image_index += 1
+
                 content.configure(state='disabled')
                 
+                # print(find_all_occurences(data['text'][j], '<image>'))
+
                 # ScrollableText(frame, bg="#ff0000", label_cnf=label_cnf)
                 # self.parent.widgets_bind_stack.append(content)
         
                 # pack them
                 title.pack(side=tk.TOP)
-                content.pack(side=tk.BOTTOM, fill=tk.Y, expand=True) 
-                frame.pack(side=side, anchor=tk.N, fill=tk.Y, expand=True)
+                content.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True) 
+                frame.pack(side=side, anchor=tk.N, fill=tk.BOTH, expand=True)
+
+                # add to app wrapping list
+                self.parent.app.wrapping_widgets.append([content, True])
 
             # Add rest of text
             self.pages.append(page)

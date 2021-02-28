@@ -5,7 +5,7 @@
             "text": "Convolutional layers",
             "bg": "#fff",
             "pos": [0, 0, 1, 2],
-            "info": true
+            "info": "Convolutional layers"
         },
         "label_input": {
             "font": "bold x-small",
@@ -40,7 +40,7 @@
             "text": "Fully-connected layers",
             "bg": "#fff",
             "pos": [0, 0, 1, 2],
-            "info": true
+            "info": "Fully-connected layers"
         },
         "label_input": {
             "font": "bold x-small",
@@ -74,7 +74,7 @@
             "bg": "#fff",
             "text": "Optimiser",
             "pos": [1, 0, 1, 1],
-            "info": true
+            "info": "Optimiser"
         },
         "combo_optimizer": {
             "options": ["rmsprop", "adam", "sgd"],
@@ -86,7 +86,7 @@
             "bg": "#fff",
             "text": "Learning rate",
             "pos": [2, 0, 1, 1],
-            "info": true
+            "info": "Learning rate"
         },
         "entry_learning_rate": {
             "text": "0.01",
