@@ -1,27 +1,11 @@
 import tkinter as tk
 import uuid
 from ..page import Page
-from ..utils.log import Log
 from ..utils.utils import *
 
 class NewNeuralPage(Page):
     
-    TAG = "NewNeuralPage"
-
-    entries = {}    
-    # fancy_description = """
-    # Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam augue turpis, ornare id aliquam at, 
-    # tristique vel magna. Mauris ultricies tincidunt libero, ac fermentum velit vestibulum vel. 
-    # Etiam feugiat, felis in suscipit semper, ex magna scelerisque nulla, dictum commodo orci 
-    # est sed diam. Morbi finibus arcu nec augue ultrices dapibus. Aenean et placerat lorem. 
-    # Pellentesque tempor sem arcu, vitae cursus mauris imperdiet at. Praesent vestibulum ex sit amet 
-    # erat elementum, sed ultrices nisi commodo. Vestibulum sed sem feugiat, tempus nibh nec, faucibus 
-    # justo. In vulputate aliquet nulla, eget pulvinar nisl pharetra vel. Nam tempus aliquam urna, 
-    # rutrum tincidunt tortor tincidunt eu. Vestibulum blandit ut est quis maximus. Nullam sagittis 
-    # rhoncus lectus hendrerit eleifend. Etiam id neque dui. Ut finibus tortor quis justo condimentum, 
-    # eu sollicitudin massa pretium. Nullam posuere varius urna sit amet volutpat. Nunc ut rhoncus magna, 
-    # accumsan efficitur justo.
-    # """
+    entries = {}
     fancy_description = """
     It is very easy and simple to create a new network. Type in the name of your network and you could
     add some words about it, describe it :). Once you finished, click 'Create New Network' and you're done.
@@ -85,7 +69,7 @@ class NewNeuralPage(Page):
         description = self.entries["description"].get("1.0", tk.END)
 
         if name == "" or description == "":
-            Log.w(self.TAG, "The fields are mandatory")
+            self.parent.notify("The fields are mandatory")
             return
         
         description = description.replace("\n", "")

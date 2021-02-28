@@ -39,6 +39,7 @@ SAVE = "SAVE"
 BUILD_MODEL = "BUILD MODEL"
 DELETE = "DELETE"
 RESET_ARCHITECTURE = "RESET ARCHITECTURE"
+CLOSE_WINDOW = "CLOSE WINDOW"
 
 # Progress bar states
 DETERMINATE = 'determinate'
@@ -56,7 +57,8 @@ POPUP_MESSAGES = {
     TRAIN: "Are you sure you want to train the network?",
     BUILD_MODEL: "Are you sure you want to reset the weights? This action cannot be undone and you will have to train the network again!",
     DELETE: "Are you sure you want to delete this network? This action cannot be undone!",
-    RESET_ARCHITECTURE: "Are you sure you want to reset your model to default? Your changes will be lost!"
+    RESET_ARCHITECTURE: "Are you sure you want to reset your model to default? Your changes will be lost!",
+    CLOSE_WINDOW: "Are you sure? Your progress on this network will not be saved, do you want to save the network first?"
 }
 
 # Image

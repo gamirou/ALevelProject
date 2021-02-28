@@ -4,7 +4,6 @@ from .tutorial_page import TutorialPage
 
 class MainMenu(Page):
 
-    TAG = "MainMenu"
     # [tk.Button(), index in MainView pages list]
     buttons = {
         "How to Use": [None, "TutorialPage"],

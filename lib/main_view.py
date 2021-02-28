@@ -6,11 +6,9 @@ from .pages.neural_main_page import NeuralMainPage
 from .pages.loading_page import LoadingPage
 from .pages.neural_edit_page import NeuralEditPage
 from .pages.dictionary_page import DictionaryPage
-from .utils.log import Log
 
 class MainView(tk.Frame):
 
-    TAG = "MainView"
     current_id = "MainMenu"
     page_stack = []
     pages = {}

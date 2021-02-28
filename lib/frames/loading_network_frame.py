@@ -1,5 +1,4 @@
 import tkinter as tk
-from ..utils.log import Log
 from ..utils.utils import resize_image, DELETE
 from ..frames.pop_up_confirm import PopUpConfirm
 class LoadingNetworkFrame(tk.Frame):

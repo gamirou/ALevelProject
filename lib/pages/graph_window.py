@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-from ..utils.log import Log
 from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED
 
 # Graph library
@@ -11,8 +10,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.figure import Figure
 
 class GraphWindow(tk.Toplevel):
-
-    TAG = "GraphWindow"
 
     def __init__(self, master=None, weights_callback=None, is_accuracy=True, cnf={}, **kw):
         super().__init__(master=master, cnf=cnf, **kw)

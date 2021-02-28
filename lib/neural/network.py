@@ -1,15 +1,11 @@
 import os
 import json
-from ..utils.log import Log
 from ..neural.weights_callback import WeightsCallback
 from ..utils.utils import *
-
-# Load all libraries
 import random
 import copy
 import tensorflow as tf
 from tensorflow import keras
-# import tensorflow_addons as tfa
 from keras.models import Sequential
 from keras.models import model_from_json, load_model
 from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout
@@ -19,13 +15,9 @@ from tensorflow.keras import layers
 from keras.utils import to_categorical
 import numpy as np
 
-# convolutional
-# conv2d + maxpool2d
-# dense
 
 class Network:
 
-    TAG = "Network"
     PATHS = {}
 
     # saved here in case load_files() doesn't work
@@ -112,9 +104,6 @@ class Network:
             
             if i < len(self.layers['fully-connected']):
                 self.model.add(self.layers['fully-connected'][i])
-
-        # for layer in self.model.layers:
-        #     Log.w(self.TAG, layer)
     
     # ORANGE HIGHLIGHT #
     def are_layers_changed(self):

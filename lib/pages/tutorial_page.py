@@ -1,13 +1,11 @@
 import tkinter as tk
 from tkinter import scrolledtext as st
 from ..page import Page
-from ..utils.log import Log
 from ..utils.utils import *
 import os, json
 
 class TutorialPage(Page):
 
-    TAG = "TutorialPage"
     tutorial_data = []
     pages = []
     current_index = 0

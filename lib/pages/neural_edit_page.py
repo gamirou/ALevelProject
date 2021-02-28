@@ -6,15 +6,12 @@ from ..pages.layer_window import LayerWindow
 from ..frames.tooltip import ToolTip
 from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED, DROPOUT, BUILD_MODEL, RESET_ARCHITECTURE
 from ..utils.visibility_buttons import VisibilityButtons
-from ..utils.log import Log
 from keras.layers import Conv2D, Flatten, MaxPooling2D, Dense, Dropout
 import time
 import copy
 import random
 
 class NeuralEditPage(Page):
-
-    TAG = "NeuralEditPage"
 
     MAX_LAYERS = 4
     visibility = {}
@@ -118,7 +115,6 @@ class NeuralEditPage(Page):
     
     def add_conv_layer(self):
         if len(self.current_network.layers["convolutional"]) < (self.MAX_LAYERS * 2):
-            Log.e(self.TAG, "this gets called")
             conv = Conv2D(32, (5,5), activation='relu')
             maxpool = MaxPooling2D(pool_size=(2,2))
             self.visibility["frame_conv"].show_next()
@@ -245,10 +241,7 @@ class NeuralEditPage(Page):
             layer_type = CONVOLUTIONAL
 
         # get the layers
-        # Log.w("ABC", self.current_network.layers)
         all_layers = self.current_network.layers[layer_type]
-        # for i in all_layers:
-        #     Log.w(self.TAG, i)
         if layer_type == CONVOLUTIONAL:
             index = key * 2
             convolutional = all_layers[index]

@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 import copy
 import threading
-from ..utils.log import Log
 from ..utils.utils import *
 from ..frames.tooltip import ToolTip
 import matplotlib.pyplot as plt
@@ -13,8 +12,6 @@ from keras.preprocessing.image import load_img, img_to_array
 from math import sqrt
 
 class LayerWindow(tk.Toplevel):
-
-    TAG = "LayerWindow"
 
     def __init__(
         self, master=None, layer_type=None, layers=(), can_be_deleted=True, 
@@ -237,8 +234,8 @@ class LayerWindow(tk.Toplevel):
             for j in range(3):
                 # specify subplot and turn of axis
                 ax = plt.subplot(n_filters, 3, ix)
-                ax.set_xticks([])
-                ax.set_yticks([])
+                # ax.set_xticks([])
+                # ax.set_yticks([])
                 # plot filter channel in grayscale
                 # grayscale allows you to visualise it better, but filters look really cool in colour
                 plt.imshow(f[:, :, j], cmap='gray')

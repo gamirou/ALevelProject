@@ -5,13 +5,11 @@ from .main_view import MainView
 from .file_storage import FileStorage
 from .frames.progress_bar_footer import ProgressBarFooter
 from .frames.notification_header import NotificationHeader
+from .frames.pop_up_confirm import PopUpConfirm
 from .frames.tooltip import ToolTip
-from .utils.log import Log
 import matplotlib.animation as animation
 from .utils.utils import *
 class App:
-
-    TAG = "App"
 
     def __init__(self):
         self.title = "Image Classification for all"
@@ -89,6 +87,13 @@ class App:
             y += self.active_tooltip.active_widget.winfo_rooty() + self.active_tooltip.offset['y']
             self.active_tooltip.top_level.geometry(f"+{x}+{y}")
     
+    def close_window_and_save_network(self):
+        self.view.pages["NeuralMainPage"].save_network()
+        self.is_running = False
+
     def close_window(self):
-        if tk.messagebox.askokcancel("Quit", "Do you want to quit?"):
-            self.is_running = False
+        if "NeuralMainPage" in self.view.page_stack:
+            message_box = PopUpConfirm(self.root, CLOSE_WINDOW, self.close_window_and_save_network)
+        else:
+            if tk.messagebox.askokcancel("Quit", "Do you want to quit?"):
+                self.is_running = False

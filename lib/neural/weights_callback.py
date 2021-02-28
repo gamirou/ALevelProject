@@ -1,11 +1,8 @@
 from keras.callbacks import Callback
-from ..utils.log import Log
 import numpy as np
 import os
 
 class WeightsCallback(Callback):
-
-    TAG = "WeightsCallback"
 
     # Keras callback which collects values of weights and biases at each epoch
     def __init__(self):
@@ -51,7 +48,6 @@ class WeightsCallback(Callback):
     This function is self-explanatory
     """
     def on_train_batch_end(self, batch, logs=None):
-        # Log.i(self.TAG, (batch, logs))
         self.update_value({
             'progress': int(batch*100/625),
             'logs': logs,

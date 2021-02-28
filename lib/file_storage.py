@@ -1,5 +1,4 @@
 from .utils.utils import *
-from .utils.log import Log
 from .neural.network import Network
 from .neural.dataset import Dataset
 import os
@@ -15,7 +14,6 @@ warnings.filterwarnings("ignore")
 
 class FileStorage:
 
-    TAG = "FileStorage"
     cache = {}
     saved_networks = {}
     widgets = {}

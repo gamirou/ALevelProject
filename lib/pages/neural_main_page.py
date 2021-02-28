@@ -5,7 +5,6 @@ from .graph_window import GraphWindow
 from ..page import Page
 from ..neural.network import Network
 from ..frames.pop_up_confirm import PopUpConfirm
-from ..utils.log import Log
 from ..neural.weights_callback import WeightsCallback
 from ..utils.utils import *
 import threading
@@ -14,8 +13,6 @@ import time
 import copy
 
 class NeuralMainPage(Page):
-
-    TAG = "NeuralMainPage"
 
     WELCOME_TEXT = "Hello my friend! My name is 0!"
     is_training = False   
@@ -161,9 +158,8 @@ class NeuralMainPage(Page):
                 ]
             )
             self.separate_thread.start()
-            
         else:
-            Log.w(self.TAG, "Network not trained")
+            self.parent.notify("Network not trained")
 
     # Buttons
     def add_data(self):
@@ -190,7 +186,6 @@ class NeuralMainPage(Page):
 
     def click_train_button(self):
         if not self.parent.app.is_loaded:
-            # Log.w(self.TAG, "Loading not finished")
             self.parent.notify("Loading not finished")
             return
 
@@ -246,7 +241,7 @@ class NeuralMainPage(Page):
         if self.is_training:
             self.parent.notify("Network is still training")
             return
-            
+
         message_box = PopUpConfirm(self, SAVE, self.save_network)
 
     def save_network(self):
@@ -273,7 +268,6 @@ class NeuralMainPage(Page):
         frame_dict["label_prediction_value"]["widget"]["text"] = str(round(value, 5))
     
     def send_thread_output_to_app(self, value, callback_function):
-        Log.i(self.TAG, f"send thread output to app: {callback_function.__name__}")
         self.parent.app.thread_output.append((value, callback_function))
 
     def get_font(self, widget_dict):

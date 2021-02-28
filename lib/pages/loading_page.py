@@ -1,20 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 from ..page import Page
-from ..utils.log import Log
 from ..frames.loading_network_frame import LoadingNetworkFrame
 from ..utils.utils import ARROW_WIDTH_IMAGE, ARROW_HEIGHT_IMAGE
 class LoadingPage(Page):
 
-    TAG = "LoadingPage"
-    # description = """
-    # Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-    # Mauris quis ipsum dui. Nam mattis augue ut velit auctor rhoncus. 
-    # Nam quis dui sapien. Nunc vitae urna est. Vestibulum commodo convallis massa sed sollicitudin. 
-    # In sed vulputate tortor. Quisque semper eros eget placerat hendrerit. 
-    # In hac habitasse platea dictumst. Proin vel tincidunt nulla. Donec a interdum arcu, a facilisis purus. 
-    # Phasellus nec felis efficitur, accumsan lacus non, suscipit justo.
-    # """
     fancy_description = """
     Can you see those little boxes? If you can't, you will have to go back to create a new network.
     If you can, each box is one of your networks and if you click them you will be able to play
@@ -68,7 +58,6 @@ class LoadingPage(Page):
         self.frames = {}
         self.index = 0
         for key in networks:
-            Log.i(self.TAG, key)
             self.add_frame(key)
 
     def add_frame(self, neural_id):
