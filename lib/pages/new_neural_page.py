@@ -45,7 +45,8 @@ class NewNeuralPage(Page):
         self.entries["description"] = tk.Text(middle_frame, width=40, height=10, font=fonts["x-small"])
         self.entries["name"].grid(row=0, column=1)
         self.entries["description"].grid(row=1, column=1, ipady=10)
-
+        self.entries["description"].bind('<KeyRelease>', self.check_text)
+        
         # Footer
         bottom_frame = tk.Frame(self, bg="#fff")
         arrow_left = tk.Button(
@@ -64,6 +65,14 @@ class NewNeuralPage(Page):
         middle_frame.pack(expand=True, anchor=tk.CENTER, fill=tk.BOTH)
         bottom_frame.pack(side=tk.BOTTOM, anchor=tk.S, fill=tk.X)
 
+    def check_text(self, event=None):
+        text = event.widget.get('1.0', tk.END)
+        event.widget.delete('1.0', tk.END)
+        text = text.replace('\n', '')
+        if '*' in text:
+            text = text.replace('*', '')
+        event.widget.insert('1.0', text)
+
     def create_network(self):
         name = self.entries["name"].get()
         description = self.entries["description"].get("1.0", tk.END)
@@ -72,9 +81,9 @@ class NewNeuralPage(Page):
             self.parent.notify("The fields are mandatory")
             return
         
-        description = description.replace("\n", "")
-        values = "{},{},{}".format(name, description, False)
-        text = "name,description,is_trained,date\n" + values + "," + today()
+        description = description.replace('\n', '')
+        values = f"{name}*{description}*False"
+        text = "name*description*is_trained*date\n" + values + "*" + today()
         neural_id = str(uuid.uuid4())
 
         # Create the directory and file

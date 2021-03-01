@@ -5,12 +5,9 @@ import os
 import json
 import shutil
 from tkinter.font import Font
-
 from tensorflow import get_default_graph, Session
 from keras.models import model_from_json
 from keras import backend as K
-import warnings
-warnings.filterwarnings("ignore")
 
 class FileStorage:
 
@@ -83,7 +80,7 @@ class FileStorage:
         txt[1] = txt[1].replace(substring, str(network.is_trained))
 
         # Replace date edited
-        index_date = len(txt[1]) - txt[1][::-1].index(',')
+        index_date = len(txt[1]) - txt[1][::-1].index('*')
         substring = txt[1][index_date:len(txt[1])]
         txt[1] = txt[1].replace(substring, today())
         with open(os.path.join(neural_id_path, "model_info.txt"), "w") as txt_file:

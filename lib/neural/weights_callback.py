@@ -11,7 +11,7 @@ class WeightsCallback(Callback):
         self.epochs = []
         self.metrics = {"accuracy": [], "val_accuracy": [], "loss": [], "val_loss": []}
         self.draw_logs_function = None
-        self.current_epoch = 0
+        self.current_epoch = 1
         self.last_epoch = 0
         self.total_epochs = 0
 
@@ -51,14 +51,14 @@ class WeightsCallback(Callback):
         self.update_value({
             'progress': int(batch*100/625),
             'logs': logs,
-            'epoch': self.current_epoch + 1
+            'epoch': self.current_epoch
         })
     
     """
     Again, self-explanatory function
     """
     def on_epoch_end(self, epoch, logs={}):
-        self.current_epoch = epoch
+        self.current_epoch = epoch + 2
 
         # Get the logs
         self.metrics["accuracy"].append(float(logs.get('accuracy')))
@@ -72,12 +72,13 @@ class WeightsCallback(Callback):
         if epoch == self.total_epochs - 1:
             self.last_epoch = len(self.epochs)
             self.stop_progress()
+            self.current_epoch = 1
         else:
             # Reset the progress bar
             self.update_value({
                 'progress': 0,
                 'logs': logs,
-                'epoch': self.current_epoch + 1
+                'epoch': self.current_epoch
             })
 
         # Draw the logs on the graphs

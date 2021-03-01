@@ -36,7 +36,7 @@ class MainView(tk.Frame):
 
     def update_page(self, new_id=None):
         if new_id == 0:
-            self.parent.destroy()
+            self.app.close_window()
             return 
             
         if new_id != None:
@@ -61,7 +61,6 @@ class MainView(tk.Frame):
         self.page_stack.pop()
         if len(self.page_stack) == 0:
             self.app.is_running = False
-            self.parent.destroy()
             return
 
         self.update_page()

@@ -55,7 +55,7 @@ class TutorialPage(Page):
                 frame.pack(side=side, anchor=tk.N, fill=tk.BOTH, expand=True)
 
                 # add to app wrapping list
-                self.parent.app.wrapping_widgets.append([content, True])
+                # self.parent.app.wrapping_widgets.append([content, True])
 
             # Add rest of text
             self.pages.append(page)

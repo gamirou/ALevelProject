@@ -1,2 +1,0 @@
-name,description,is_trained,date
-abc,12345678901234567890mojmionioniob,True,2021-02-28

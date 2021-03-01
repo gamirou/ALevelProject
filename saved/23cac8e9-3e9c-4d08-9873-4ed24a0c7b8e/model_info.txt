@@ -1,0 +1,2 @@
+name*description*is_trained*date
+Steve*My name is Steve and I am the default neural network! You can edit me, you can train me and you can delete me. If you create a new network, it will have the same values as me. Enjoy :)*True*2021-03-01

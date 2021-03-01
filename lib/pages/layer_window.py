@@ -56,7 +56,7 @@ class LayerWindow(tk.Toplevel):
 
     def save_layer(self):    
         values = {key: self.variables[key].get() for key in self.variables}
-        self.update_empty_values()
+        self.update_empty_values(values)
         if self.layer_type == CONVOLUTIONAL:
             conv = self.layers[0]
             maxpooling = self.layers[1]
@@ -249,28 +249,27 @@ class LayerWindow(tk.Toplevel):
             self.model = Model(inputs=self.inputs, outputs=self.layers[0].output)
         
         filename = tk.filedialog.askopenfilename()
-        img = load_img(filename, target_size=IMAGE_SIZE)
-        # convert the image to an array
-        img = img_to_array(img)
-        # expand dimensions so that it represents a single 'sample'
-        img = np.expand_dims(img, axis=0)
-        # prepare the image (e.g. scale pixel values for the vgg)
-        img /= 255.0
-        # get feature map for first hidden layer
-        # feature_maps = self.model.predict(img)
-        self.feature_map_thread = threading.Thread(
-            target=self.thread_generate_feature_maps, 
-            args=[
-                img, self.parent.parent.pages['NeuralMainPage'].send_thread_output_to_app, 
-                self.plot_feature_maps
-            ]
-        )
-        self.feature_map_thread.start()
+        if filename != "":
+            img = load_img(filename, target_size=IMAGE_SIZE)
+            # convert the image to an array
+            img = img_to_array(img)
+            # expand dimensions so that it represents a single 'sample'
+            img = np.expand_dims(img, axis=0)
+            # prepare the image (e.g. scale pixel values for the vgg)
+            img /= 255.0
+            self.feature_map_thread = threading.Thread(
+                target=self.thread_generate_feature_maps, 
+                args=[
+                    # mainview = self.parent.parent (first parent is neural edit page)
+                    img, self.parent.parent.pages['NeuralMainPage'].send_thread_output_to_app, 
+                    self.plot_feature_maps
+                ]
+            )
+            self.feature_map_thread.start()
     
     def plot_feature_maps(self, feature_maps):
         # plot the output from each block
         width = 8
-        print("THIS IS CALLED")
         # only include 64 feature maps, it gets too slow at 128 and 256
         height = int((self.layers[0].filters if self.layers[0].filters <= 64 else 64) / width)
         for fmap in feature_maps:
@@ -279,6 +278,7 @@ class LayerWindow(tk.Toplevel):
             for i in range(width):
                 for j in range(height):
                     # specify subplot and turn of axis
+                    # fig.canvas.set_window_title('Test')
                     ax = plt.subplot(width, height, ix)
                     ax.set_xticks([])
                     ax.set_yticks([])

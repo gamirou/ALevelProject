@@ -166,21 +166,22 @@ class NeuralMainPage(Page):
         if self.current_network.is_trained:
             filename = tk.filedialog.askopenfilename()
             
-            image = Image.open(filename)
-            self.file_storage["test_image"] = ImageTk.PhotoImage(image.resize((100, 100), Image.ANTIALIAS))
-            
-            frame_dict = self.inner_widgets["frame_output"]
-            frame_dict["label_output_image"]["widget"].configure(image=self.file_storage["test_image"])
-            frame_dict["label_output_image"]["widget"]["image"] = self.file_storage["test_image"]
-            
-            # Normalise it
-            output = []
-            self.parent.start_progress_bar(mode=INDETERMINATE, text="Is it a dog? Is it a cat? ")
-            self.separate_thread = threading.Thread(
-                target=self.current_network.predict_one_image, 
-                args=[image, self.set_prediction_one_image, self.send_thread_output_to_app, self.parent.stop_progress_bar]
-            )
-            self.separate_thread.start()
+            if filename != "":
+                image = Image.open(filename)
+                self.file_storage["test_image"] = ImageTk.PhotoImage(image.resize((100, 100), Image.ANTIALIAS))
+                
+                frame_dict = self.inner_widgets["frame_output"]
+                frame_dict["label_output_image"]["widget"].configure(image=self.file_storage["test_image"])
+                frame_dict["label_output_image"]["widget"]["image"] = self.file_storage["test_image"]
+                
+                # Normalise it
+                output = []
+                self.parent.start_progress_bar(mode=INDETERMINATE, text="Is it a dog? Is it a cat? ")
+                self.separate_thread = threading.Thread(
+                    target=self.current_network.predict_one_image, 
+                    args=[image, self.set_prediction_one_image, self.send_thread_output_to_app, self.parent.stop_progress_bar]
+                )
+                self.separate_thread.start()
         else:
             self.parent.notify("Network not trained")
 
@@ -209,7 +210,10 @@ class NeuralMainPage(Page):
         self.separate_thread.start()
 
     def delete_network_popup(self):
-        message_box = PopUpConfirm(self, DELETE, self.delete_network)
+        if not self.is_training:
+            message_box = PopUpConfirm(self, DELETE, self.delete_network)
+        else:
+            self.parent.notify("Network is training")
 
     def delete_network(self):
         self.file_storage.delete_network(

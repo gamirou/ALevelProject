@@ -22,7 +22,6 @@ class App:
         self.is_running = True
         self.is_loaded = False
         self.thread_output = []
-        self.wrapping_widgets = []
         self.active_tooltip = ToolTip()
 
         # Close window
@@ -89,11 +88,21 @@ class App:
     
     def close_window_and_save_network(self):
         self.view.pages["NeuralMainPage"].save_network()
-        self.is_running = False
+        self.set_is_running(False)
+    
+    def set_is_running(self, value):
+        self.is_running = value
 
     def close_window(self):
         if "NeuralMainPage" in self.view.page_stack:
-            message_box = PopUpConfirm(self.root, CLOSE_WINDOW, self.close_window_and_save_network)
+            if not self.view.pages["NeuralMainPage"].is_training:
+                message_box = PopUpConfirm(
+                    self.view.pages[self.view.current_id], CLOSE_WINDOW, 
+                    self.close_window_and_save_network,
+                    additional_command=self.set_is_running
+                )
+            else:
+                self.notification_header.show("Network is training")
         else:
             if tk.messagebox.askokcancel("Quit", "Do you want to quit?"):
                 self.is_running = False

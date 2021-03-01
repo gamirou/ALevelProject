@@ -102,7 +102,6 @@ class NeuralEditPage(Page):
             )
         else:
             self.parent.back_page()
-            self.tooltip = None
     
     def save_finishing_touches(self, new_lr, new_optimiser):
         self.current_network.learning_rate = new_lr

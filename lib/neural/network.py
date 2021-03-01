@@ -104,18 +104,6 @@ class Network:
             
             if i < len(self.layers['fully-connected']):
                 self.model.add(self.layers['fully-connected'][i])
-    
-    # ORANGE HIGHLIGHT #
-    def are_layers_changed(self):
-        network_layers = copy.copy(self.layers["convolutional"])
-        network_layers.append(self.flatten_layer)
-        for i in range(len(self.layers['dropout'])):
-            if self.layers['dropout'][i] != None:
-                network_layers.append(self.layers['dropout'][i])
-            
-            if i < len(self.layers['fully-connected']):
-                network_layers.append(self.layers['fully-connected'][i])
-        return network_layers != self.model.layers
 
     """
     Reset the weights of each layer
@@ -186,15 +174,15 @@ class Network:
         # 0.2 is kinda good
         # optimiser = RMSprop(learning_rate=0.15)
         if self.optimizer == "rmsprop":
-            optimizer = RMSprop(learning_rate=self.learning_rate)
+            optimizer = RMSprop()
         elif self.optimizer == "adam":
-            optimizer = Adam(learning_rate=self.learning_rate)
+            optimizer = Adam()
         else:
             optimizer = SGD(learning_rate=self.learning_rate)
 
         self.model.compile(
             loss='binary_crossentropy',
-            optimizer=self.optimizer,
+            optimizer=optimizer,
             metrics=['accuracy'],
         )
 
@@ -205,10 +193,11 @@ class Network:
         with self.graph.as_default():
             K.set_session(self.session)
             pred = self.model.predict_generator(
-                dataset.test_image_generator, 
-                steps=dataset.test_total/dataset.batch_size, verbose=1
+                dataset.test_image_generator,
+                steps=dataset.test_total/dataset.batch_size, 
+                verbose=1
             )
-            
+
             predicted_class_indices = np.round(pred)
 
             labels = (dataset.train_image_generator.class_indices)
@@ -222,6 +211,7 @@ class Network:
             for i in range(len(filenames)):
                 filename = filenames[i].replace('cats_and_dogs\\', '')
                 prediction_value = predictions[i]
+                print(filenames[i], prediction_value)
                 if (filename.split('.')[0] + 's' == prediction_value):
                     correct = correct + 1
                 else:
@@ -242,7 +232,7 @@ class Network:
 
         with self.graph.as_default():
             K.set_session(self.session)
-            pred = self.model.predict(np.array([ image ]))
+            pred = self.model.predict(np.array([image]))
             # self.prediction_one_image = (pred[0][0], "Cat" if pred[0][0] < 0.5 else "Dog")
             bridge_function(pred[0][0], callback_function)
             stop_progress_function()
@@ -264,9 +254,9 @@ class Network:
                     for line in f.readlines():
                         line = line.replace("\n", "")
                         if i == 0:
-                            attributes = line.split(",")
+                            attributes = line.split("*")
                         else:
-                            values = line.split(",")
+                            values = line.split("*")
                             for j in range(len(attributes)):
                                 setattr(self, attributes[j], values[j])
                         i += 1

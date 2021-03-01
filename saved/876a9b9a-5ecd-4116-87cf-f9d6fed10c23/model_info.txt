@@ -1,2 +1,0 @@
-name,description,is_trained,date
-def,def,False,1998-01-01
