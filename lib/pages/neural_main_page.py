@@ -209,6 +209,18 @@ class NeuralMainPage(Page):
         self.separate_thread = threading.Thread(target=self.train_network, args=[epochs])
         self.separate_thread.start()
 
+    def train_network(self, epochs=None):
+        dataset = self.file_storage.dataset
+        self.is_training = True
+
+        # 0 to 0.5 is a cat, 0.5 to 1 is a dog
+        self.current_network.callback.set_connect_to_progress_function(self.parent.send_data_to_progress_bar)
+        self.current_network.callback.set_stop_progress_function(self.parent.stop_progress_bar)
+        fit_result = self.current_network.train(dataset, epochs)
+
+        self.current_network.is_trained = True
+        self.is_training = False
+
     def delete_network_popup(self):
         if not self.is_training:
             message_box = PopUpConfirm(self, DELETE, self.delete_network)
@@ -228,18 +240,6 @@ class NeuralMainPage(Page):
     def reset_network(self):
         self.current_network.reset_weights()
         self.parent.notify("Network has been reset to default values")
-
-    def train_network(self, epochs=None):
-        dataset = self.file_storage.dataset
-        self.is_training = True
-
-        # 0 to 0.5 is a cat, 0.5 to 1 is a dog
-        self.current_network.callback.set_connect_to_progress_function(self.parent.send_data_to_progress_bar)
-        self.current_network.callback.set_stop_progress_function(self.parent.stop_progress_bar)
-        fit_result = self.current_network.train(dataset, epochs)
-
-        self.current_network.is_trained = True
-        self.is_training = False
 
     def click_save_button(self):
         if self.is_training:

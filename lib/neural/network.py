@@ -54,37 +54,28 @@ class Network:
     Default model architecture
     """
     def new_layers(self):
-        # Building the model
         self.model = Sequential()
 
         # Add first convolutional layer
         self.layers["convolutional"].append(Conv2D(32, (3,3), activation='relu', input_shape=(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS)))
-        
-        # TODO: Change MaxPooling2D to tf.nn.max_pool2d
         self.layers["convolutional"].append(MaxPooling2D(pool_size=(2,2)))
 
         # Second layer
         self.layers["convolutional"].append(Conv2D(64, (3,3), activation='relu'))
-
-        # Max pooling
         self.layers["convolutional"].append(MaxPooling2D(pool_size=(2,2)))
         
-        # Second layer
+        # Third layer
         self.layers["convolutional"].append(Conv2D(128, (3,3), activation='relu'))
-
-        # Max pooling
         self.layers["convolutional"].append(MaxPooling2D(pool_size=(2,2)))
 
-        # Add dropout in order to prevent overfitting
+        # Dropout
         for i in range(4):
             self.layers["dropout"].append(None)
 
         self.layers["dropout"][1] = Dropout(0.5)
 
-        # Fully connected
+        # Dense layers
         self.layers["fully-connected"].append(Dense(256, activation='relu'))
-        
-        # Output layer
         self.layers["fully-connected"].append(Dense(1, activation='sigmoid'))
 
     """
@@ -211,7 +202,7 @@ class Network:
             for i in range(len(filenames)):
                 filename = filenames[i].replace('cats_and_dogs\\', '')
                 prediction_value = predictions[i]
-                print(filenames[i], prediction_value)
+                # print(filenames[i], prediction_value)
                 if (filename.split('.')[0] + 's' == prediction_value):
                     correct = correct + 1
                 else:

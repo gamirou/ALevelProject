@@ -17,10 +17,9 @@ class FileStorage:
 
     def __init__(self, app):
         self.app = app
-        self.is_loading = True
 
         self.path = os.path.dirname(os.path.dirname(__file__))
-        self.dataset = Dataset(self, os.path.join(self.path, "dataset"))
+        self.dataset = Dataset(os.path.join(self.path, "dataset"))
         
         self.graph = get_default_graph()
         self.session = Session()

@@ -56,7 +56,7 @@ class App:
 
         while self.is_running:
             # When loading dataset (progress bar is visible on start)
-            if not self.file_storage.is_loading and not self.is_loaded:
+            if not self.file_storage.dataset.is_loading and not self.is_loaded:
                 self.progress_footer.stop()
                 self.is_loaded = True
                 self.notification_header.show('The data has been loaded')

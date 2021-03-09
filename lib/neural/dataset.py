@@ -9,24 +9,12 @@ import random
 
 class Dataset:
 
-    def __init__(self, file_storage, absolute_path):
-        self.file_storage = file_storage
+    def __init__(self, absolute_path):
         self.path = absolute_path
-        self.data = {}
-        self.categories = {"training": {}, "test": {}}
-        self.thread_running = True
-
-        # DEBUG Option
-        # self.load_data()
+        self.is_loading = True
         threading.Thread(target=self.load_data).start()
-        # thread.setDaemon(True)
-        # thread.start()
-
+        
     def load_data(self):
-        self.create_dataset_generator()
-        self.file_storage.is_loading = False
-
-    def create_dataset_generator(self):
         self.batch_size = 32
 
         # Directories as os objects
@@ -73,6 +61,8 @@ class Dataset:
             target_size=(IMAGE_WIDTH, IMAGE_WIDTH),
             class_mode=None
         )
+
+        self.is_loading = False
 
     # def create_dataset(self, img_type):
     #     # limit = 100 # 3900 
