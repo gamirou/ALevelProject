@@ -41,6 +41,7 @@ class Network:
         self.optimizer = "rmsprop"
         self.is_trained = False
         self.has_changed = False
+        self.dropout_list_changed = False
         self.layers = {
             "convolutional": [],
             "fully-connected": [],
@@ -55,8 +56,6 @@ class Network:
     Default model architecture
     """
     def new_layers(self):
-        self.model = Sequential()
-
         # Add first convolutional layer
         self.layers["convolutional"].append(Conv2D(32, (3,3), activation='relu', input_shape=(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS)))
         self.layers["convolutional"].append(MaxPooling2D(pool_size=(2,2)))
@@ -83,23 +82,19 @@ class Network:
     """
     def add_layers_to_model(self):
         # remove all layers before adding new ones
+        print(self.model)
+        if self.model == None and self.has_changed == False:
+            self.has_changed = True
+
         if self.has_changed:
-            # while len(self.model.layers) != 0:
-            #     self.model._layers.pop(0)
-
             self.model = Sequential()
-
-            # x = model.layers[-1].output
-            # x = Dense(8, activation='softmax', name='predictions')(x)
-            # model1 = Model(input=img_input,output=x)
 
             layers = self.list_of_layers()
             for i, layer in enumerate(layers):
                 layer._input_shape = None
                 layer._output_shape = None
-                if isinstance(layer, Dense):
-                    print(layer.units)
                 self.model.add(layer)
+            self.has_changed = False
 
     """
     Add layers from dict to a list
@@ -200,6 +195,7 @@ class Network:
         else:
             optimizer = SGD(learning_rate=self.learning_rate)
 
+        print("THIS CODE IS HERE")
         self.model.compile(
             loss='binary_crossentropy',
             optimizer=optimizer,

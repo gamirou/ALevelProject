@@ -92,7 +92,11 @@ class LayerWindow(tk.Toplevel):
                 
             new_layer_list.append(MaxPooling2D(pool_size=pooling))
         else:
-            new_layer_list.append(Dense(int(values['neurons']), activation='relu'))
+            # only dropout is changing
+            if int(values['neurons']) == self.layers[0].units:
+                new_layer_list.append(self.layers[0])
+            else:
+                new_layer_list.append(Dense(int(values['neurons']), activation='relu'))
             new_layer_list.append(Dropout(float(values['dropout'])) if self.is_dropout.get() else None)
 
         for layer in new_layer_list:

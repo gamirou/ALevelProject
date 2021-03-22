@@ -100,13 +100,6 @@
             "fg": "#f00",
             "pos": [3, 0, 1, 2],
             "command": "reset_architecture_popup"
-        },
-        "button_debug": {
-            "font": "bold x-small",
-            "text": "Model summary",
-            "fg": "#f00",
-            "pos": [4, 0, 1, 2],
-            "command": "summary"
         }
     }
 }

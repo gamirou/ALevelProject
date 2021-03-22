@@ -297,7 +297,7 @@ class NeuralEditPage(Page):
                     self.delete_dropout(layer_list[1])
             else:
                 self.add_dropout(layer_list[0], new_layer_list[1])
-                
+            
             index = self.current_network.layers['fully-connected'].index(layer_list[0])
             self.current_network.layers['fully-connected'][index] = new_layer_list[0]
 
@@ -355,6 +355,3 @@ class NeuralEditPage(Page):
         font_name = widget_dict.pop("font", None)
         if font_name != None:
             return self.file_storage.fonts[font_name]
-
-    def summary(self):
-        self.current_network.model.summary()

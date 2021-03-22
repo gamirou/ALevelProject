@@ -101,6 +101,7 @@ class NeuralMainPage(Page):
             elif "button" in key:
                 inner_dict[key]["widget"] = tk.Button(parent_frame, bg="#fff", cnf=inner_dict[key])
 
+            # adds a frame if info button
             if info_term != None:
                 parent_frame.grid(row=pos[0], column=pos[1], rowspan=pos[2], columnspan=pos[3], padx=5, pady=5)
                 definition = self.file_storage.get_definition_by_term(info_term)
@@ -262,7 +263,15 @@ class NeuralMainPage(Page):
             "fully-connected": [],
             "dropout": []
         }
+        self.reset_frame_output()
         self.parent.back_page()
+
+    def reset_frame_output(self):
+        image = self.file_storage['image_placeholder.png']
+        self.inner_widgets["frame_output"]["label_output_image"]["widget"]["image"] = image
+        self.inner_widgets["frame_output"]["label_result_value"]["widget"]["text"] = "---"
+        self.inner_widgets["frame_output"]["label_prediction_value"]["widget"]["text"] = "---"
+        self.inner_widgets["frame_output"]["label_accuracy_value"]["widget"]["text"] = "---"
 
     def set_prediction_test_images(self, value):
         frame_dict = self.inner_widgets["frame_output"]
