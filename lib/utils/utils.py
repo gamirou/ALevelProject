@@ -7,6 +7,7 @@ import re
 
 # Initial size
 APP_SIZE = 700
+MAX_LAYERS = 4
 
 # Back page button
 ARROW_WIDTH_IMAGE = 100

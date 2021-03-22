@@ -86,6 +86,7 @@ class FileStorage:
             txt_file.writelines(txt)
 
         # serialize weights to HDF5
+        network.model.summary()
         network.model.save(os.path.join(neural_id_path, "model.h5"))
         self.app.notification_header.show(f"The network has been saved")
 

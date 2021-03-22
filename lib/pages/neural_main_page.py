@@ -53,7 +53,7 @@ class NeuralMainPage(Page):
         self.widgets["label_description"]["widget"]["text"] = network.description
 
         if self.current_network.model == None:
-            self.current_network.add_layers_to_model()
+            self.current_network.new_layers()
         else:
             self.current_network.get_layers_from_model()
 
@@ -202,6 +202,7 @@ class NeuralMainPage(Page):
         self.graph_window.grab_set()
 
     def start_training_thread(self, epochs=None):
+        self.current_network.add_layers_to_model()
         self.current_network.compile_model()
         self.parent.start_progress_bar(
             mode=DETERMINATE, is_sub_text=TRAIN, epochs=epochs, text="Training the network"
@@ -253,6 +254,7 @@ class NeuralMainPage(Page):
         if len(self.current_network.model.layers) == 0:
             self.current_network.add_layers_to_model()
         
+        self.current_network.compile_model()
         self.current_network.save_weights()
         self.file_storage.save_network(self.current_network)
         self.current_network.layers = {

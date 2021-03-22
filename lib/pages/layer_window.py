@@ -5,22 +5,23 @@ import threading
 from ..utils.utils import *
 from ..frames.tooltip import ToolTip
 import matplotlib.pyplot as plt
-from keras.layers import Dropout
+from keras.layers import Dropout, Conv2D, MaxPooling2D, Dense
 from keras.models import Model
 from keras import backend as K
 from keras.preprocessing.image import load_img, img_to_array
 from math import sqrt
+from random import randint
 
 class LayerWindow(tk.Toplevel):
 
     def __init__(
-        self, master=None, layer_type=None, layers=(), can_be_deleted=True, 
-        weights=(), inputs=None, cnf={}, **kw
+        self, master=None, layer_type=None, layers=(), weights=(), 
+        inputs=None, key=0, cnf={}, **kw
     ):
         super().__init__(master=master, bg="#fff", cnf=cnf, **kw)
         self.parent = master
         self.tooltip = ToolTip()
-        self.can_be_deleted = can_be_deleted
+        self.key = 0
         self.weights = weights
         self.inputs = inputs
         self.model = None
@@ -54,37 +55,51 @@ class LayerWindow(tk.Toplevel):
         self.layers = layers
         self.render_widgets()
 
-    def save_layer(self):    
+    def save_layer(self):
         values = {key: self.variables[key].get() for key in self.variables}
         self.update_empty_values(values)
+        new_layer_list = []
         if self.layer_type == CONVOLUTIONAL:
-            conv = self.layers[0]
-            maxpooling = self.layers[1]
-
             stride = (int(values["stride_x"], 10), int(values["stride_y"], 10))
             pooling = (int(values["pool"], 10), int(values["pool"], 10))
-            conv.strides = stride
-            conv.padding = self.widgets["combo_padding"]["widget"].get()
-            conv.kernel_size = (int(values["kernel_size"] , 10), int(values["kernel_size"], 10))
-            conv.filters = int(values["filters"], 10)
-            
-            maxpooling.pool_size = pooling
-        else:
-            dense = self.layers[0]
-            dropout = self.layers[1]
+            filters = int(values["filters"], 10)
+            kernel_size = (int(values["kernel_size"] , 10), int(values["kernel_size"], 10))
+            padding = self.widgets["combo_padding"]["widget"].get()
 
-            dense.units = int(values['neurons'])
-            new_dropout = Dropout(float(values['dropout']))
-
-            if self.is_dropout.get():
-                if dropout == None:
-                    self.parent.add_dropout(dense, new_dropout)
-                else:
-                    dropout.rate = float(values['dropout'])
+            if self.key == 0:
+                #Conv2D(32, (3,3), activation='relu', input_shape=(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS))
+                new_layer_list.append(Conv2D(
+                    filters=filters, 
+                    kernel_size=kernel_size, 
+                    strides=stride, 
+                    padding=padding, 
+                    activation='relu', 
+                    input_shape=(IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS)
+                ))
             else:
-                if dropout != None:
-                    self.parent.delete_dropout(dropout)
+                new_layer_list.append(Conv2D(
+                    filters=filters,
+                    kernel_size=kernel_size,
+                    strides=stride,
+                    padding=padding, 
+                    activation='relu'
+                ))
+            
+            try:
+                new_layer_list[0].set_weights(self.layers[0].get_weights())
+            except ValueError:
+                self.parent.parent.notify("Weights will be deleted")
+                
+            new_layer_list.append(MaxPooling2D(pool_size=pooling))
+        else:
+            new_layer_list.append(Dense(int(values['neurons']), activation='relu'))
+            new_layer_list.append(Dropout(float(values['dropout'])) if self.is_dropout.get() else None)
 
+        for layer in new_layer_list:
+            layer.name += str(randint(0, 10000))
+            # layer._name += str(randint(10000))
+
+        self.parent.save_layer(self.layer_type, self.layers, new_layer_list)
         self.parent.parent.notify(self.layer_type.capitalize() + " layer saved!")
         self.destroy()
 
@@ -151,7 +166,7 @@ class LayerWindow(tk.Toplevel):
                 self.widgets[widget_key]["widget"] = tk.Checkbutton(parent_frame, bg="#fff", cnf=self.widgets[widget_key])
 
             elif "button" in widget_key:
-                if "delete" in widget_key and not self.can_be_deleted:
+                if "delete" in widget_key and not self.key > 0 and self.layer_type == CONVOLUTIONAL:
                     row_number = pos[0]
                     self.save_button["pos"] = [self.save_button["pos"][0], 0, 1, 2]
                     continue
@@ -234,8 +249,8 @@ class LayerWindow(tk.Toplevel):
             for j in range(3):
                 # specify subplot and turn of axis
                 ax = plt.subplot(n_filters, 3, ix)
-                # ax.set_xticks([])
-                # ax.set_yticks([])
+                ax.set_xticks([])
+                ax.set_yticks([])
                 # plot filter channel in grayscale
                 # grayscale allows you to visualise it better, but filters look really cool in colour
                 plt.imshow(f[:, :, j], cmap='gray')
@@ -355,5 +370,5 @@ class LayerWindow(tk.Toplevel):
     
     def callback_entry_neurons(self, action, value_if_allowed, text):
         if action=='1':
-            return text in '0123456789' and len(value_if_allowed) <= 4
+            return text in '0123456789' and len(value_if_allowed) <= 3
         return False

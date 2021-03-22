@@ -6,7 +6,7 @@ import random
 import copy
 import tensorflow as tf
 from tensorflow import keras
-from keras.models import Sequential
+from keras.models import Sequential, Model
 from keras.models import model_from_json, load_model
 from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout
 from keras.optimizers import SGD, Adam, RMSprop
@@ -36,10 +36,11 @@ class Network:
 
         # Model specific
         self.model = None
-        self.flatten_layer = Flatten()
+        self.output_layer = Dense(1, activation='sigmoid')
         self.learning_rate = 0.01
         self.optimizer = "rmsprop"
         self.is_trained = False
+        self.has_changed = False
         self.layers = {
             "convolutional": [],
             "fully-connected": [],
@@ -76,25 +77,50 @@ class Network:
 
         # Dense layers
         self.layers["fully-connected"].append(Dense(256, activation='relu'))
-        self.layers["fully-connected"].append(Dense(1, activation='sigmoid'))
-
+    
     """
     Add layers to actual keras model
     """
     def add_layers_to_model(self):
-        self.new_layers()
+        # remove all layers before adding new ones
+        if self.has_changed:
+            # while len(self.model.layers) != 0:
+            #     self.model._layers.pop(0)
+
+            self.model = Sequential()
+
+            # x = model.layers[-1].output
+            # x = Dense(8, activation='softmax', name='predictions')(x)
+            # model1 = Model(input=img_input,output=x)
+
+            layers = self.list_of_layers()
+            for i, layer in enumerate(layers):
+                layer._input_shape = None
+                layer._output_shape = None
+                if isinstance(layer, Dense):
+                    print(layer.units)
+                self.model.add(layer)
+
+    """
+    Add layers from dict to a list
+    """
+    def list_of_layers(self):
+        result = []
         for layer in self.layers["convolutional"]:
-            self.model.add(layer)  
+            result.append(layer)  
 
         # Flatten
-        self.model.add(self.flatten_layer)
+        result.append(Flatten())
 
         for i in range(len(self.layers['dropout'])):
             if self.layers['dropout'][i] != None:
-                self.model.add(self.layers['dropout'][i])
+                result.append(self.layers['dropout'][i])
             
             if i < len(self.layers['fully-connected']):
-                self.model.add(self.layers['fully-connected'][i])
+                result.append(self.layers['fully-connected'][i])
+        
+        result.append(Dense(1, activation='sigmoid'))
+        return result
 
     """
     Reset the weights of each layer
@@ -151,11 +177,14 @@ class Network:
                 self.layers["convolutional"].append(layer)
             elif isinstance(layer, Dropout):
                 self.layers["dropout"][dense_index] = layer
-            elif isinstance(layer, Flatten):
-                self.flatten_layer = layer
-            else:
+            # Ignore flatten layer, we can reinitialise it when training
+            # elif isinstance(layer, Flatten):
+            #     self.flatten_layer = layer
+            elif isinstance(layer, Dense):
                 self.layers["fully-connected"].append(layer)
                 dense_index += 1
+        
+        self.output_layer = self.layers["fully-connected"].pop()
 
     """
     Add the 'finishing touches' to the network

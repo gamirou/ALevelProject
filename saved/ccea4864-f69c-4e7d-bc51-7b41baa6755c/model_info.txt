@@ -1,2 +1,0 @@
-name*description*is_trained*date
-uihiuhdoi*ihoiashiodsahioasd*False*2021-03-09

@@ -4,16 +4,16 @@ from ..page import Page
 from ..frames.pop_up_confirm import PopUpConfirm
 from ..pages.layer_window import LayerWindow
 from ..frames.tooltip import ToolTip
-from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED, DROPOUT, BUILD_MODEL, RESET_ARCHITECTURE
+from ..utils.utils import CONVOLUTIONAL, FULLY_CONNECTED, DROPOUT, BUILD_MODEL, RESET_ARCHITECTURE, MAX_LAYERS
 from ..utils.visibility_buttons import VisibilityButtons
 from keras.layers import Conv2D, Flatten, MaxPooling2D, Dense, Dropout
+from keras.models import Sequential
 import time
 import copy
 import random
 
 class NeuralEditPage(Page):
 
-    MAX_LAYERS = 4
     visibility = {}
     frame_widgets = {
         "frame_conv": {
@@ -113,7 +113,7 @@ class NeuralEditPage(Page):
         self.configure_buttons()
     
     def add_conv_layer(self):
-        if len(self.current_network.layers["convolutional"]) < (self.MAX_LAYERS * 2):
+        if len(self.current_network.layers["convolutional"]) < (MAX_LAYERS * 2):
             conv = Conv2D(32, (5,5), activation='relu')
             maxpool = MaxPooling2D(pool_size=(2,2))
             self.visibility["frame_conv"].show_next()
@@ -124,13 +124,15 @@ class NeuralEditPage(Page):
             self.parent.notify("Limit of convolutional layers reached")
 
     def add_fully_layer(self):
-        if len(self.current_network.layers["fully-connected"]) < self.MAX_LAYERS:
+        if len(self.current_network.layers["fully-connected"]) < MAX_LAYERS:
             dense = Dense(200, activation='relu')
             dropout = Dropout(0.5)
             index = self.visibility["frame_fully"].show_next()
             self.current_network.layers["fully-connected"].append(dense)
             self.current_network.layers["dropout"][index] = dropout
             self.parent.notify("New fully-connected layer :)")
+            for l in self.current_network.layers["fully-connected"]:
+                print(l)
         else:
             self.parent.notify("Limit of fully connected layers reached")
 
@@ -139,7 +141,7 @@ class NeuralEditPage(Page):
         self.visibility["frame_fully"] = VisibilityButtons([False, False, False, False])
 
         # Add the hidden buttons
-        for i in range(1, self.MAX_LAYERS+1):
+        for i in range(1, MAX_LAYERS+1):
             conv_widget = {
                 "text": f"Convolutional hidden layer {i}",
                 "pos": [2+i, 0, 1, 2],
@@ -245,7 +247,7 @@ class NeuralEditPage(Page):
             index = key * 2
             convolutional = all_layers[index]
             pooling = all_layers[index + 1]
-            layers = (convolutional, pooling)
+            layers = [convolutional, pooling]
         else:
             index = key - 1
             dense = all_layers[index]
@@ -253,8 +255,9 @@ class NeuralEditPage(Page):
             dropout = None
             if index < len(dropout_layers):
                 dropout = dropout_layers[index]
-            layers = (dense, dropout)
+            layers = [dense, dropout]
 
+        # get weights and inputs
         inputs = None
         if layers[0].name in self.current_network.callback.weights["weights"].keys():
             weights = (
@@ -266,19 +269,37 @@ class NeuralEditPage(Page):
         else:
             weights = ()
 
-        self.layer_window = LayerWindow(self, layer_type, layers, key > 0, weights, inputs=inputs)
+        self.layer_window = LayerWindow(
+            self, layer_type, layers, weights, inputs=inputs, key=key
+        )
         self.layer_window.title("Edit Layer")
         self.layer_window.grab_set()
         if self.parent.app.active_tooltip.active_widget != None:
             self.parent.app.active_tooltip.leave()
 
-    def add_dropout(self, fully_layer, layer):
-        index = self.current_network.layers['fully-connected'].index(fully_layer)
-        self.current_network.layers['dropout'][index] = layer
+    def add_dropout(self, old_dense, new_dropout):
+        index = self.current_network.layers['fully-connected'].index(old_dense)
+        self.current_network.layers['dropout'][index] = new_dropout
 
     def delete_dropout(self, layer):
         index = self.current_network.layers['dropout'].index(layer)
         self.current_network.layers['dropout'][index] = None
+
+    def save_layer(self, layer_type, layer_list, new_layer_list):
+        self.current_network.has_changed = True
+        if layer_type == CONVOLUTIONAL:
+            index = self.current_network.layers['convolutional'].index(layer_list[0])
+            self.current_network.layers['convolutional'][index] = new_layer_list[0]
+            self.current_network.layers['convolutional'][index+1] = new_layer_list[1]
+        else:
+            if new_layer_list[1] == None:
+                if layer_list[1] != None:
+                    self.delete_dropout(layer_list[1])
+            else:
+                self.add_dropout(layer_list[0], new_layer_list[1])
+                
+            index = self.current_network.layers['fully-connected'].index(layer_list[0])
+            self.current_network.layers['fully-connected'][index] = new_layer_list[0]
 
     def delete_layer(self, layer_type, layers):
         if layer_type == CONVOLUTIONAL:
@@ -303,7 +324,7 @@ class NeuralEditPage(Page):
             "fully-connected": [],
             "dropout": []
         }
-        self.current_network.add_layers_to_model()
+        self.current_network.new_layers()
 
     def callback_entry_numbers(self, action, value_if_allowed, text):
         if action=='1' :
@@ -326,7 +347,7 @@ class NeuralEditPage(Page):
                 if isinstance(layer, Conv2D) and layers.index(layer) > 0:
                     self.visibility["frame_conv"][index] = True
                     index += 1
-                elif isinstance(layer, Dense) and layers.index(layer) < len(layers) - 1 :
+                elif isinstance(layer, Dense) and layers.index(layer) < len(layers):
                     self.visibility["frame_fully"][index] = True
                     index += 1
 
@@ -334,3 +355,6 @@ class NeuralEditPage(Page):
         font_name = widget_dict.pop("font", None)
         if font_name != None:
             return self.file_storage.fonts[font_name]
+
+    def summary(self):
+        self.current_network.model.summary()
