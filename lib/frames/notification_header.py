@@ -3,6 +3,10 @@ import time
 
 class NotificationHeader(tk.Frame):
 
+    """
+    Object that provides simple feedback about an operation in a small popup
+    """
+
     def __init__(self, master=None, font=None, cnf={}, **kw):
         super().__init__(master=master, cnf=cnf, **kw)
 

@@ -1,4 +1,7 @@
 class VisibilityButtons:
+    """
+    Object that keeps track of which button should be shown on NeuralEditPage
+    """
 
     def __init__(self, values):
         self.values = values

@@ -65,6 +65,8 @@ class NewNeuralPage(Page):
         middle_frame.pack(expand=True, anchor=tk.CENTER, fill=tk.BOTH)
         bottom_frame.pack(side=tk.BOTTOM, anchor=tk.S, fill=tk.X)
 
+    # NOTE: * is used as a delimiter instead of a comma because an user is more likely to add commas
+    #       to a description than an asterisk
     def check_text(self, event=None):
         text = event.widget.get('1.0', tk.END)
         event.widget.delete('1.0', tk.END)

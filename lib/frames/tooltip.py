@@ -2,6 +2,10 @@ import tkinter as tk
 
 class ToolTip:
 
+    """
+    Object that stores a tkinter window that displays helpful information when an info button is pressed
+    """
+
     def __init__(self):
         self.wraplength = 200
 
@@ -9,13 +13,8 @@ class ToolTip:
         self.widgets = {}
         self.active_widget = None
         self.active_text = "$"
-
         self.offset = {'x': 10, 'y': 10}
         self.is_visible = False
-
-        # Configure functions
-        # self.widget.bind("<ButtonPress>", self.enter)
-
         self.top_level = None
 
     def add_widget(self, widget, text):

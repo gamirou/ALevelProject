@@ -257,7 +257,7 @@ class NeuralEditPage(Page):
                 dropout = dropout_layers[index]
             layers = [dense, dropout]
 
-        # get weights and inputs
+        # get weights and inputs for feature maps
         inputs = None
         if layers[0].name in self.current_network.callback.weights["weights"].keys():
             weights = (
@@ -269,14 +269,13 @@ class NeuralEditPage(Page):
         else:
             weights = ()
 
-        self.layer_window = LayerWindow(
-            self, layer_type, layers, weights, inputs=inputs, key=key
-        )
+        self.layer_window = LayerWindow(self, layer_type, layers, weights, inputs=inputs, key=key)
         self.layer_window.title("Edit Layer")
         self.layer_window.grab_set()
         if self.parent.app.active_tooltip.active_widget != None:
             self.parent.app.active_tooltip.leave()
 
+    # Editing layers functions
     def add_dropout(self, old_dense, new_dropout):
         index = self.current_network.layers['fully-connected'].index(old_dense)
         self.current_network.layers['dropout'][index] = new_dropout
@@ -318,6 +317,7 @@ class NeuralEditPage(Page):
     def reset_architecture_popup(self):
         message_box = PopUpConfirm(self, RESET_ARCHITECTURE, self.reset_architecture)
 
+    # NOTE: all weights are deleted
     def reset_architecture(self):
         self.current_network.layers = {
             "convolutional": [],
@@ -326,6 +326,7 @@ class NeuralEditPage(Page):
         }
         self.current_network.new_layers()
 
+    # Validation functions
     def callback_entry_numbers(self, action, value_if_allowed, text):
         if action=='1' :
             if text in '0123456789.':

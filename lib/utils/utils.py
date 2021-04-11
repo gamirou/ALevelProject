@@ -27,6 +27,7 @@ WIDGETS_TYPE = {
     FULLY_CONNECTED: "fully_connected_widgets"
 }
 
+# The position of save button is layer window
 SAVE_BUTTON_POS = {
     CONVOLUTIONAL: 9,
     FULLY_CONNECTED: 4
@@ -81,8 +82,9 @@ def create_file(folder, file_name, file_content):
     with open(file_path, "w") as f:
         f.write(file_content)
 
+# get path of a file based on its folder name and file name
 def get_main_path(folder, file_name):
-    script_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__))) #<-- absolute dir the script is in
+    script_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__))) 
     rel_path = "{}\\{}".format(folder, file_name)
     abs_file_path = os.path.join(script_dir, rel_path)
     return abs_file_path
@@ -95,6 +97,7 @@ def get_image_from_folder(file_name):
 def turn_to_camel_case(string):
     return ''.join(x for x in string.title() if x != "_")
 
+# turns strings in dictionary json to floats
 def turn_dict_values_to_float(dictionary):
     for key, value in dictionary.items():
         try:
@@ -106,15 +109,8 @@ def turn_dict_values_to_float(dictionary):
 
     return dictionary
 
-def get_os_name():
-    import platform
-    return platform.system()
-
 def type_layer_from_file(file_name):
     file_name = file_name.replace('.npy', '')
     weights_type = "biases" if file_name.startswith('b') else "weights"
     layer_name = file_name.replace(weights_type + "_", "")
     return (weights_type, layer_name)
-
-def find_all_occurences(original_string, substring):
-    return [ch.start() for ch in re.finditer(substring, original_string)]

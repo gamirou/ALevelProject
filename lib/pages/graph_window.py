@@ -11,6 +11,10 @@ from matplotlib.figure import Figure
 
 class GraphWindow(tk.Toplevel):
 
+    """
+    Tkinter window that displays network metrics on a graph
+    """
+
     def __init__(self, master=None, weights_callback=None, is_accuracy=True, cnf={}, **kw):
         super().__init__(master=master, cnf=cnf, **kw)
         self.parent = master

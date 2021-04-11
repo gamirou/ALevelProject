@@ -75,7 +75,8 @@ class TutorialPage(Page):
         self.footer.pack(side=tk.BOTTOM, fill=tk.BOTH, pady=(20, 0))
         self.arrows["left"].pack(side=tk.LEFT)
         self.arrows["right"].pack(side=tk.RIGHT)
-            
+
+    # Works on the same principle as the main pages        
     def show_page(self, index):
         self.current_index = index
         self.pages[self.current_index].place(in_=self.container, x=0, y=0, relwidth=1, relheight=1)

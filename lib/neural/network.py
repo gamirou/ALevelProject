@@ -18,6 +18,10 @@ import numpy as np
 
 class Network:
 
+    """
+    The magic happens here, this stores everything related to a Neural Network
+    """
+
     PATHS = {}
 
     # saved here in case load_files() doesn't work

@@ -4,6 +4,11 @@ from ..utils.utils import DETERMINATE, INDETERMINATE, TRAIN
 
 class ProgressBarFooter(tk.Frame):
 
+    """
+    A small tkinter box which shows a progress bar on a variety of actions that work on a separate thread.
+    There is a special case on training the network when it has to show more information
+    """
+
     def __init__(self, master=None, text="Loading dataset", length=100, font=None, cnf={}, **kw):
         super().__init__(master=master, cnf=cnf, **kw)
         self.parent = master

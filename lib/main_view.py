@@ -9,8 +9,19 @@ from .pages.dictionary_page import DictionaryPage
 
 class MainView(tk.Frame):
 
+    """
+    Tkinter frame that stores a list of pages (subclasses of tkinter Frames)
+    It decides which page is active and hides every other page
+    """
+
+    # The id of the page shown pm the scree
     current_id = "MainMenu"
+
+    # Stack that stores the order of the pages shown
+    # current_id is the head of the stack
     page_stack = []
+
+    # Dictionary that stores the pages
     pages = {}
 
     def __init__(self, master, app, file_storage, *args, **kwargs):
@@ -31,32 +42,33 @@ class MainView(tk.Frame):
         self.add_page(NeuralEditPage(self, bg="#fff"))
         self.add_page(DictionaryPage(self, bg="#fff"))
 
+    # This function allows the page to be stored in the dictionary by the name of their class
     def add_page(self, instance):
         self.pages[instance.__class__.__name__] = instance
 
     def update_page(self, new_id=None):
+        # new_id is 0 when the QUIT button is pressed
         if new_id == 0:
             self.app.close_window()
             return 
-            
+        
+        # If new_id is specified, push it onto the stack
         if new_id != None:
             self.current_id = new_id
             self.page_stack.append(new_id)
+        # Else the stack might have lost an id, so current_id is updated
         else:
             self.current_id = self.page_stack[-1]
 
-        # self.pages[self.current_id].place({
-        #     "in_": self,
-        #     "x": 0,
-        #     "y": 0,
-        #     "relwidth": 1,
-        #     "relheight": 1
-        # })
+        # Place the active page on the screen
         self.pages[self.current_id].place(in_=self, x=0, y=0, relwidth=1, relheight=1)
         self.pages[self.current_id].show()
+
+        # The page might have changed, which means the tooltip should disappear as well
         if self.app.active_tooltip.active_widget != None:
             self.app.active_tooltip.leave()
 
+    # BACK button is pressed, pop the stack
     def back_page(self):
         self.page_stack.pop()
         if len(self.page_stack) == 0:
@@ -73,10 +85,12 @@ class MainView(tk.Frame):
         network = self.file_storage.get_network(neural_id)
         self.pages[self.current_id].fetch_network(network)
 
+    # Intermediate function that connects FileStorage with the LoadingPage
     def add_network(self, neural_id):
         self.file_storage.add_network(neural_id)
         self.pages["LoadingPage"].add_frame(neural_id)
     
+    # The rest are intermediate functions that connect the app with the respective page
     def start_progress_bar(self, mode, text=None, is_sub_text=None, epochs=1):
         self.app.progress_footer.start(mode, text, is_sub_text, epochs)
 

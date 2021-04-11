@@ -118,7 +118,7 @@ class NeuralMainPage(Page):
                     columnspan=pos[3], padx=5, pady=5
                 )
 
-    # Can add this to render_inner
+    # Adds functions and images to widget dictionary
     def init_inner(self):
         for frame_value in self.inner_widgets.values():
             # frame_value - 3 frames
@@ -136,10 +136,8 @@ class NeuralMainPage(Page):
                 elif "label" in widget_key:
                     if "image" in widget.keys():
                         widget["image"] = self.file_storage[widget["image"]] 
-
-    """
-    This function will display NeuralEditPage
-    """
+    
+    # This function will display NeuralEditPage
     def go_to_edit(self):
         if self.is_training:
             self.parent.notify("You cannot enter this page when training data")
@@ -148,6 +146,7 @@ class NeuralMainPage(Page):
         self.parent.update_page("NeuralEditPage")
         self.parent.pages["NeuralEditPage"].fetch_network(self.current_network)
 
+    # Starts new thread in order to evaluate the network with 200 images
     def test_network(self):
         if self.current_network.is_trained:
             self.parent.start_progress_bar(mode=INDETERMINATE, text="Evaluating the network")
@@ -162,7 +161,7 @@ class NeuralMainPage(Page):
         else:
             self.parent.notify("Network not trained")
 
-    # Buttons
+    # Evaluates a single image
     def add_data(self):
         if self.current_network.is_trained:
             filename = tk.filedialog.askopenfilename()
@@ -186,6 +185,7 @@ class NeuralMainPage(Page):
         else:
             self.parent.notify("Network not trained")
 
+    # Validation stuff before
     def click_train_button(self):
         if not self.parent.app.is_loaded:
             self.parent.notify("Loading not finished")
@@ -197,6 +197,7 @@ class NeuralMainPage(Page):
 
         message_box = PopUpConfirm(self, TRAIN, self.start_training_thread)
 
+    # Self-explanatory: opens up a window with the graph
     def open_graph_page(self, is_accuracy=True):
         self.graph_window = GraphWindow(self, self.current_network.callback, is_accuracy)
         self.graph_window.title("Model metrics")

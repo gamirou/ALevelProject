@@ -5,6 +5,10 @@ from ..utils.utils import ARROW_WIDTH_IMAGE, ARROW_HEIGHT_IMAGE
 
 class DictionaryPage(Page):
 
+    """
+    Page that shows terms and definitions
+    """
+
     def __init__(self, parent=None, *args, **kwargs):
         super().__init__(parent=parent, *args, **kwargs)
         

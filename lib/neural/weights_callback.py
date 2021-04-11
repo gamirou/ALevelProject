@@ -4,7 +4,10 @@ import os
 
 class WeightsCallback(Callback):
 
-    # Keras callback which collects values of weights and biases at each epoch
+    """
+    Keras callback which collects values of weights and biases at each epoch
+    """
+    
     def __init__(self):
         super().__init__()
         self.weights = {"weights": {}, "biases": {}}

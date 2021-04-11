@@ -9,6 +9,10 @@ import random
 
 class Dataset:
 
+    """
+    Object that stores keras ImageDataGenerators to load up the dataset
+    """
+
     def __init__(self, absolute_path):
         self.path = absolute_path
         self.is_loading = True

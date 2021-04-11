@@ -14,6 +14,10 @@ from random import randint
 
 class LayerWindow(tk.Toplevel):
 
+    """
+    Separate tkinter window that allows layers to be edited
+    """
+
     def __init__(
         self, master=None, layer_type=None, layers=(), weights=(), 
         inputs=None, key=0, cnf={}, **kw
@@ -55,6 +59,7 @@ class LayerWindow(tk.Toplevel):
         self.layers = layers
         self.render_widgets()
 
+    # Save layer by creating new keras leyar object
     def save_layer(self):
         values = {key: self.variables[key].get() for key in self.variables}
         self.update_empty_values(values)
@@ -113,6 +118,7 @@ class LayerWindow(tk.Toplevel):
             self.destroy()
             self.parent.delete_layer(self.layer_type, self.layers)
 
+    # Replace empty values with default values
     def update_empty_values(self, values):
         if self.layer_type == CONVOLUTIONAL:
             # Pool values are 1, 2, 4, 6 and 8
@@ -129,6 +135,7 @@ class LayerWindow(tk.Toplevel):
             if values["stride_y"] == "":
                 values["stride_y"] = "1"
 
+    # When dropout checkbox is clicked
     def open_dropout(self):
         var = self.widgets["checkbutton_dropout"]["variable"]
         entry = self.widgets["entry_dropout"]["widget"]
@@ -138,13 +145,15 @@ class LayerWindow(tk.Toplevel):
         else:
             entry.config(state='disabled')
 
+    # Read JSON file and render the widgets
     def render_widgets(self):
         widget_json = self.parent.file_storage.widgets[self.__class__.__name__]
         self.widgets = copy.deepcopy(widget_json[WIDGETS_TYPE[self.layer_type]])
         self.save_button["pos"][0] = SAVE_BUTTON_POS[self.layer_type]
         self.widgets["save_button"] = self.save_button
         
-        # Render - document
+        # Take each dictionary in turn
+        # cnf - attributes for each widget
         for widget_key, value in self.widgets.items():
             pos = value.pop("pos", None)
             info_term = value.pop("info", None)
@@ -175,7 +184,6 @@ class LayerWindow(tk.Toplevel):
                     self.save_button["pos"] = [self.save_button["pos"][0], 0, 1, 2]
                     continue
 
-                # boolean algebra
                 weights_buttons = ("button_view_biases", "button_view_weights", "button_view_filters", "button_view_feature_maps")
                 if widget_key in weights_buttons and len(self.weights) == 0:
                     continue
@@ -244,6 +252,7 @@ class LayerWindow(tk.Toplevel):
         filters = np.copy(self.weights[0])
         f_min, f_max = filters.min(), filters.max()
         filters = (filters - f_min) / (f_max - f_min)
+        cmap_list = ['Reds', 'Greens', 'Blues']
 
         n_filters, ix = 6, 1
         for i in range(n_filters):
@@ -257,7 +266,7 @@ class LayerWindow(tk.Toplevel):
                 ax.set_yticks([])
                 # plot filter channel in grayscale
                 # grayscale allows you to visualise it better, but filters look really cool in colour
-                plt.imshow(f[:, :, j], cmap='gray')
+                plt.imshow(f[:, :, j], cmap=cmap_list[j])
                 ix += 1
         # show the figure
         plt.show(block=False)

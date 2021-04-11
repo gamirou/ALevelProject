@@ -3,13 +3,19 @@ import tkinter as tk
 
 class PopUpConfirm(tk.Toplevel):
 
+    """
+    Tkinter window that works as a tkinter messagebox, except it executes a function when 'yes' is pressed
+    """
+
     def __init__(self, master=None, state=None, yes_command=None, additional_command=None, cnf={}, **kw):
         super().__init__(master=master, cnf=cnf, **kw)
         self.parent = master
         self.state = state
         self.yes_command = yes_command
+        # when the user has not saved the network
         self.additional_command = additional_command
         
+        # Geometry of window
         x = self.parent.parent.app.root.winfo_rootx() + self.parent.parent.app.root.winfo_width() / 2
         y = self.parent.parent.app.root.winfo_rooty() + self.parent.parent.app.root.winfo_height() / 2
         self.geometry(f"+{int(x)}+{int(y)}")
@@ -28,7 +34,8 @@ class PopUpConfirm(tk.Toplevel):
                 validatecommand=(vcmd, '%d', '%P', '%S')
             )
             epoch_entry.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5)
-
+        
+        # The reason there are two if statements is because TRAIN uses two buttons
         if self.state == CLOSE_WINDOW:
             tk.Button(self, text='Save', command=self.execute_if_yes, fg='red').pack(side=tk.RIGHT, fill=tk.BOTH, padx=5, pady=5)
             tk.Button(self, text='Don\'t save', command=self.execute_additional).pack(side=tk.RIGHT, fill=tk.BOTH, padx=5, pady=5)            

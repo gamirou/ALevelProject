@@ -3,6 +3,7 @@ from tkinter import ttk
 from ..page import Page
 from ..frames.loading_network_frame import LoadingNetworkFrame
 from ..utils.utils import ARROW_WIDTH_IMAGE, ARROW_HEIGHT_IMAGE
+
 class LoadingPage(Page):
 
     fancy_description = """
@@ -11,6 +12,8 @@ class LoadingPage(Page):
     around with your chosen network. I've also added a nice brain image in there, it's nice isn't it?
     I like it, do you like it?
     """
+
+    # self.index -> number of frames needed for networks
 
     def __init__(self, parent=None, *args, **kwargs):
         super().__init__(parent=parent, *args, **kwargs)

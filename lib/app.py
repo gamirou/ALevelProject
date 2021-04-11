@@ -9,13 +9,20 @@ from .frames.pop_up_confirm import PopUpConfirm
 from .frames.tooltip import ToolTip
 import matplotlib.animation as animation
 from .utils.utils import *
-class App:
 
+class App:
+    """
+    Object that stores everything about the application
+    """
     def __init__(self):
         self.title = "Image Classification for all"
+        
+        # Main window
         self.root = tk.Tk()
         self.root.title(self.title)
         self.root.minsize(APP_SIZE, APP_SIZE)
+
+        # This line adds a logo, but it is very laggy
         # self.root.iconbitmap(get_main_path('assets', 'favicon.ico'))
 
         # Update loop variables        
@@ -42,6 +49,8 @@ class App:
             bg="#f2e463", highlightbackground="black", highlightthickness=1
         )
         self.progress_footer.start(mode=INDETERMINATE)
+        
+        # Initialise main view
         self.init_main_view()
         self.progress_footer.pack(side=tk.BOTTOM, fill=tk.X)
 

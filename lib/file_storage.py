@@ -11,6 +11,19 @@ from keras import backend as K
 
 class FileStorage:
 
+    """
+    Object that deals with external files such as:
+    * images inside images folder
+    * json files that stores the widgets structure of some pages
+    * json files that store a glossary and tutorial data
+    * saved (networks) ->
+        * uuid ->
+            * model.h5 (keras model that stores the weights and architecture)
+            * model_info.txt (small text file that stores the name and description)
+            * model_metrics.json (stores accuracy and loss values at each epoch)
+            * weights -> folder that stores numpy files of weights
+    """
+
     cache = {}
     saved_networks = {}
     widgets = {}
@@ -18,9 +31,13 @@ class FileStorage:
     def __init__(self, app):
         self.app = app
 
+        # Absolute path of the application
         self.path = os.path.dirname(os.path.dirname(__file__))
+
+        # Object that loads training data
         self.dataset = Dataset(os.path.join(self.path, "dataset"))
         
+        # Tensorflow specific variables
         self.graph = get_default_graph()
         self.session = Session()
         K.set_session(self.session)
@@ -36,19 +53,25 @@ class FileStorage:
     def load_all_networks(self):
         # r=root, d=directories, f = files
         for root, directory, files in os.walk(self.path + "\\saved"):
+            # if directory name is not empty
             if len(directory) != 0:
                 for uuid in directory:
+                    # only load up folders which are not 'weights'
                     if uuid in ["weights"]:
                         continue
                     self.saved_networks[uuid] = Network(uuid, os.path.join(root, uuid), self.graph, self.session)
         
+    # Add a networks to the list
     def add_network(self, neural_id):
         self.saved_networks[neural_id] = Network(neural_id, os.path.join(self.path + "\\saved", neural_id), self.graph, self.session)
 
+    # Retrieve network so saved_networks remains private
     def get_network(self, neural_id):
         return self.saved_networks[neural_id]
 
-    def save_network(self, network):    
+    # Function that saves a network in a folder
+    def save_network(self, network):
+        # Path and name of folder
         neural_id = network.network_id
         neural_id_path = self.path + "\\saved\\" + neural_id
         
@@ -58,6 +81,7 @@ class FileStorage:
             "epochs": network.callback.epochs
         }
        
+        # Make each number a string
         stringified_json = json.loads(json.dumps(json_data), parse_int=str, parse_float=str)
         with open(os.path.join(neural_id_path, "model_metrics.json"), "w") as json_file:
             json.dump(stringified_json, json_file)
@@ -67,8 +91,7 @@ class FileStorage:
         with open(os.path.join(neural_id_path, "model_info.txt"), "r") as txt_file:
             txt = txt_file.readlines()
         
-        # Replace training thing
-        # TODO: When is_trained is true it returns a value error
+        # Replace training flag in order to allow/block certain features to be used
         try:
             index_false = txt[1].index("False")
             substring = "False" if index_false != -1 else "True"       
@@ -86,31 +109,39 @@ class FileStorage:
             txt_file.writelines(txt)
 
         # serialize weights to HDF5
-        network.model.summary()
         network.model.save(os.path.join(neural_id_path, "model.h5"))
         self.app.notification_header.show(f"The network has been saved")
 
+    # Delete a folder
     def delete_network(self, network_id, loading_page):
         try:
+            # This file deletes the whole folder
             shutil.rmtree(os.path.join(self.path, "saved", network_id))
             self.app.notification_header.show(f"The network has been deleted")
         
+            # Removes network from loading page
             loading_page[network_id].grid_forget()
             loading_page.index -= 1
+
+            # Removes network from the list
             self.saved_networks.pop(network_id)
         except OSError as err:
             self.app.notification_header.show("Network cannot be deleted. Try again!")
 
+    # Loads images and saves them in a cache
     def load_all_images(self):
         files = []
+        # Get the names of each file
         for (dirpath, dirnames, filenames) in os.walk(self.path + "\\images"):
             files.extend(filenames)
             break
         
         for file_name in files:
+            # Stores the image as a PIL object to be used by tkinter
             photo = get_image_from_folder(file_name)
             self.cache[file_name] = photo
 
+    # Loads JSON files that store widget structure
     def load_all_widgets(self):
         files = []
         widgets_path = os.path.join(self.path, "assets", "widgets")
@@ -119,12 +150,13 @@ class FileStorage:
             break
         
         for file_name in files:
+            # neural_main_page -> NeuralMainPage
             key = turn_to_camel_case(file_name.replace('.json', ''))
             with open(os.path.join(widgets_path, file_name), 'r') as json_file:
                 self.widgets[key] = json.load(json_file)
 
+    # Initialise a font dictionary
     def load_font(self):
-        ### change to font inside assets later
         family = "Helvetica"
         self.fonts = {
             "x-small": Font(family=family, size=10),
@@ -140,6 +172,7 @@ class FileStorage:
             "bold x-large": Font(family=family, size=48, weight="bold")
         }
 
+    # Loads JSON file that stores all of the information in the tutorial page 
     def load_tutorial_info(self):
         abs_file_path = get_main_path("assets", "tutorial.json")
 
@@ -147,6 +180,7 @@ class FileStorage:
             data = json.load(json_file)
             self.tutorial_data = data
 
+    # Loads JSON file that stores all of the information in the dictionary page    
     def load_dictionary(self):
         abs_file_path = get_main_path("assets", "dictionary.json")
 
@@ -154,12 +188,13 @@ class FileStorage:
             data = json.load(json_file)
             self.dictionary_data = data
 
+    # Returns definition of term from dictionary json file
     def get_definition_by_term(self, term):
         for data in self.dictionary_data:
             if data['term'] == term:
                 return data['definition']
 
-    ### FOR IMAGES ###
+    ### These functions allow the object to be used as a dictionary to access self.cache ###
     def __setitem__(self, key, item):
         self.cache[key] = item
 

@@ -3,7 +3,9 @@ from ..utils.utils import resize_image, DELETE
 from ..frames.pop_up_confirm import PopUpConfirm
 class LoadingNetworkFrame(tk.Frame):
 
-    TAG = "LoadingNetworkFrame"
+    """
+    Rectangular box that opens NeuralMainPage on click
+    """
     
     def __init__(self, master=None, network=None, file_storage=None, page=None, cnf={}, **kw):
         super().__init__(master=master, cnf=cnf, **kw)

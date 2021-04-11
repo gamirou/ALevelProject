@@ -27,10 +27,7 @@ class MainMenu(Page):
             self.buttons[key][0] = tk.Button(
                 self, text=key, bg='#fff', fg='#5e0800', 
                 relief='flat', font=fonts["medium"], wraplength=400,
-                command=lambda page_name=self.buttons[key][1]: self.open_page(page_name)
+                command=lambda page_name=self.buttons[key][1]: self.parent.update_page(page_name)
             )
             self.buttons[key][0].pack(expand=True)
             index += 1
-
-    def open_page(self, page_name):
-        self.parent.update_page(page_name)
