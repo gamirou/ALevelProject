@@ -2,7 +2,8 @@ import tkinter as tk
 from tkinter import scrolledtext as st
 from ..page import Page
 from ..utils.utils import *
-import os, json
+import os
+import json
 
 class TutorialPage(Page):
 

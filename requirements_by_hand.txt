@@ -1,0 +1,20 @@
+os
+json
+shutil
+threading
+random
+time
+copy
+math
+uuid
+datetime
+tkinter==8.6
+
+// Those need to be installed with pip
+// tensorflow uses a different version in python than pip for some reason
+// which is why i don't recommend using requirements.txt
+tensorflow==1.14.0
+keras==2.3.1
+matplotlib==3.3.2
+Pillow==7.2.0
+numpy==1.18.5

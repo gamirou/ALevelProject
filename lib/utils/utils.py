@@ -3,7 +3,6 @@ from datetime import date
 import numpy as np
 import tkinter as tk
 import os
-import re
 
 # Initial size
 APP_SIZE = 700
